@@ -1,5 +1,6 @@
 #include "../include/ConfigParser.hpp"
 #include "../include/Utils.hpp"
+#include "../include/Server.hpp"
 #include <csignal>
 #include <iostream>
 
@@ -14,11 +15,13 @@ int main(int argc, char **argv)
 		ConfigParser parser(argv[1]);
 		std::vector<ServerConfig> servers = parser.parse();
 
-		for (size_t i = 0; i < servers.size(); ++i)
+		for (size_t i = 0; i < servers.size(); ++i){
 			servers[i].print();
-
+			Server server(servers[i]);
+			server.run();
+		}
 	} catch (const std::exception &e) {
-		printError(e.what());
+		printError(e.what(), ERR_CONFIG_FAIL);
 		return 1;
 	}
 	return 0;

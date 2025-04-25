@@ -9,7 +9,8 @@ ConfigParser::ConfigParser(const std::string &filename) {
 	loadFile(filename);
 }
 
-void ConfigParser::loadFile(const std::string &filename) {
+void ConfigParser::loadFile(const std::string &filename)
+{
 	std::ifstream file(filename.c_str());
 	if (!file.is_open())
 		throw std::runtime_error("Could not open config file.");
@@ -32,7 +33,8 @@ std::string ConfigParser::cleanLine(const std::string &line) {
 	return trimmed;
 }
 
-std::vector<ServerConfig> ConfigParser::parse() {
+std::vector<ServerConfig> ConfigParser::parse()
+{
 	std::vector<ServerConfig> servers;
 	std::istringstream stream(_fileContent);
 	std::string line;

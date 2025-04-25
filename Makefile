@@ -9,6 +9,7 @@ SRCS = \
 	$(SRC_DIR)/LocationConfig.cpp \
 	$(SRC_DIR)/ServerConfig.cpp \
 	$(SRC_DIR)/utils.cpp \
+	$(SRC_DIR)/Server.cpp \
 
 OBJS = $(SRCS:.cpp=.o)
 

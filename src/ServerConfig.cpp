@@ -17,7 +17,8 @@ ServerConfig::ServerConfig()
 // first word then assigns the vealue for the class. If a location block
 // is found it just creates a new object and parse the specific block.
 // Last about the error page form the config file it saves it.
-void ServerConfig::parseBlock(std::istream &stream) {
+void ServerConfig::parseBlock(std::istream &stream)
+{
 	std::string line;
 	while (std::getline(stream, line)) {
 		if (line.find('}') != std::string::npos)
@@ -55,10 +56,12 @@ void ServerConfig::parseBlock(std::istream &stream) {
 	}
 }
 
-void ServerConfig::print() const {
+void ServerConfig::print() const
+{
 	std::cout << "==== SERVER ====" << std::endl;
 	std::cout << "Host: " << host << "\nPort: " << port << "\nRoot: " << root << "\nIndex: " << index << std::endl;
 	for (size_t i = 0; i < locations.size(); ++i) {
 		locations[i].print();
 	}
 }
+

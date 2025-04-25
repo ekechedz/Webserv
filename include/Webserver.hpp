@@ -21,8 +21,7 @@
 #include <unistd.h>
 #include <poll.h>
 
-#define RED     "\033[1;31m"
-#define RESET   "\033[0m"
+
 
 #define ERR_INVALID_ARGS  2
 #define ERR_CONFIG_FAIL   3

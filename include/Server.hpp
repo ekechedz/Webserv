@@ -1,27 +1,19 @@
-#ifndef SERVER_HPP
-#define SERVER_HPP
+#include "./Webserver.hpp"
+#include "ServerConfig.hpp"
 
-#include "Webserver.hpp"
-class Location;
+class Server {
+public:
+	Server(const ServerConfig &config);
+	~Server();
 
-class Server
-{
-	private:
-		struct sockaddr_in servAddr;
-		std::vector<Location> locations;
-		uint16_t port;
-		std::string servName;
-		in_addr_t host;
-		std::string root;
-		unsigned long maxBodySize;
-		std::string index;
-		std::map<short, std::string> errorPages;
-		bool autoIndex;
-		std::string redirect;
-		int listenFd;
+	void run();
+private:
+	ServerConfig _config;
+	int _serverSocket;
+	std::vector<struct pollfd> _pollFds; // this is traking the socket that we'll monitoring
 
-	public:
-
+	void setupServerSocket();
+	void acceptNewConnection();
+	void handleRequest(int clientSocket);
+	void sendResponse(int clientSocket, const std::string &response);
 };
-
-#endif
