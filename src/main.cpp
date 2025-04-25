@@ -1,26 +1,25 @@
-#include "../include/Webserver.hpp"
-
-int printError(const std::string &msg, int exitCode = 1)
-{
-	std::cerr << "\033[1;31m[ERROR] " << msg << "\033[0m" << std::endl;
-	return exitCode;
-}
+#include "../include/ConfigParser.hpp"
+#include "../include/Utils.hpp"
+#include <csignal>
+#include <iostream>
 
 int main(int argc, char **argv)
 {
-	try
-	{
+	try {
 		if (argc != 2)
 			throw std::invalid_argument("Usage: ./webserv <config_file>.conf");
-		signal(SIGPIPE, SIG_IGN); // this prevents the server from crashing e.g when someone just close the tab
-		std::string configFile = (argv[1]);
-		Parser parsServ;
-		parsServ.parseServerConfig(configFile);
-		// starting
-		// connect  website server
+
+		signal(SIGPIPE, SIG_IGN);
+
+		ConfigParser parser(argv[1]);
+		std::vector<ServerConfig> servers = parser.parse();
+
+		for (size_t i = 0; i < servers.size(); ++i)
+			servers[i].print();
+
+	} catch (const std::exception &e) {
+		printError(e.what());
+		return 1;
 	}
-	catch (std::exception &err)
-	{
-		printError(err.what(), ERR_CONFIG_FAIL);
-	}
+	return 0;
 }

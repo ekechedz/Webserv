@@ -16,8 +16,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <signal.h>
-
-#include "Parser.hpp"
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <poll.h>
 
 #define RED     "\033[1;31m"
 #define RESET   "\033[0m"
