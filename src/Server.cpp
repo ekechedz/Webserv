@@ -17,7 +17,6 @@ Server::~Server()
 }
 void Server::setupServerSocket()
 {
-
 	int opt = 1;
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0); // Creating the socket, ipv4 tcp socket
 	if (_serverSocket == -1)
@@ -35,10 +34,6 @@ void Server::setupServerSocket()
 		throw std::runtime_error("Failed to bind socket to address");
 	if (listen(_serverSocket, SOMAXCONN) == -1) // max value of the pending conections
 		throw std::runtime_error("Failed to listen on socket");
-	struct pollfd serverPollFd;
-    serverPollFd.fd = _serverSocket;
-    serverPollFd.events = POLLIN;  // Monitoring for incoming connections
-    _pollFds.push_back(serverPollFd);
 }
 
 // this function wait for the client and when it is find tries to connect to the server
@@ -91,6 +86,11 @@ void Server::run()
 	// for easier debug
 	std::cout << "Serv listen on " << _config.host << ":" << _config.port << std::endl;
 
+    struct pollfd serverPollFd;
+    serverPollFd.fd = _serverSocket;
+    serverPollFd.events = POLLIN;
+    _pollFds.push_back(serverPollFd);
+
 	int pollResult;
 	size_t i;
 	while (true)
@@ -99,6 +99,7 @@ void Server::run()
 		// limit on how much fd you can monitor and epoll its only for linux
 		// for me the best choice is the poll.
 		pollResult = poll(_pollFds.data(), _pollFds.size(), -1);
+		std::cout << pollResult << std::endl;
 		if (pollResult == -1)
 		{
 			std::cerr << "Error with poll: " << strerror(errno) << std::endl;
