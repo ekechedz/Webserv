@@ -31,11 +31,14 @@ void Server::setupServerSocket()
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_addr.s_addr = inet_addr(_config.host.c_str()); // seting the host
 	serverAddress.sin_port = htons(_config.port);
-
 	if (bind(_serverSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1)
 		throw std::runtime_error("Failed to bind socket to address");
 	if (listen(_serverSocket, SOMAXCONN) == -1) // max value of the pending conections
 		throw std::runtime_error("Failed to listen on socket");
+	struct pollfd serverPollFd;
+    serverPollFd.fd = _serverSocket;
+    serverPollFd.events = POLLIN;  // Monitoring for incoming connections
+    _pollFds.push_back(serverPollFd);
 }
 
 // this function wait for the client and when it is find tries to connect to the server
@@ -86,7 +89,7 @@ void Server::run()
 {
 	setupServerSocket();
 	// for easier debug
-	std::cout << "Serv listen on " << _config.host << _config.port << std::endl;
+	std::cout << "Serv listen on " << _config.host << ":" << _config.port << std::endl;
 
 	int pollResult;
 	size_t i;
