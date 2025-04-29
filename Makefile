@@ -10,6 +10,7 @@ SRCS = \
 	$(SRC_DIR)/ServerConfig.cpp \
 	$(SRC_DIR)/utils.cpp \
 	$(SRC_DIR)/Server.cpp \
+	$(SRC_DIR)/Request.cpp \
 
 OBJS = $(SRCS:.cpp=.o)
 

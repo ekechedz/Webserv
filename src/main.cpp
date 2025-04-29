@@ -6,14 +6,6 @@
 #include "../include/ConfigParser.hpp"
 #include "../include/Server.hpp"
 
-// there is other way for sure but fore now i could handle it like this
-void *runServer(void *arg)
-{
-	Server *server = (Server *)arg;
-	server->run();
-	return NULL;
-}
-
 int main(int argc, char **argv)
 {
 	try
@@ -26,19 +18,8 @@ int main(int argc, char **argv)
 		ConfigParser parser(argv[1]);
 		std::vector<ServerConfig> servers = parser.parse();
 		std::cout << "Parsed " << servers.size() << " server blocks." << std::endl;
-
-		std::vector<pthread_t> serverThreads;
-		for (size_t i = 0; i < servers.size(); ++i)
-		{
-			Server *server = new Server(servers[i]);
-			pthread_t threadId;
-			if (pthread_create(&threadId, NULL, runServer, (void *)server) != 0)
-				std::cerr << "Error creating thread for server " << i + 1 << std::endl;
-			else
-				serverThreads.push_back(threadId);
-		}
-		for (size_t i = 0; i < serverThreads.size(); ++i)
-			pthread_join(serverThreads[i], NULL);
+		Server manager(servers);
+		manager.run();
 	}
 	catch (const std::exception &e)
 	{

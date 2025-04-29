@@ -1,116 +1,122 @@
 #include "../include/Server.hpp"
-#include <cstring>
-#include <fcntl.h>
-#include <arpa/inet.h>
-#include <stdexcept>
-#include <cerrno>
-// here i am still just thinking about it but my mai idea is to set a socket
-// which will listen for incoming conections
 
-Server::Server(const ServerConfig &config)
-	: _config(config) {
+Server::Server(const std::vector<ServerConfig> &configs)
+	: _configs(configs)
+{
+	for (size_t i = 0; i < configs.size(); ++i)
+	{
+		const ServerConfig &config = configs[i];
+		int sock = createListeningSocket(config);
+		struct pollfd pfd;
+		pfd.fd = sock;
+		pfd.events = POLLIN;
+		pfd.revents = 0;
+		_pollFds.push_back(pfd);
+		_listeningSockets[sock] = config;
+		std::cout << "Listening on " << config.host << ":" << config.port << "\n";
+	}
 }
 
-Server::~Server()
+int Server::createListeningSocket(const ServerConfig &config)
 {
-    // Clean up any resources
-}
-void Server::setupServerSocket()
-{
+	int sock = socket(AF_INET, SOCK_STREAM, 0);
+	if (sock == -1)
+		throw std::runtime_error("Socket creation failed");
+
 	int opt = 1;
-	_serverSocket = socket(AF_INET, SOCK_STREAM, 0); // Creating the socket, ipv4 tcp socket
-	if (_serverSocket == -1)
-		throw std::runtime_error("Failed to create socket");
-	if(setsockopt(_serverSocket, SOL_SOCKET,SO_REUSEADDR, &opt, sizeof(opt)) == -1)
-		throw std::runtime_error("Failed to set socket options");
+	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-	// creating a struct to hold the serv address
-	struct sockaddr_in serverAddress;
-	std::memset(&serverAddress, 0, sizeof(serverAddress));
-	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_addr.s_addr = inet_addr(_config.host.c_str()); // seting the host
-	serverAddress.sin_port = htons(_config.port);
-	if (bind(_serverSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1)
-		throw std::runtime_error("Failed to bind socket to address");
-	if (listen(_serverSocket, SOMAXCONN) == -1) // max value of the pending conections
-		throw std::runtime_error("Failed to listen on socket");
+	sockaddr_in addr;
+	std::memset(&addr, 0, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(config.port);
+	addr.sin_addr.s_addr = inet_addr(config.host.c_str());
+
+	if (bind(sock, (sockaddr *)&addr, sizeof(addr)) == -1)
+		throw std::runtime_error("Bind failed");
+
+	if (listen(sock, SOMAXCONN) == -1)
+		throw std::runtime_error("Listen failed");
+
+	fcntl(sock, F_SETFL, O_NONBLOCK);
+	return sock;
 }
 
-// this function wait for the client and when it is find tries to connect to the server
-void Server::acceptNewConnection()
+void Server::acceptConnection(int listenFd)
 {
-	struct sockaddr_in clientAddress;
-	socklen_t clientAddressLen= sizeof(clientAddress);
-	int clientSock;
-	int flags;
+	sockaddr_in clientAddr;
+	socklen_t len = sizeof(clientAddr);
+	int clientFd = accept(listenFd, (sockaddr *)&clientAddr, &len);
+	if (clientFd == -1)
+		return;
 
-	clientSock = accept(_serverSocket, (struct sockaddr *)&clientAddress, &clientAddressLen);
-	if(clientSock == -1)
+	fcntl(clientFd, F_SETFL, O_NONBLOCK);
+
+	struct pollfd pfd;
+	pfd.fd = clientFd;
+	pfd.events = POLLIN;
+	pfd.revents = 0;
+	_pollFds.push_back(pfd);
+
+	_clientBuffers[clientFd] = "";
+}
+
+void Server::handleClient(int clientFd, size_t index)
+{
+	char buffer[4096];
+	ssize_t bytes = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
+	if (bytes <= 0)
 	{
-		std::cerr << "Error accepting new connection: " << strerror(errno) << std::endl;
+		close(clientFd);
+		_pollFds.erase(_pollFds.begin() + index);
+		_clientBuffers.erase(clientFd);
 		return;
 	}
 
-	flags = fcntl(clientSock, F_GETFL, 0);
-	fcntl(clientSock, F_SETFL, flags | O_NONBLOCK); // setting the client to non-blocking mode
-	struct pollfd newFd;
-	newFd.fd = clientSock;
-	newFd.events = POLLIN;
-	newFd.revents = 0;
-
-	_pollFds.push_back(newFd);
-}
-
-void Server::sendResponse(int clientSocket, const std::string &response) {
-	ssize_t bytesSent = send(clientSocket, response.c_str(), response.length(), 0);  // Send the response.
-	if (bytesSent == -1)
-		std::cerr << "Error sending response: " << strerror(errno) << std::endl;
-}
-
-void Server::handleRequest(int clientSocket) {
-	char buffer[1024];
-	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
-	if (bytesRead <= 0)
+	buffer[bytes] = '\0';
+	std::string request(buffer);
+	std::istringstream requestStream(request);
+	std::string method, path, protocol;
+	requestStream >> method >> path >> protocol;
+	if (path == "/")
+		path = "/index.html";
+	if (method == "GET")
+		handleGetRequest(clientFd, path);
+	else if (method == "POST")
+		handlePostRequest(clientFd, path, request);
+	else if (method == "DELETE")
+		handleDeleteRequest(clientFd, path);
+	else
 	{
-		close(clientSocket);
-		return;
+		std::string response = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
+		send(clientFd, response.c_str(), response.size(), 0);
+		close(clientFd);
+		_pollFds.erase(_pollFds.begin() + index);
+		_clientBuffers.erase(clientFd);
 	}
-	buffer[bytesRead] = '\0';
-	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, World!";
-	sendResponse(clientSocket, response);
 }
 
 void Server::run()
 {
-	setupServerSocket();
-	// for easier debug
-	std::cout << "Serv listen on " << _config.host << ":" << _config.port << std::endl;
-
-    struct pollfd serverPollFd;
-    serverPollFd.fd = _serverSocket;
-    serverPollFd.events = POLLIN;
-    _pollFds.push_back(serverPollFd);
-
-	int pollResult;
-	size_t i;
 	while (true)
 	{
-		// here i choosed poll because from what i read select has a
-		// limit on how much fd you can monitor and epoll its only for linux
-		// for me the best choice is the poll.
-		pollResult = poll(_pollFds.data(), _pollFds.size(), -1);
-		std::cout << pollResult << std::endl;
-		if (pollResult == -1)
+		int ret = poll(_pollFds.data(), _pollFds.size(), -1);
+		if (ret == -1)
 		{
-			std::cerr << "Error with poll: " << strerror(errno) << std::endl;
+			std::cerr << "Poll error\n";
 			break;
 		}
-		// check the server for new connections
-		if (_pollFds[0].revents & POLLIN)
-			acceptNewConnection();
-		for (i = 1; i <_pollFds.size(); ++i){
-			if(_pollFds[i].revents & POLLIN)
-				handleRequest(_pollFds[i].fd);
+
+		for (size_t i = 0; i < _pollFds.size(); ++i)
+		{
+			if (_pollFds[i].revents & POLLIN)
+			{
+				int fd = _pollFds[i].fd;
+				if (_listeningSockets.count(fd))
+					acceptConnection(fd);
+				else
+					handleClient(fd, i--);
+			}
 		}
 	}
 }

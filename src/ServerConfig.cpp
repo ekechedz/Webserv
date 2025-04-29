@@ -3,7 +3,6 @@
 
 // one of the important things is that the order here
 // need to match the declaration order
-
 ServerConfig::ServerConfig()
 	: host(""),
 	  port(0),
