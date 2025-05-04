@@ -46,7 +46,6 @@ std::vector<ServerConfig> ConfigParser::parse()
 
 	while (std::getline(stream, line))
 	{
-		std::cout << "Reading line: " << line << std::endl;
 		if (line.find("server") != std::string::npos)
 		{
 			ServerConfig server;
