@@ -53,6 +53,5 @@ std::vector<ServerConfig> ConfigParser::parse()
 			servers.push_back(server);
 		}
 	}
-	// std::cout << "Parsed " << servers.size() << " server blocks." << std::endl;  // Check how many servers were parsed
 	return servers;
 }

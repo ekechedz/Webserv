@@ -16,7 +16,7 @@ std::string removeSemicolon(const std::string &str)
 {
 	std::string line = str;
 
-	size_t commentPos = line.find_first_of("//#");
+	size_t commentPos = line.find("#");
 
 	if (commentPos != std::string::npos)
 		line = line.substr(0, commentPos);
@@ -41,7 +41,7 @@ void ServerConfig::parseBlock(std::istream &stream)
 	{
 		if (line.find('}') != std::string::npos)
 			break;
-
+		
 		line = removeSemicolon(line);
 		std::istringstream iss(line);
 		std::string key;
