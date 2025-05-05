@@ -1,4 +1,5 @@
 #include "../include/ServerConfig.hpp"
+#include "../include/Utils.hpp"
 #include <sstream>
 
 // one of the important things is that the order here
@@ -12,23 +13,7 @@ ServerConfig::ServerConfig()
 	  client_max_body_size(1000000)
 {
 }
-std::string removeSemicolon(const std::string &str)
-{
-	std::string line = str;
 
-	size_t commentPos = line.find("#");
-
-	if (commentPos != std::string::npos)
-		line = line.substr(0, commentPos);
-
-	if (!line.empty() && line[line.size() - 1] == ';')
-		line = line.substr(0, line.size() - 1);
-	size_t start = line.find_first_not_of(" \t");
-	size_t end = line.find_last_not_of(" \t");
-	if (start == std::string::npos)
-		return "";
-	return line.substr(start, end - start + 1);
-}
 
 // this functions reads line by line the config file and extracts the
 // first word then assigns the vealue for the class. If a location block
@@ -41,7 +26,7 @@ void ServerConfig::parseBlock(std::istream &stream)
 	{
 		if (line.find('}') != std::string::npos)
 			break;
-		
+
 		line = removeSemicolon(line);
 		std::istringstream iss(line);
 		std::string key;
@@ -71,12 +56,21 @@ void ServerConfig::parseBlock(std::istream &stream)
 			std::string path;
 			iss >> path;
 			LocationConfig loc;
-			loc.path = path;
+			loc.setPath(path);
 			loc.parseBlock(stream);
 			locations.push_back(loc);
 		}
 	}
 }
+
+const std::string& ServerConfig::getHost() const { return host; }
+int ServerConfig::getPort() const { return port; }
+const std::string& ServerConfig::getServerName() const { return server_name; }
+const std::string& ServerConfig::getRoot() const { return root; }
+const std::string& ServerConfig::getIndex() const { return index; }
+size_t ServerConfig::getClientMaxBodySize() const { return client_max_body_size; }
+const std::map<int, std::string>& ServerConfig::getErrorPages() const { return error_pages; }
+const std::vector<LocationConfig>& ServerConfig::getLocations() const { return locations; }
 
 void ServerConfig::print() const
 {
@@ -84,19 +78,15 @@ void ServerConfig::print() const
 	std::cout	<< "Host: " << host
 				<< "\nPort: " << port
 				<< "\nRoot: " << root
-				<< "\nIndex: " << index 
-				<< "\nServername: " << server_name 
-				<< "\nClient Max Body Size: " << client_max_body_size 
+				<< "\nIndex: " << index
+				<< "\nServername: " << server_name
+				<< "\nClient Max Body Size: " << client_max_body_size
 				<< std::endl;
 	std::cout << "Error pages:\n";
 	for (std::map<int, std::string>::const_iterator it = error_pages.begin(); it != error_pages.end(); ++it)
-	{
 		std::cout << "\tError: " << it->first << ", Path: " << it->second << std::endl;
-	}
 	for (size_t i = 0; i < locations.size(); ++i)
-	{
 		locations[i].print();
-	}
 }
 
 void print_servers(std::vector<ServerConfig>& servers)
