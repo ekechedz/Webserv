@@ -5,6 +5,7 @@
 #include <signal.h>
 #include "../include/ConfigParser.hpp"
 #include "../include/Server.hpp"
+#include "../include/ServerConfig.hpp"
 
 int main(int argc, char **argv)
 {
@@ -17,9 +18,9 @@ int main(int argc, char **argv)
 
 		ConfigParser parser(argv[1]);
 		std::vector<ServerConfig> servers = parser.parse();
-		std::cout << "Parsed " << servers.size() << " server blocks." << std::endl;
-		Server manager(servers);
-		manager.run();
+		print_servers(servers);
+		// Server manager(servers);
+		// manager.run();
 	}
 	catch (const std::exception &e)
 	{

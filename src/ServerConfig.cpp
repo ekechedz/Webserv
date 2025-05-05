@@ -4,19 +4,19 @@
 // one of the important things is that the order here
 // need to match the declaration order
 ServerConfig::ServerConfig()
-	: host(""),
-	  port(0),
+	: host("0.0.0.0"),
+	  port(80),
 	  server_name(""),
-	  root(""),
-	  index(""),
-	  client_max_body_size()
+	  root("."),
+	  index("index.html"),
+	  client_max_body_size(1000000)
 {
 }
 std::string removeSemicolon(const std::string &str)
 {
 	std::string line = str;
 
-	size_t commentPos = line.find_first_of("//#");
+	size_t commentPos = line.find("#");
 
 	if (commentPos != std::string::npos)
 		line = line.substr(0, commentPos);
@@ -41,7 +41,7 @@ void ServerConfig::parseBlock(std::istream &stream)
 	{
 		if (line.find('}') != std::string::npos)
 			break;
-
+		
 		line = removeSemicolon(line);
 		std::istringstream iss(line);
 		std::string key;
@@ -81,9 +81,26 @@ void ServerConfig::parseBlock(std::istream &stream)
 void ServerConfig::print() const
 {
 	std::cout << "==== SERVER ====" << std::endl;
-	std::cout << "Host: " << host << "\nPort: " << port << "\nRoot: " << root << "\nIndex: " << index << std::endl;
+	std::cout	<< "Host: " << host
+				<< "\nPort: " << port
+				<< "\nRoot: " << root
+				<< "\nIndex: " << index 
+				<< "\nServername: " << server_name 
+				<< "\nClient Max Body Size: " << client_max_body_size 
+				<< std::endl;
+	std::cout << "Error pages:\n";
+	for (std::map<int, std::string>::const_iterator it = error_pages.begin(); it != error_pages.end(); ++it)
+	{
+		std::cout << "\tError: " << it->first << ", Path: " << it->second << std::endl;
+	}
 	for (size_t i = 0; i < locations.size(); ++i)
 	{
 		locations[i].print();
 	}
+}
+
+void print_servers(std::vector<ServerConfig>& servers)
+{
+	for (size_t i = 0; i < servers.size(); ++i)
+		servers[i].print();
 }

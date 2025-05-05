@@ -20,3 +20,5 @@ public:
 	void parseBlock(std::istream &stream);
 	void print() const;
 };
+
+void print_servers(std::vector<ServerConfig>& servers);

@@ -46,7 +46,6 @@ std::vector<ServerConfig> ConfigParser::parse()
 
 	while (std::getline(stream, line))
 	{
-		std::cout << "Reading line: " << line << std::endl;
 		if (line.find("server") != std::string::npos)
 		{
 			ServerConfig server;
@@ -54,6 +53,5 @@ std::vector<ServerConfig> ConfigParser::parse()
 			servers.push_back(server);
 		}
 	}
-	// std::cout << "Parsed " << servers.size() << " server blocks." << std::endl;  // Check how many servers were parsed
 	return servers;
 }

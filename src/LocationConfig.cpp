@@ -1,7 +1,16 @@
 #include "../include/LocationConfig.hpp"
 #include <sstream>
 
-LocationConfig::LocationConfig() : autoindex(false) {}
+LocationConfig::LocationConfig() : autoindex(false)
+{
+	methods.push_back("GET");
+	autoindex = false;
+	root = ".";	//or inherit from server block
+	index = "index.html";
+	cgi_path = "";
+	cgi_ext = "";
+	redirect = "";
+}
 
 void LocationConfig::parseBlock(std::istream &stream) {
 	std::string line;
@@ -22,6 +31,7 @@ void LocationConfig::parseBlock(std::istream &stream) {
 			autoindex = (val == "on");
 		}
 		else if (key == "allow_methods") {
+			methods.clear();
 			std::string method;
 			while (iss >> method)
 				methods.push_back(method);
@@ -37,9 +47,12 @@ void LocationConfig::parseBlock(std::istream &stream) {
 
 void LocationConfig::print() const {
 	std::cout << "--- Location: " << path << " ---" << std::endl;
-	std::cout << "Root: " << root << "\nIndex: " << index
-	          << "\nAutoindex: " << (autoindex ? "on" : "off")
-	          << "\nCGI Path: " << cgi_path << "\nCGI Ext: " << cgi_ext << std::endl;
+	std::cout	<< "Root: " << root
+				<< "\nIndex: " << index
+				<< "\nAutoindex: " << (autoindex ? "on" : "off")
+				<< "\nRedirect: " << redirect
+				<< "\nCGI Path: " << cgi_path
+				<< "\nCGI Ext: " << cgi_ext << std::endl;
 	std::cout << "Methods: ";
 	for (size_t i = 0; i < methods.size(); ++i)
 		std::cout << methods[i] << " ";
