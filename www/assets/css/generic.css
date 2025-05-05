@@ -1,0 +1,86 @@
+
+/* -----------------------------------------------------
+	Hero Section
+  ----------------------------------------------------- */
+  #banner {
+	background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+	padding: 6rem 2rem;
+	text-align: center;
+	border-bottom: 1px solid #333;
+  }
+
+  #banner h1 {
+	font-size: 3.5rem;
+	margin-bottom: 1rem;
+  }
+
+  .lead {
+	font-size: 1.2rem;
+	color: #ccc;
+	max-width: 700px;
+	margin: 0 auto;
+  }
+
+  /* -----------------------------------------------------
+	Main Content
+  ----------------------------------------------------- */
+  .content-section {
+	padding: 4rem 2rem;
+	background-color: #111;
+  }
+
+  .content-section h2 {
+	color: #37d4a5;
+	font-size: 1.8rem;
+	margin-top: 2rem;
+	margin-bottom: 1rem;
+  }
+
+  /* -----------------------------------------------------
+	Feature List
+  ----------------------------------------------------- */
+  .features {
+	list-style: none;
+	padding-left: 0;
+	margin-top: 2rem;
+  }
+
+  .features li {
+	margin-bottom: 2rem;
+	font-size: 1rem;
+	border-left: 3px solid #37d4a5;
+	padding-left: 1rem;
+	line-height: 1.6;
+	color: #ccc;
+  }
+
+  .features strong {
+	display: block;
+	color: #fff;
+	font-weight: 700;
+	margin-bottom: 0.3rem;
+  }
+
+  /* -----------------------------------------------------
+	Footer
+  ----------------------------------------------------- */
+  footer {
+	background: #0d0d0d;
+	border-top: 1px solid #333;
+	text-align: center;
+	padding: 2rem;
+	font-size: 0.9rem;
+	color: #888;
+  }
+
+  @media (max-width: 768px) {
+
+
+	#banner h1 {
+	  font-size: 2.5rem;
+	}
+
+	.lead {
+	  font-size: 1rem;
+	}
+  }
