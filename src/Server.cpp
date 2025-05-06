@@ -12,7 +12,9 @@ Server::Server(const std::vector<ServerConfig> &configs)
 		pfd.events = POLLIN;
 		pfd.revents = 0;
 		_pollFds.push_back(pfd);
-		_listeningSockets[sock] = config;
+		_socketInfo[sock].type = SocketContext::LISTENING;
+		_socketInfo[sock].state = SocketContext::RECEIVING;
+		_socketInfo[sock].server = &config;
 		std::cout << "Listening on " << config.getHost() << ":" << config.getPort() << "\n";
 	}
 }
@@ -60,6 +62,9 @@ void Server::acceptConnection(int listenFd)
 	pfd.events = POLLIN;
 	pfd.revents = 0;
 	_pollFds.push_back(pfd);
+	_socketInfo[clientFd].type = SocketContext::CLIENT;
+	_socketInfo[clientFd].state = SocketContext::RECEIVING;
+	_socketInfo[clientFd].server = _socketInfo[listenFd].server;
 
 	_clientBuffers[clientFd] = "";
 }
@@ -82,7 +87,7 @@ void Server::handleClient(int clientFd, size_t index)
 	std::string method, path, protocol;
 	requestStream >> method >> path >> protocol;
 	if (path == "/")
-		path = "/index.html";
+		path = _socketInfo[clientFd].server->getIndex();
 	if (method == "GET")
 		handleGetRequest(clientFd, path);
 	else if (method == "POST")
@@ -115,7 +120,7 @@ void Server::run()
 			if (_pollFds[i].revents & POLLIN)
 			{
 				int fd = _pollFds[i].fd;
-				if (_listeningSockets.count(fd))
+				if (_socketInfo[fd].type == SocketContext::LISTENING)
 					acceptConnection(fd);
 				else
 					handleClient(fd, i--);
