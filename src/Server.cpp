@@ -13,7 +13,7 @@ Server::Server(const std::vector<ServerConfig> &configs)
 		pfd.revents = 0;
 		_pollFds.push_back(pfd);
 		_listeningSockets[sock] = config;
-		std::cout << "Listening on " << config.host << ":" << config.port << "\n";
+		std::cout << "Listening on " << config.getHost() << ":" << config.getPort() << "\n";
 	}
 }
 
@@ -29,8 +29,8 @@ int Server::createListeningSocket(const ServerConfig &config)
 	sockaddr_in addr;
 	std::memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(config.port);
-	addr.sin_addr.s_addr = inet_addr(config.host.c_str());
+	addr.sin_port = htons(config.getPort());
+	addr.sin_addr.s_addr = inet_addr(config.getHost().c_str());
 
 	if (bind(sock, (sockaddr *)&addr, sizeof(addr)) == -1)
 		throw std::runtime_error("Bind failed");
