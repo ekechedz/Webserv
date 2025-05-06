@@ -10,7 +10,8 @@ ServerConfig::ServerConfig()
 	  server_name(""),
 	  root("."),
 	  index("index.html"),
-	  client_max_body_size(1000000)
+	  client_max_body_size(1000000),
+	  error_pages()
 {
 }
 
@@ -26,7 +27,6 @@ void ServerConfig::parseBlock(std::istream &stream)
 	{
 		if (line.find('}') != std::string::npos)
 			break;
-
 		line = removeSemicolon(line);
 		std::istringstream iss(line);
 		std::string key;
@@ -61,6 +61,21 @@ void ServerConfig::parseBlock(std::istream &stream)
 			locations.push_back(loc);
 		}
 	}
+}
+
+void ServerConfig::initialisedCheck() const {
+	if (port == 0)
+		throw std::runtime_error("Server port not set.");
+	if (server_name.empty())
+		throw std::runtime_error("Server name not set.");
+	if (root.empty())
+		throw std::runtime_error("Root directory not set.");
+	if (client_max_body_size == 0)
+		throw std::runtime_error("Max body size not set.");
+	if (index.empty())
+		throw std::runtime_error("Index file not set.");
+	if (error_pages.empty())
+		throw std::runtime_error("Error pages not set.");
 }
 
 const std::string& ServerConfig::getHost() const { return host; }

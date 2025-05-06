@@ -29,6 +29,7 @@ public:
 	size_t getClientMaxBodySize() const;
 	const std::map<int, std::string>& getErrorPages() const;
 	const std::vector<LocationConfig>& getLocations() const;
+	void initialisedCheck() const;
 
 };
 

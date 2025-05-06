@@ -19,8 +19,8 @@ int main(int argc, char **argv)
 		ConfigParser parser(argv[1]);
 		std::vector<ServerConfig> servers = parser.parse();
 		print_servers(servers);
-		// Server manager(servers);
-		// manager.run();
+		Server manager(servers);
+		manager.run();
 	}
 	catch (const std::exception &e)
 	{
