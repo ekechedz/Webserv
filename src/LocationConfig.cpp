@@ -33,9 +33,7 @@ void LocationConfig::parseBlock(std::istream &stream)
 		{
 			std::string val;
 			iss >> val;
-			std::cout << "before: " << val << std::endl;
 			autoindex = (val == "on");
-			std::cout << val << std::endl;
 		}
 		else if (key == "allow_methods")
 		{

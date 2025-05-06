@@ -24,8 +24,11 @@ int Server::createListeningSocket(const ServerConfig &config)
 		throw std::runtime_error("Socket creation failed");
 
 	int opt = 1;
-	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-
+	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)) < 0) {
+		std::ostringstream oss;
+		oss << "Setsockopt failed: " << std::strerror(errno);
+		throw std::runtime_error(oss.str());
+	}
 	sockaddr_in addr;
 	std::memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
