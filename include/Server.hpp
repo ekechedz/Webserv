@@ -13,6 +13,11 @@
 #include <fstream>
 #include <sstream>
 
+struct SocketContext {
+	enum Type { LISTENING, CLIENT } type;
+	enum State { RECEIVING, SENDING } state;
+	const ServerConfig* server;
+};
 
 class Server
 {
@@ -23,7 +28,7 @@ public:
 private:
 	std::vector<ServerConfig> _configs;
 	std::vector<pollfd> _pollFds;
-	std::map<int, ServerConfig> _listeningSockets;
+	std::map<int, SocketContext> _socketInfo;
 	std::map<int, std::string> _clientBuffers;
 
 	int createListeningSocket(const ServerConfig &config);
