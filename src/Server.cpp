@@ -82,12 +82,16 @@ void Server::handleClient(int clientFd, size_t index)
 	}
 
 	buffer[bytes] = '\0';
-	std::string request(buffer); // original buffer to string
-	_clients[clientFd].appendToBuffer(request);
-	request = _clients[clientFd].getBuffer();
+	_clients[clientFd].appendToBuffer(buffer);
+	std::string request = _clients[clientFd].getBuffer();
 	std::istringstream requestStream(request);
 	std::string method, path, protocol;
 	requestStream >> method >> path >> protocol;
+	std::cout << "Received HTTP request from client " << clientFd << ": "
+		  << method << " " << path << " " << protocol << "\n";
+
+	if (method.empty() || path.empty() || protocol.empty())
+		return; // waiting for more recv
 	if (path == "/")
 		path = _socketInfo[clientFd].server->getIndex();
 	if (method == "GET")
