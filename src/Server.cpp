@@ -1,4 +1,5 @@
 #include "../include/Server.hpp"
+#include "../include/Client.hpp"
 
 Server::Server(const std::vector<ServerConfig> &configs)
 	: _configs(configs)
@@ -55,6 +56,7 @@ void Server::acceptConnection(int listenFd)
 	if (clientFd == -1)
 		return;
 
+	_clients[clientFd] = Client(clientFd);
 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
 
 	struct pollfd pfd;
@@ -65,8 +67,6 @@ void Server::acceptConnection(int listenFd)
 	_socketInfo[clientFd].type = SocketContext::CLIENT;
 	_socketInfo[clientFd].state = SocketContext::RECEIVING;
 	_socketInfo[clientFd].server = _socketInfo[listenFd].server;
-
-	_clientBuffers[clientFd] = "";
 }
 
 void Server::handleClient(int clientFd, size_t index)
@@ -77,12 +77,14 @@ void Server::handleClient(int clientFd, size_t index)
 	{
 		close(clientFd);
 		_pollFds.erase(_pollFds.begin() + index);
-		_clientBuffers.erase(clientFd);
+		_clients.erase(clientFd);
 		return;
 	}
 
 	buffer[bytes] = '\0';
-	std::string request(buffer);
+	std::string request(buffer); // original buffer to string
+	_clients[clientFd].appendToBuffer(request);
+	request = _clients[clientFd].getBuffer();
 	std::istringstream requestStream(request);
 	std::string method, path, protocol;
 	requestStream >> method >> path >> protocol;
@@ -100,7 +102,24 @@ void Server::handleClient(int clientFd, size_t index)
 		send(clientFd, response.c_str(), response.size(), 0);
 		close(clientFd);
 		_pollFds.erase(_pollFds.begin() + index);
-		_clientBuffers.erase(clientFd);
+		_clients.erase(clientFd);
+	}
+	_clients[clientFd].clearBuffer();
+}
+
+void Server::handleClientTimeouts()
+{
+	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end();)
+	{
+		Client &client = it->second;
+		if (time(NULL) - client.getLastActivity() > 30)
+		{
+			std::cout << "Client " << client.getFd() << " has timed out. Closing connection.\n";
+			close(client.getFd());
+			_clients.erase(it++);
+		}
+		else
+			++it;
 	}
 }
 
@@ -108,11 +127,16 @@ void Server::run()
 {
 	while (true)
 	{
-		int ret = poll(_pollFds.data(), _pollFds.size(), -1);
+		int ret = poll(_pollFds.data(), _pollFds.size(), 5000);
 		if (ret == -1)
 		{
 			std::cerr << "Poll error\n";
 			break;
+		}
+		else if (ret == 0)
+		{
+			handleClientTimeouts(); // could be testet with telnet
+			continue;
 		}
 
 		for (size_t i = 0; i < _pollFds.size(); ++i)
@@ -123,7 +147,7 @@ void Server::run()
 				if (_socketInfo[fd].type == SocketContext::LISTENING)
 					acceptConnection(fd);
 				else
-					handleClient(fd, i--);
+					handleClient(fd, i);
 			}
 		}
 	}

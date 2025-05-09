@@ -13,6 +13,7 @@ SRCS = \
 	$(SRC_DIR)/Utils.cpp \
 	$(SRC_DIR)/Server.cpp \
 	$(SRC_DIR)/Request.cpp \
+	$(SRC_DIR)/Client.cpp \
 
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
