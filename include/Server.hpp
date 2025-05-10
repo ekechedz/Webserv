@@ -2,6 +2,8 @@
 
 #include "ServerConfig.hpp"
 #include "Client.hpp"
+#include "Request.hpp"
+
 #include <vector>
 #include <map>
 #include <poll.h>

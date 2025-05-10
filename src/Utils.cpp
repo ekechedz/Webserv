@@ -1,5 +1,4 @@
 #include "../include/Utils.hpp"
-#include <iostream>
 
 std::string removeSemicolon(const std::string &str)
 {
@@ -38,4 +37,35 @@ int printError(const std::string &msg, int exitCode)
 {
 	std::cerr << "\033[1;31m[ERROR] " << msg << "\033[0m" << std::endl;
 	return exitCode;
+}
+
+// Wraps std::getline(). Throws if line does not contain \r. Returns line without \r.
+std::string getlineCarriage(std::istringstream& iss)
+{
+	std::string line;
+	if (!std::getline(iss, line))
+		throw std::runtime_error("Get line failed.");
+	if (line.empty() || line[line.size() - 1] != '\r')
+		throw std::runtime_error("New line without carriage return.");
+	line.erase(line.size() - 1);
+	return line;
+}
+
+// Trims leading and trailing whitespace
+std::string trim(const std::string& str)
+{
+	std::string::size_type start = 0;
+	std::string::size_type end = str.length();
+
+	// Find the first non-whitespace character from the beginning
+	while (start < end && std::isspace(static_cast<unsigned char>(str[start]))) {
+		++start;
+	}
+
+	// Find the last non-whitespace character from the end
+	while (end > start && std::isspace(static_cast<unsigned char>(str[end - 1]))) {
+		--end;
+	}
+
+	return str.substr(start, end - start);
 }

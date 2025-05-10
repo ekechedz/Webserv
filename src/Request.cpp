@@ -1,53 +1,67 @@
-#include "../include/Server.hpp"
+#include "../include/Request.hpp"
 
-void Server::handleGetRequest(int clientFd, const std::string &path)
+Request::Request(const ServerConfig& setServerConfig)
+: serverConfig(setServerConfig)
+{}
+
+// Takes char* and extracts structured info. Throws if request contains syntax error.
+void Request::parse(char* buffer)
 {
-	std::string fullPath = "www" + path;
-	std::ifstream file(fullPath.c_str(), std::ios::binary);
 
-	std::cout << "File opened successfully: " << fullPath << std::endl;
-
-	if (!file.is_open())
+	std::istringstream iss((std::string(buffer)));
+	std::string line;
+	
+	// Parse request line (=first line)
 	{
-		std::string error = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found";
-		std::cout << "Status Code: 404 Not Found" << std::endl;
-		send(clientFd, error.c_str(), error.size(), 0);
+		line = getlineCarriage(iss);
+		std::istringstream lineStream(line);
+		// Extracts all three elements at once. And throws if something failed.
+		if (!(lineStream >> method >> path >> protocol))
+			throw std::runtime_error("Syntax error in request line.");
+		// Check if there is a fourth element
+		std::string extra;
+		if (lineStream >> extra)
+		{
+			std::cout << "extra: " << "|" << extra << "|";
+			throw std::runtime_error("Too many args in request line.");
+		}
 	}
-	else
+	
+	// Parse headers
+	// Loops until it finds mandatory empty line after headers
+	for (line = getlineCarriage(iss); !line.empty(); line = getlineCarriage(iss))
 	{
-		std::ostringstream content;
-		content << file.rdbuf();
-		std::string body = content.str();
-		std::string type = getContentType(fullPath);
-
-		std::ostringstream header;
-		header << "HTTP/1.1 200 OK\r\n";
-		header << "Content-Type: " << type << "\r\n";
-		header << "Content-Length: " << body.size() << "\r\n";
-		header << "Connection: close\r\n\r\n";
-
-		std::string response = header.str() + body;
-		send(clientFd, response.c_str(), response.size(), 0);
+		// Checking for colon
+		std::size_t colonPos = line.find(':');
+		if (colonPos == std::string::npos)
+			throw std::runtime_error("No colon in header line.");
+		// Splitting at colon and removing whitespace
+		std::string key = trim(line.substr(0, colonPos));
+		std::string value = trim(line.substr(colonPos + 1));
+		// Adding to map of headers
+		headers[key] = value;
 	}
-	//std::cout << "Status Code: 200 OK" << std::endl;
-	close(clientFd);
+
+	// Copy body
+	{
+	std::ostringstream oss;
+	oss << iss.rdbuf();
+	body = oss.str();
+	}
+	(void)serverConfig;
 }
 
-void Server::handlePostRequest(int clientFd, const std::string &path, const std::string &requestBody)
-{
-	//still not ready
-	(void)requestBody;
-	std::string response = "HTTP/1.1 201 Created\r\nContent-Type: text/plain\r\n\r\nPOST request received for: " + path;
-	send(clientFd, response.c_str(), response.size(), 0);
-
-	close(clientFd);
-}
-
-void Server::handleDeleteRequest(int clientFd, const std::string &path)
-{
-	//still not ready
-	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nDELETE request received for: " + path;
-	send(clientFd, response.c_str(), response.size(), 0);
-
-	close(clientFd);
+void Request::print() {
+	std::cout << "Request:" << std::endl;
+	std::cout << "\tMethod: " << method << std::endl;
+	std::cout << "\tPath: " << path << std::endl;
+	std::cout << "\tProtocol: " << protocol << std::endl;
+	std::cout << "\tHeaders:" << std::endl;
+	
+	std::map<std::string, std::string>::const_iterator it;
+	for (it = headers.begin(); it != headers.end(); ++it) {
+		std::cout << "\t\t" << it->first << ": " << it->second << std::endl;
+	}
+	
+	std::cout << "\tBody:" << std::endl << body << std::endl;
 }
