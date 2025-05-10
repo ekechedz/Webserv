@@ -30,8 +30,6 @@ std::string getContentType(const std::string &path)
 		return "image/jpeg";
 	if (path.size() >= 5 && path.substr(path.size() - 5) == ".jpeg")
 		return "image/jpeg";
-	if (path.size() >= 4 && path.substr(path.size() - 4) == ".ico")
-		return "image/x-icon";
 	return "application/octet-stream";
 }
 int printError(const std::string &msg, int exitCode)
