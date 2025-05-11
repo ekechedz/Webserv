@@ -1,5 +1,6 @@
 #include "../include/Server.hpp"
 #include "../include/Client.hpp"
+#include "../include/Request.hpp"
 
 Server::Server(const std::vector<ServerConfig> &configs)
 	: _configs(configs)
@@ -82,28 +83,39 @@ void Server::handleClient(int clientFd, size_t index)
 	}
 
 	buffer[bytes] = '\0';
-	std::string request(buffer); // original buffer to string
-	_clients[clientFd].appendToBuffer(request);
-	request = _clients[clientFd].getBuffer();
-	std::istringstream requestStream(request);
-	std::string method, path, protocol;
-	requestStream >> method >> path >> protocol;
-	if (path == "/")
-		path = _socketInfo[clientFd].server->getIndex();
-	if (method == "GET")
-		handleGetRequest(clientFd, path);
-	else if (method == "POST")
-		handlePostRequest(clientFd, path, request);
-	else if (method == "DELETE")
-		handleDeleteRequest(clientFd, path);
-	else
-	{
+	_clients[clientFd].appendToBuffer(buffer);
+	std::string request = _clients[clientFd].getBuffer();
+	Request req;
+	try {
+		req = parseHttpRequest(request);
+		req.print();
+	} catch (const std::exception &e) {
+		std::cerr << "Failed to parse request: " << e.what() << "\n";
+		std::string response = "HTTP/1.1 400 Bad Request\r\n\r\n";
+		send(clientFd, response.c_str(), response.size(), 0);
+		close(clientFd);
+		_pollFds.erase(_pollFds.begin() + index);
+		_clients.erase(clientFd);
+		return;
+	}
+
+	if (req.path == "/")
+	req.path = _socketInfo[clientFd].server->getIndex();
+
+	if (req.method == "GET")
+		handleGetRequest(clientFd, req.path);
+	else if (req.method == "POST")
+		handlePostRequest(clientFd, req.path, req.body);
+	else if (req.method == "DELETE")
+		handleDeleteRequest(clientFd, req.path);
+	else {
 		std::string response = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
 		send(clientFd, response.c_str(), response.size(), 0);
 		close(clientFd);
 		_pollFds.erase(_pollFds.begin() + index);
 		_clients.erase(clientFd);
 	}
+
 	_clients[clientFd].clearBuffer();
 }
 
