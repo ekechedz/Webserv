@@ -72,7 +72,7 @@ void Server::acceptConnection(int listenFd)
 
 void Server::handleClient(int clientFd, size_t index)
 {
-	char buffer[4096];
+	char buffer[10000];
 	ssize_t bytes = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
 	if (bytes <= 0)
 	{
@@ -100,7 +100,7 @@ void Server::handleClient(int clientFd, size_t index)
 	}
 
 	if (req.path == "/")
-	req.path = _socketInfo[clientFd].server->getIndex();
+		req.path = _socketInfo[clientFd].server->getIndex();
 
 	if (req.method == "GET")
 		handleGetRequest(clientFd, req.path);

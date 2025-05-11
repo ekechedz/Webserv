@@ -33,6 +33,7 @@ clean:
 
 fclean: clean
 	rm -f $(NAME)
+	rm -f www/post_output.txt
 
 re: fclean all
 
