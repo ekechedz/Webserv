@@ -112,7 +112,7 @@ void Server::handlePostRequest(int clientFd, const std::string &path, const std:
 	{
 		size_t eq = pair.find('=');
 		if (eq != std::string::npos)
-	{
+		{
 			std::string key = pair.substr(0, eq);
 			std::string value = pair.substr(eq + 1);
 			formData[key] = value;
@@ -159,9 +159,40 @@ void Server::handlePostRequest(int clientFd, const std::string &path, const std:
 
 void Server::handleDeleteRequest(int clientFd, const std::string &path)
 {
-	// still not ready
-	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nDELETE request received for: " + path;
-	send(clientFd, response.c_str(), response.size(), 0);
+	std::string fullPath = "www" + path;
+	Response res;
+	std::ostringstream body;
 
+	if (std::remove(fullPath.c_str()) == 0)
+	{
+		res.setStatus(200, "OK");
+		body << "<html><body><h1>File Deleted</h1><p>Deleted: " << path << "</p></body></html>";
+	}
+	else
+	{
+		if (errno == ENOENT)
+		{
+			res.setStatus(404, "Not Found");
+			body << "<html><body><h1>404 Not Found</h1><p>File not found: " << path << "</p></body></html>";
+		}
+		else if (errno == EACCES || errno == EPERM)
+		{
+			std::string permissionDenied = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/plain\r\n\r\nPermission denied";
+			send(clientFd, permissionDenied.c_str(), permissionDenied.size(), 0);
+		}
+		else
+		{
+			res.setStatus(500, "Internal Server Error");
+			body << "<html><body><h1>500 Internal Server Error</h1><p>Error deleting: " << path << "</p></body></html>";
+		}
+	}
+
+	res.setBody(body.str());
+	res.setHeader("Content-Type", "text/html");
+	res.setHeader("Content-Length", intToStr(body.str().size()));
+	res.setHeader("Connection", "close");
+
+	std::string responseData = res.toString();
+	send(clientFd, responseData.c_str(), responseData.size(), 0);
 	close(clientFd);
 }
