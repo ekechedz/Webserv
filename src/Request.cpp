@@ -165,14 +165,14 @@ void Server::handleDeleteRequest(int clientFd, const std::string &path)
 
 	if (std::remove(fullPath.c_str()) == 0)
 	{
-		res.setStatus(200, "OK");
+		res.setStatus(200);
 		body << "<html><body><h1>File Deleted</h1><p>Deleted: " << path << "</p></body></html>";
 	}
 	else
 	{
 		if (errno == ENOENT)
 		{
-			res.setStatus(404, "Not Found");
+			res.setStatus(404);
 			body << "<html><body><h1>404 Not Found</h1><p>File not found: " << path << "</p></body></html>";
 		}
 		else if (errno == EACCES || errno == EPERM)
@@ -182,7 +182,7 @@ void Server::handleDeleteRequest(int clientFd, const std::string &path)
 		}
 		else
 		{
-			res.setStatus(500, "Internal Server Error");
+			res.setStatus(500);
 			body << "<html><body><h1>500 Internal Server Error</h1><p>Error deleting: " << path << "</p></body></html>";
 		}
 	}
