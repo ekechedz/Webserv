@@ -1,7 +1,8 @@
 #include "../include/Server.hpp"
 #include "../include/Request.hpp"
 
-Request parseHttpRequest(const std::string &rawRequest) {
+Request parseHttpRequest(const std::string &rawRequest)
+{
 	Request request;
 	std::istringstream stream(rawRequest);
 	std::string line;
@@ -14,11 +15,13 @@ Request parseHttpRequest(const std::string &rawRequest) {
 	requestLine >> request.method >> request.path >> request.protocol;
 
 	// Parse headers
-	while (std::getline(stream, line) && line != "\r") {
+	while (std::getline(stream, line) && line != "\r")
+	{
 		if (!line.empty() && line[line.size() - 1] == '\r')
 			line.erase(line.size() - 1);
 		size_t colon = line.find(':');
-		if (colon != std::string::npos) {
+		if (colon != std::string::npos)
+		{
 			std::string key = line.substr(0, colon);
 			std::string value = line.substr(colon + 1);
 			value.erase(0, value.find_first_not_of(" \t"));
@@ -26,7 +29,8 @@ Request parseHttpRequest(const std::string &rawRequest) {
 		}
 	}
 
-	if (request.headers.count("Content-Length")) {
+	if (request.headers.count("Content-Length"))
+	{
 		int length = std::atoi(request.headers["Content-Length"].c_str());
 		std::string body(length, '\0');
 		stream.read(&body[0], length);
@@ -34,11 +38,12 @@ Request parseHttpRequest(const std::string &rawRequest) {
 	}
 
 	std::cout << "Received HTTP request from client " << ": "
-		  << request.method << " " << request.path << " " << request.protocol << "\n";
+			  << request.method << " " << request.path << " " << request.protocol << "\n";
 	return request;
 }
 
-void Request::print() const {
+void Request::print() const
+{
 	std::cout << "\n====== HTTP Request ======" << std::endl;
 
 	std::cout << "Method   : " << method << std::endl;
@@ -47,9 +52,8 @@ void Request::print() const {
 
 	std::cout << "\nHeaders:" << std::endl;
 	std::map<std::string, std::string>::const_iterator it;
-	for (it = headers.begin(); it != headers.end(); ++it) {
+	for (it = headers.begin(); it != headers.end(); ++it)
 		std::cout << "  " << it->first << ": " << it->second << std::endl;
-	}
 
 	std::cout << "\nBody:" << std::endl;
 	if (body.empty())
@@ -57,7 +61,8 @@ void Request::print() const {
 	else
 		std::cout << body << std::endl;
 
-	std::cout << "===========================\n" << std::endl;
+	std::cout << "===========================\n"
+			  << std::endl;
 }
 
 void Server::handleGetRequest(int clientFd, const std::string &path)
@@ -66,43 +71,38 @@ void Server::handleGetRequest(int clientFd, const std::string &path)
 	std::string fullPath = "www" + path;
 	std::ifstream file(fullPath.c_str(), std::ios::binary);
 
-	//std::cout << "File opened successfully: " << fullPath << std::endl;
+	// std::cout << "File opened successfully: " << fullPath << std::endl;
 
 	if (!file.is_open())
 	{
 		std::string error = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found";
-		std::cout << "File not found: " << fullPath << "\nStatus Code: 404 Not Found\n";		send(clientFd, error.c_str(), error.size(), 0);
+		std::cout << "File not found: " << fullPath << "\nStatus Code: 404 Not Found\n";
+		send(clientFd, error.c_str(), error.size(), 0);
 	}
 	else
 	{
 		std::ostringstream content;
 		content << file.rdbuf();
-		// std::string body = content.str();
-		std::string type = getContentType(fullPath);
 
-		// std::ostringstream header;
+		std::string type = getContentType(fullPath);
 		res.setStatus(200, "OK");
 		res.setHeader("Content-Type", type);
 		res.setHeader("Content-Length", intToStr(content.str().size()));
 		res.setHeader("Connection", "close");
 		res.setBody(content.str());
-		// header << "HTTP/1.1 200 OK\r\n";
-		// header << "Content-Type: " << type << "\r\n";
-		// header << "Content-Length: " << body.size() << "\r\n";
-		// header << "Connection: close\r\n\r\n";
 
-		// std::string response = header.str() + body;
 		std::string response = res.toString();
 		send(clientFd, response.c_str(), response.size(), 0);
 	}
-	//std::cout << "Status Code: 200 OK" << std::endl;
+	// std::cout << "Status Code: 200 OK" << std::endl;
 	close(clientFd);
 }
 
 void Server::handlePostRequest(int clientFd, const std::string &path, const std::string &requestBody)
 {
 	std::cout << "Handling POST request to: " << path << std::endl;
-	std::cout << "Request body:\n" << requestBody << std::endl;
+	std::cout << "Request body:\n"
+			  << requestBody << std::endl;
 
 	std::map<std::string, std::string> formData;
 	std::istringstream stream(requestBody);
@@ -112,14 +112,14 @@ void Server::handlePostRequest(int clientFd, const std::string &path, const std:
 	{
 		size_t eq = pair.find('=');
 		if (eq != std::string::npos)
-		{
+	{
 			std::string key = pair.substr(0, eq);
 			std::string value = pair.substr(eq + 1);
 			formData[key] = value;
 		}
 	}
 
-	//writing to a file
+	// writing to a file
 	std::ostringstream responseBody;
 	responseBody << "<html>\n";
 	responseBody << "<body>\n";
@@ -143,22 +143,23 @@ void Server::handlePostRequest(int clientFd, const std::string &path, const std:
 
 	std::string body = responseBody.str();
 
-	std::ostringstream header;
-	header << "HTTP/1.1 200 OK\r\n";
-	header << "Content-Type: text/html\r\n";
-	header << "Content-Length: " << body.size() << "\r\n";
-	header << "Connection: close\r\n\r\n";
+	Response res;
 
-	std::string response = header.str() + body;
+	res.setStatus(200, "OK");
+	res.setHeader("Content-Type", "text/html");
+	res.setHeader("Content-Length", intToStr(body.size()));
+	res.setHeader("Connection", "close");
+	res.setBody(body);
+
+	std::string response = res.toString();
 	send(clientFd, response.c_str(), response.size(), 0);
 
 	close(clientFd);
 }
 
-
 void Server::handleDeleteRequest(int clientFd, const std::string &path)
 {
-	//still not ready
+	// still not ready
 	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nDELETE request received for: " + path;
 	send(clientFd, response.c_str(), response.size(), 0);
 
