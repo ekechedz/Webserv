@@ -85,7 +85,7 @@ void Server::handleGetRequest(int clientFd, const std::string &path)
 		content << file.rdbuf();
 
 		std::string type = getContentType(fullPath);
-		res.setStatus(200, "OK");
+		res.setStatus(200);
 		res.setHeader("Content-Type", type);
 		res.setHeader("Content-Length", intToStr(content.str().size()));
 		res.setHeader("Connection", "close");
@@ -145,7 +145,7 @@ void Server::handlePostRequest(int clientFd, const std::string &path, const std:
 
 	Response res;
 
-	res.setStatus(200, "OK");
+	res.setStatus(200);
 	res.setHeader("Content-Type", "text/html");
 	res.setHeader("Content-Length", intToStr(body.size()));
 	res.setHeader("Connection", "close");
