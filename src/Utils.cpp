@@ -1,5 +1,6 @@
 #include "../include/Utils.hpp"
 #include <iostream>
+#include <sstream>
 
 std::string removeSemicolon(const std::string &str)
 {
@@ -36,4 +37,10 @@ int printError(const std::string &msg, int exitCode)
 {
 	std::cerr << "\033[1;31m[ERROR] " << msg << "\033[0m" << std::endl;
 	return exitCode;
+}
+std::string intToStr(int num)
+{
+	std::ostringstream oss;
+	oss << num;
+	return oss.str();
 }
