@@ -62,6 +62,7 @@ void Request::print() const {
 
 void Server::handleGetRequest(int clientFd, const std::string &path)
 {
+	Response res;
 	std::string fullPath = "www" + path;
 	std::ifstream file(fullPath.c_str(), std::ios::binary);
 
@@ -76,16 +77,22 @@ void Server::handleGetRequest(int clientFd, const std::string &path)
 	{
 		std::ostringstream content;
 		content << file.rdbuf();
-		std::string body = content.str();
+		// std::string body = content.str();
 		std::string type = getContentType(fullPath);
 
-		std::ostringstream header;
-		header << "HTTP/1.1 200 OK\r\n";
-		header << "Content-Type: " << type << "\r\n";
-		header << "Content-Length: " << body.size() << "\r\n";
-		header << "Connection: close\r\n\r\n";
+		// std::ostringstream header;
+		res.setStatus(200, "OK");
+		res.setHeader("Content-Type", type);
+		res.setHeader("Content-Length", intToStr(content.str().size()));
+		res.setHeader("Connection", "close");
+		res.setBody(content.str());
+		// header << "HTTP/1.1 200 OK\r\n";
+		// header << "Content-Type: " << type << "\r\n";
+		// header << "Content-Length: " << body.size() << "\r\n";
+		// header << "Connection: close\r\n\r\n";
 
-		std::string response = header.str() + body;
+		// std::string response = header.str() + body;
+		std::string response = res.toString();
 		send(clientFd, response.c_str(), response.size(), 0);
 	}
 	//std::cout << "Status Code: 200 OK" << std::endl;
