@@ -1,0 +1,11 @@
+1. Basic Test
+curl -X POST -d "username=admin&email=admin@example.com" http://127.0.0.1:8080/
+
+2.Multiple Key-Value
+curl -X POST -d "username=test&email=test@example.com&age=30&country=Norway" http://127.0.0.1:8080/
+
+3.Empty
+curl -X POST -d "username=&email=" http://127.0.0.1:8080/
+
+4. Large Payload
+curl -X POST -d "data=$(head -c 5000 /dev/urandom | base64)" http://127.0.0.1:8080/

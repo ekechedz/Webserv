@@ -65,7 +65,7 @@ void Server::handleGetRequest(int clientFd, const std::string &path)
 	std::string fullPath = "www" + path;
 	std::ifstream file(fullPath.c_str(), std::ios::binary);
 
-	std::cout << "File opened successfully: " << fullPath << std::endl;
+	//std::cout << "File opened successfully: " << fullPath << std::endl;
 
 	if (!file.is_open())
 	{
@@ -94,13 +94,60 @@ void Server::handleGetRequest(int clientFd, const std::string &path)
 
 void Server::handlePostRequest(int clientFd, const std::string &path, const std::string &requestBody)
 {
-	//still not ready
-	(void)requestBody;
-	std::string response = "HTTP/1.1 201 Created\r\nContent-Type: text/plain\r\n\r\nPOST request received for: " + path;
+	std::cout << "Handling POST request to: " << path << std::endl;
+	std::cout << "Request body:\n" << requestBody << std::endl;
+
+	std::map<std::string, std::string> formData;
+	std::istringstream stream(requestBody);
+	std::string pair;
+
+	while (std::getline(stream, pair, '&'))
+	{
+		size_t eq = pair.find('=');
+		if (eq != std::string::npos)
+		{
+			std::string key = pair.substr(0, eq);
+			std::string value = pair.substr(eq + 1);
+			formData[key] = value;
+		}
+	}
+
+	//writing to a file
+	std::ostringstream responseBody;
+	responseBody << "<html>\n";
+	responseBody << "<body>\n";
+	responseBody << "<h1>POST Received</h1>\n";
+	responseBody << "<br>\n";
+	responseBody << "<p>Path: " << path << "</p>\n";
+	responseBody << "<ul>\n";
+	std::map<std::string, std::string>::iterator it;
+	std::ofstream outFile("www/post_output.txt", std::ios::app);
+	if (outFile.is_open())
+	{
+		for (it = formData.begin(); it != formData.end(); ++it)
+			outFile << it->first << "=" << it->second << "\n";
+		outFile << "----\n";
+		outFile.close();
+	}
+
+	for (it = formData.begin(); it != formData.end(); ++it)
+		responseBody << "<li>" << it->first << ": " << it->second << "</li>";
+	responseBody << "</ul></body></html>";
+
+	std::string body = responseBody.str();
+
+	std::ostringstream header;
+	header << "HTTP/1.1 200 OK\r\n";
+	header << "Content-Type: text/html\r\n";
+	header << "Content-Length: " << body.size() << "\r\n";
+	header << "Connection: close\r\n\r\n";
+
+	std::string response = header.str() + body;
 	send(clientFd, response.c_str(), response.size(), 0);
 
 	close(clientFd);
 }
+
 
 void Server::handleDeleteRequest(int clientFd, const std::string &path)
 {
