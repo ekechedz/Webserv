@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ServerConfig.hpp"
-#include "Client.hpp"
+#include "Socket.hpp"
 #include "Response.hpp"
 #include "Utils.hpp"
 
@@ -17,12 +17,6 @@
 #include <fstream>
 #include <sstream>
 
-struct SocketContext {
-	enum Type { LISTENING, CLIENT } type;
-	enum State { RECEIVING, SENDING } state;
-	const ServerConfig* server;
-};
-
 class Server
 {
 public:
@@ -32,8 +26,7 @@ public:
 	
 	private:
 	std::vector<ServerConfig> _configs;
-	std::map<int, SocketContext> _socketInfo;
-	std::map<int, Client> _clients;
+	std::map<int, Socket> _sockets;
 	std::vector<pollfd> _pollFds;
 
 	int createListeningSocket(const ServerConfig &config);

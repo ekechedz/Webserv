@@ -3,7 +3,9 @@
 #include <string>
 #include <ctime>
 
-class Client
+class ServerConfig;
+
+class Socket
 {
 private:
 	int _fd;
@@ -11,10 +13,14 @@ private:
 	time_t _lastActivity;
 
 public:
-	Client();
-	Client(int fd);
-	~Client();
+	enum Type { LISTENING, CLIENT } type;
+	enum State { RECEIVING, SENDING } state;
+	const ServerConfig* server;
 
+	Socket();
+	Socket(int fd);
+	~Socket();
+	
 	int getFd() const;
 	const std::string &getBuffer() const;
 	void appendToBuffer(const std::string &data);
