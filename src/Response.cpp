@@ -1,4 +1,5 @@
 #include "../include/Response.hpp"
+#include "../include/Server.hpp"
 
 Response::Response() : _statusCode(0) {}
 
@@ -61,4 +62,20 @@ const char* getReasonPhrase(int code) {
         #undef X
         default: return "Unknown Status";
     }
+}
+
+std::string Response::getHeaderValue(const std::string& key) const {
+	std::map<std::string, std::string>::const_iterator it = _headers.find(key);
+	if (it != _headers.end()) {
+		return it->second;
+	}
+	return "";
+}
+
+void Response::sendResponse(Server& server, int clientFD, size_t index)
+{
+	std::string response = toString();
+	send(clientFD, response.c_str(), response.size(), 0);
+	if (getHeaderValue("Connection") == "close")
+		server.deleteClient(clientFD, index);
 }

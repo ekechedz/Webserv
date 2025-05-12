@@ -22,10 +22,4 @@
 #include <poll.h>
 
 
-
-#define ERR_INVALID_ARGS  2
-#define ERR_CONFIG_FAIL   3
-#define ERR_SERVER_FAIL   4
-
-
 #endif

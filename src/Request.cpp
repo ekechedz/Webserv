@@ -65,9 +65,8 @@ void Request::print() const
 			  << std::endl;
 }
 
-void Server::handleGetRequest(int clientFd, const std::string &path)
+void Server::handleGetRequest(Response& res, const std::string &path)
 {
-	Response res;
 	std::string fullPath = "www" + path;
 	std::ifstream file(fullPath.c_str(), std::ios::binary);
 
@@ -75,9 +74,9 @@ void Server::handleGetRequest(int clientFd, const std::string &path)
 
 	if (!file.is_open())
 	{
-		std::string error = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found";
-		std::cout << "File not found: " << fullPath << "\nStatus Code: 404 Not Found\n";
-		send(clientFd, error.c_str(), error.size(), 0);
+		res.setStatus(404);
+		// std::cout << "File not found: " << fullPath << "\nStatus Code: 404 Not Found\n";
+		return ;
 	}
 	else
 	{
@@ -90,19 +89,13 @@ void Server::handleGetRequest(int clientFd, const std::string &path)
 		res.setHeader("Content-Length", intToStr(content.str().size()));
 		res.setHeader("Connection", "close");
 		res.setBody(content.str());
-
-		std::string response = res.toString();
-		send(clientFd, response.c_str(), response.size(), 0);
 	}
-	// std::cout << "Status Code: 200 OK" << std::endl;
-	close(clientFd);
 }
 
-void Server::handlePostRequest(int clientFd, const std::string &path, const std::string &requestBody)
+void Server::handlePostRequest(Response& res, const std::string &path, const std::string &requestBody)
 {
-	std::cout << "Handling POST request to: " << path << std::endl;
-	std::cout << "Request body:\n"
-			  << requestBody << std::endl;
+	// std::cout << "Handling POST request to: " << path << std::endl;
+	// std::cout << "Request body:\n" << requestBody << std::endl;
 
 	std::map<std::string, std::string> formData;
 	std::istringstream stream(requestBody);
@@ -143,8 +136,6 @@ void Server::handlePostRequest(int clientFd, const std::string &path, const std:
 
 	std::string body = responseBody.str();
 
-	Response res;
-
 	res.setStatus(200);
 	res.setHeader("Content-Type", "text/html");
 	res.setHeader("Content-Length", intToStr(body.size()));
@@ -152,15 +143,11 @@ void Server::handlePostRequest(int clientFd, const std::string &path, const std:
 	res.setBody(body);
 
 	std::string response = res.toString();
-	send(clientFd, response.c_str(), response.size(), 0);
-
-	close(clientFd);
 }
 
-void Server::handleDeleteRequest(int clientFd, const std::string &path)
+void Server::handleDeleteRequest(Response& res, const std::string &path)
 {
 	std::string fullPath = "www" + path;
-	Response res;
 	std::ostringstream body;
 
 	if (std::remove(fullPath.c_str()) == 0)
@@ -177,8 +164,8 @@ void Server::handleDeleteRequest(int clientFd, const std::string &path)
 		}
 		else if (errno == EACCES || errno == EPERM)
 		{
-			std::string permissionDenied = "HTTP/1.1 403 Forbidden\r\nContent-Type: text/plain\r\n\r\nPermission denied";
-			send(clientFd, permissionDenied.c_str(), permissionDenied.size(), 0);
+			res.setStatus(403);
+			body << "Permission denied";
 		}
 		else
 		{
@@ -191,8 +178,4 @@ void Server::handleDeleteRequest(int clientFd, const std::string &path)
 	res.setHeader("Content-Type", "text/html");
 	res.setHeader("Content-Length", intToStr(body.str().size()));
 	res.setHeader("Connection", "close");
-
-	std::string responseData = res.toString();
-	send(clientFd, responseData.c_str(), responseData.size(), 0);
-	close(clientFd);
 }
