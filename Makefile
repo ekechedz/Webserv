@@ -1,6 +1,7 @@
 NAME = webserv
 CXX = c++
-CXXFLAGS = -Wall -Werror -Wextra -g -std=c++98
+
+CXXFLAGS = -Wall -Werror -Wextra -g -std=c++98 -pedantic-errors
 
 SRC_DIR = src
 OBJ_DIR = obj
@@ -14,7 +15,7 @@ SRCS = \
 	$(SRC_DIR)/Server.cpp \
 	$(SRC_DIR)/Request.cpp \
 	$(SRC_DIR)/Response.cpp \
-	$(SRC_DIR)/Client.cpp \
+	$(SRC_DIR)/Socket.cpp \
 
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
