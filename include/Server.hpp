@@ -22,8 +22,8 @@ class Server
 public:
 	Server(const std::vector<ServerConfig> &configs);
 	void run();
-	void deleteClient(int clientFD, size_t index);
-	
+	void deleteClient(int clientFD);
+
 	private:
 	std::vector<ServerConfig> _configs;
 	std::map<int, Socket> _sockets;
@@ -39,4 +39,3 @@ public:
 };
 
 std::string getContentType(const std::string &path);
-
