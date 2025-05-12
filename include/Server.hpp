@@ -31,7 +31,7 @@ public:
 
 	int createListeningSocket(const ServerConfig &config);
 	void acceptConnection(int listenFd);
-	void handleClient(int clientFd, size_t index);
+	void handleClient(int clientFd);
 	void handleClientTimeouts();
 	void handleGetRequest(Response& res, const std::string &path);
 	void handlePostRequest(Response& res, const std::string &path, const std::string &requestBody);

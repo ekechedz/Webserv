@@ -7,7 +7,8 @@
 class Server;
 
 
-class Response {
+class Response
+{
 private:
 	int _statusCode;
 	std::map<std::string, std::string> _headers;
@@ -16,11 +17,12 @@ private:
 public:
 	Response();
 	void setStatus(int code);
-	void setHeader(const std::string& key, const std::string& value);
-	void setBody(const std::string& body);
+	void setHeader(const std::string &key, const std::string &value);
+	void setBody(const std::string &body);
 	std::string toString() const;
-	std::string getHeaderValue(const std::string& key) const;
-	void sendResponse(Server& server, int clientFD);
+	std::string getHeaderValue(const std::string &key) const;
+	void sendResponse(Server &server, int clientFD);
+
 };
 
-const char* getReasonPhrase(int code);
+const char *getReasonPhrase(int code);

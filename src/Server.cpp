@@ -92,7 +92,7 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 		}
 	}
 
-	// Fallback to "/" location if no match
+	//Fallback to "/" location if no match
 	if (!bestMatch)
 	{
 		for (size_t i = 0; i < locations.size(); ++i)
@@ -129,17 +129,12 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 		std::cout << "No matched location.\n";
 }
 
-void Server::handleClient(int clientFd, size_t index)
+void Server::handleClient(int clientFd)
 {
 	char buffer[10000];
 	ssize_t bytes = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
 	if (bytes <= 0)
-	{
-		close(clientFd);
-		_pollFds.erase(_pollFds.begin() + index);
-		_sockets.erase(clientFd);
-		return;
-	}
+		deleteClient(clientFd);
 
 	buffer[bytes] = '\0';
 	_sockets[clientFd].appendToBuffer(buffer);
@@ -208,7 +203,7 @@ void Server::handleClientTimeouts()
 	for (std::map<int, Socket>::iterator it = _sockets.begin(); it != _sockets.end();)
 	{
 		Socket &client = it->second;
-		if (time(NULL) - client.getLastActivity() > 30)
+		if (client.type != Socket::LISTENING && time(NULL) - client.getLastActivity() > 30)
 		{
 			std::cout << "Client " << client.getFd() << " has timed out. Closing connection.\n";
 			close(client.getFd());
@@ -243,7 +238,7 @@ void Server::run()
 				if (_sockets[fd].type == Socket::LISTENING)
 					acceptConnection(fd);
 				else
-					handleClient(fd, i);
+					handleClient(fd);
 			}
 		}
 	}
