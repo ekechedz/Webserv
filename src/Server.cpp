@@ -28,7 +28,8 @@ int Server::createListeningSocket(const ServerConfig &config)
 		throw std::runtime_error("Socket creation failed");
 
 	int opt = 1;
-	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)) < 0) {
+	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0)
+	{
 		std::ostringstream oss;
 		oss << "Setsockopt failed: " << std::strerror(errno);
 		throw std::runtime_error(oss.str());
@@ -70,6 +71,73 @@ void Server::acceptConnection(int listenFd)
 	_socketInfo[clientFd].server = _socketInfo[listenFd].server;
 }
 
+void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
+{
+	const LocationConfig *bestMatch = NULL;
+	size_t longestMatch = 0;
+
+	for (size_t i = 0; i < locations.size(); ++i)
+	{
+		const std::string &locPath = locations[i].getPath();
+
+		if (req.path.find(locPath) == 0 &&
+			(locPath.size() == 1 || req.path[locPath.size()] == '/' || req.path.size() == locPath.size()))
+		{
+			if (locPath.size() > longestMatch)
+			{
+				bestMatch = &locations[i];
+				longestMatch = locPath.size();
+			}
+		}
+	}
+
+	// Fallback to "/" location if no match
+	if (!bestMatch)
+	{
+		for (size_t i = 0; i < locations.size(); ++i)
+		{
+			if (locations[i].getPath() == "/")
+			{
+				bestMatch = &locations[i];
+				break;
+			}
+		}
+	}
+
+	req.matchedLocation = bestMatch;
+
+	if (bestMatch)
+	{
+		std::cout << "Matched Location Path: " << bestMatch->getPath() << "\n";
+		std::cout << "Matched Root: " << bestMatch->getRoot() << "\n";
+		std::cout << "Index: " << bestMatch->getIndex() << "\n";
+		std::cout << "Autoindex: " << (bestMatch->isAutoindex() ? "on" : "off") << "\n";
+		std::cout << "Allowed Methods: ";
+		const std::vector<std::string> &methods = bestMatch->getMethods();
+		for (size_t j = 0; j < methods.size(); ++j)
+		{
+			std::cout << methods[j] << " ";
+		}
+		std::cout << "\n";
+		if (!bestMatch->getRedirect().empty())
+		{
+			std::cout << "Redirect: " << bestMatch->getRedirect() << "\n";
+		}
+		if (!bestMatch->getCgiPath().empty())
+		{
+			std::cout << "CGI Path: " << bestMatch->getCgiPath() << "\n";
+		}
+		if (!bestMatch->getCgiExt().empty())
+		{
+			std::cout << "CGI Extension: " << bestMatch->getCgiExt() << "\n";
+		}
+	}
+	else
+	{
+		std::cout << "No matched location.\n";
+	}
+}
+
 void Server::handleClient(int clientFd, size_t index)
 {
 	char buffer[10000];
@@ -85,12 +153,17 @@ void Server::handleClient(int clientFd, size_t index)
 	buffer[bytes] = '\0';
 	_clients[clientFd].appendToBuffer(buffer);
 	std::string request = _clients[clientFd].getBuffer();
+	const std::vector<LocationConfig> &locations = _socketInfo[clientFd].server->getLocations();
 	Request req;
 	Response res;
-	try {
+	try
+	{
 		req = parseHttpRequest(request);
-		req.print();
-	} catch (const std::exception &e) {
+		matchLocation(req, locations);
+		// req.print();
+	}
+	catch (const std::exception &e)
+	{
 		std::cerr << "Failed to parse request: " << e.what() << "\n";
 		res.setStatus(400);
 		res.setHeader("Connection", "close");
@@ -98,8 +171,20 @@ void Server::handleClient(int clientFd, size_t index)
 		return;
 	}
 
-	if (req.path == "/")
-		req.path = _socketInfo[clientFd].server->getIndex();
+	if (req.matchedLocation)
+	{
+		if (req.path == "/")
+			req.path = _socketInfo[clientFd].server->getIndex();
+
+		if (!req.matchedLocation->getRedirect().empty())
+		{
+			res.setStatus(301);
+			res.setHeader("Location", req.matchedLocation->getRedirect());
+			res.setHeader("Connection", "close");
+			res.sendResponse(*this, clientFd, index);
+			return;
+		}
+	}
 
 	if (req.method == "GET")
 		handleGetRequest(res, req.path);
@@ -159,7 +244,6 @@ void Server::run()
 		}
 	}
 }
-
 
 void Server::deleteClient(int clientFD, size_t index)
 {
