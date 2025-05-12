@@ -1,5 +1,5 @@
 #include "../include/Server.hpp"
-#include "../include/Client.hpp"
+#include "../include/Socket.hpp"
 #include "../include/Request.hpp"
 
 Server::Server(const std::vector<ServerConfig> &configs)
@@ -14,9 +14,9 @@ Server::Server(const std::vector<ServerConfig> &configs)
 		pfd.events = POLLIN;
 		pfd.revents = 0;
 		_pollFds.push_back(pfd);
-		_socketInfo[sock].type = SocketContext::LISTENING;
-		_socketInfo[sock].state = SocketContext::RECEIVING;
-		_socketInfo[sock].server = &config;
+		_sockets[sock].type = Socket::LISTENING;
+		_sockets[sock].state = Socket::RECEIVING;
+		_sockets[sock].server = &config;
 		std::cout << "Listening on " << config.getHost() << ":" << config.getPort() << "\n";
 	}
 }
@@ -57,7 +57,7 @@ void Server::acceptConnection(int listenFd)
 	if (clientFd == -1)
 		return;
 
-	_clients[clientFd] = Client(clientFd);
+	_sockets[clientFd] = Socket(clientFd);
 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
 
 	struct pollfd pfd;
@@ -65,9 +65,9 @@ void Server::acceptConnection(int listenFd)
 	pfd.events = POLLIN;
 	pfd.revents = 0;
 	_pollFds.push_back(pfd);
-	_socketInfo[clientFd].type = SocketContext::CLIENT;
-	_socketInfo[clientFd].state = SocketContext::RECEIVING;
-	_socketInfo[clientFd].server = _socketInfo[listenFd].server;
+	_sockets[clientFd].type = Socket::CLIENT;
+	_sockets[clientFd].state = Socket::RECEIVING;
+	_sockets[clientFd].server = _sockets[listenFd].server;
 }
 
 void Server::handleClient(int clientFd, size_t index)
@@ -78,13 +78,13 @@ void Server::handleClient(int clientFd, size_t index)
 	{
 		close(clientFd);
 		_pollFds.erase(_pollFds.begin() + index);
-		_clients.erase(clientFd);
+		_sockets.erase(clientFd);
 		return;
 	}
 
 	buffer[bytes] = '\0';
-	_clients[clientFd].appendToBuffer(buffer);
-	std::string request = _clients[clientFd].getBuffer();
+	_sockets[clientFd].appendToBuffer(buffer);
+	std::string request = _sockets[clientFd].getBuffer();
 	Request req;
 	Response res;
 	try {
@@ -99,7 +99,7 @@ void Server::handleClient(int clientFd, size_t index)
 	}
 
 	if (req.path == "/")
-		req.path = _socketInfo[clientFd].server->getIndex();
+		req.path = _sockets[clientFd].server->getIndex();
 
 	if (req.method == "GET")
 		handleGetRequest(res, req.path);
@@ -111,19 +111,19 @@ void Server::handleClient(int clientFd, size_t index)
 		res.setStatus(405);
 	res.setHeader("Connection", "close");
 	res.sendResponse(*this, clientFd, index);
-	_clients[clientFd].clearBuffer();
+	_sockets[clientFd].clearBuffer();
 }
 
 void Server::handleClientTimeouts()
 {
-	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end();)
+	for (std::map<int, Socket>::iterator it = _sockets.begin(); it != _sockets.end();)
 	{
-		Client &client = it->second;
+		Socket &client = it->second;
 		if (time(NULL) - client.getLastActivity() > 30)
 		{
 			std::cout << "Client " << client.getFd() << " has timed out. Closing connection.\n";
 			close(client.getFd());
-			_clients.erase(it++);
+			_sockets.erase(it++);
 		}
 		else
 			++it;
@@ -151,7 +151,7 @@ void Server::run()
 			if (_pollFds[i].revents & POLLIN)
 			{
 				int fd = _pollFds[i].fd;
-				if (_socketInfo[fd].type == SocketContext::LISTENING)
+				if (_sockets[fd].type == Socket::LISTENING)
 					acceptConnection(fd);
 				else
 					handleClient(fd, i);
@@ -165,5 +165,5 @@ void Server::deleteClient(int clientFD, size_t index)
 {
 	close(clientFD);
 	_pollFds.erase(_pollFds.begin() + index);
-	_clients.erase(clientFD);
+	_sockets.erase(clientFD);
 }
