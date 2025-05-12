@@ -115,27 +115,17 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 		std::cout << "Allowed Methods: ";
 		const std::vector<std::string> &methods = bestMatch->getMethods();
 		for (size_t j = 0; j < methods.size(); ++j)
-		{
 			std::cout << methods[j] << " ";
-		}
 		std::cout << "\n";
 		if (!bestMatch->getRedirect().empty())
-		{
 			std::cout << "Redirect: " << bestMatch->getRedirect() << "\n";
-		}
 		if (!bestMatch->getCgiPath().empty())
-		{
 			std::cout << "CGI Path: " << bestMatch->getCgiPath() << "\n";
-		}
 		if (!bestMatch->getCgiExt().empty())
-		{
 			std::cout << "CGI Extension: " << bestMatch->getCgiExt() << "\n";
-		}
 	}
 	else
-	{
 		std::cout << "No matched location.\n";
-	}
 }
 
 void Server::handleClient(int clientFd, size_t index)
@@ -151,10 +141,9 @@ void Server::handleClient(int clientFd, size_t index)
 	}
 
 	buffer[bytes] = '\0';
-
-	_clients[clientFd].appendToBuffer(buffer);
-	std::string request = _clients[clientFd].getBuffer();
-	const std::vector<LocationConfig> &locations = _socketInfo[clientFd].server->getLocations();
+	_sockets[clientFd].appendToBuffer(buffer);
+	std::string request = _sockets[clientFd].getBuffer();
+	const std::vector<LocationConfig> &locations = _sockets[clientFd].server->getLocations();
 
 	Request req;
 	Response res;
@@ -173,11 +162,10 @@ void Server::handleClient(int clientFd, size_t index)
 		return;
 	}
 
-
 	if (req.matchedLocation)
 	{
 		if (req.path == "/")
-			req.path = _socketInfo[clientFd].server->getIndex();
+			req.path = _sockets[clientFd].server->getIndex();
 
 		if (!req.matchedLocation->getRedirect().empty())
 		{
@@ -188,7 +176,6 @@ void Server::handleClient(int clientFd, size_t index)
 			return;
 		}
 	}
-
 
 	if (req.method == "GET")
 		handleGetRequest(res, req.path);
