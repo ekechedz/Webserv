@@ -1,0 +1,4 @@
+# These can be used for raw input testing
+
+# Malformed Request
+printf "\n\n\n\nBroken-Header\r\n\r\n" | nc localhost 8080

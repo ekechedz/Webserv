@@ -86,16 +86,15 @@ void Server::handleClient(int clientFd, size_t index)
 	_clients[clientFd].appendToBuffer(buffer);
 	std::string request = _clients[clientFd].getBuffer();
 	Request req;
+	Response res;
 	try {
 		req = parseHttpRequest(request);
 		req.print();
 	} catch (const std::exception &e) {
 		std::cerr << "Failed to parse request: " << e.what() << "\n";
-		std::string response = "HTTP/1.1 400 Bad Request\r\n\r\n";
-		send(clientFd, response.c_str(), response.size(), 0);
-		close(clientFd);
-		_pollFds.erase(_pollFds.begin() + index);
-		_clients.erase(clientFd);
+		res.setStatus(400);
+		res.setHeader("Connection", "close");
+		res.sendResponse(*this, clientFd, index);
 		return;
 	}
 
@@ -103,19 +102,15 @@ void Server::handleClient(int clientFd, size_t index)
 		req.path = _socketInfo[clientFd].server->getIndex();
 
 	if (req.method == "GET")
-		handleGetRequest(clientFd, req.path);
+		handleGetRequest(res, req.path);
 	else if (req.method == "POST")
-		handlePostRequest(clientFd, req.path, req.body);
+		handlePostRequest(res, req.path, req.body);
 	else if (req.method == "DELETE")
-		handleDeleteRequest(clientFd, req.path);
-	else {
-		std::string response = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
-		send(clientFd, response.c_str(), response.size(), 0);
-		close(clientFd);
-		_pollFds.erase(_pollFds.begin() + index);
-		_clients.erase(clientFd);
-	}
-
+		handleDeleteRequest(res, req.path);
+	else
+		res.setStatus(405);
+	res.setHeader("Connection", "close");
+	res.sendResponse(*this, clientFd, index);
 	_clients[clientFd].clearBuffer();
 }
 
@@ -163,4 +158,12 @@ void Server::run()
 			}
 		}
 	}
+}
+
+
+void Server::deleteClient(int clientFD, size_t index)
+{
+	close(clientFD);
+	_pollFds.erase(_pollFds.begin() + index);
+	_clients.erase(clientFD);
 }
