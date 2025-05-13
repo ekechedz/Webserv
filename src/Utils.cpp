@@ -44,3 +44,30 @@ std::string intToStr(int num)
 	oss << num;
 	return oss.str();
 }
+std::string decodeChunkedBody(std::istream &stream)
+{
+	std::string body;
+	std::string line;
+
+	while (std::getline(stream, line))
+	{
+		if (!line.empty() && line[line.size() - 1] == '\r')
+			line.erase(line.size() - 1);
+
+		std::istringstream chunkSizeStream(line);
+		int chunkSize = 0;
+		chunkSizeStream >> std::hex >> chunkSize;
+
+		if (chunkSize == 0)
+			break;
+
+		char *buffer = new char[chunkSize];
+		stream.read(buffer, chunkSize);
+		body.append(buffer, chunkSize);
+		delete[] buffer;
+
+		std::getline(stream, line);
+	}
+
+	return body;
+}

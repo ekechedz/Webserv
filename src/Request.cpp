@@ -28,14 +28,18 @@ Request parseHttpRequest(const std::string &rawRequest)
 			request.headers[key] = value;
 		}
 	}
-
-	if (request.headers.count("Content-Length"))
+	if (request.headers.count("Transfer-Encoding") &&
+		request.headers["Transfer-Encoding"] == "chunked")
+		request.body = decodeChunkedBody(stream);
+	else if (request.headers.count("Content-Length"))
 	{
 		int length = std::atoi(request.headers["Content-Length"].c_str());
 		std::string body(length, '\0');
 		stream.read(&body[0], length);
 		request.body = body;
 	}
+
+
 
 	std::cout << "Received HTTP request from client " << ": "
 			  << request.method << " " << request.path << " " << request.protocol << "\n";
