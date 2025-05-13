@@ -22,7 +22,6 @@ class Server
 public:
 	Server(const std::vector<ServerConfig> &configs);
 	void run();
-	void deleteClient(int clientFD);
 
 	private:
 	std::vector<ServerConfig> _configs;
@@ -30,14 +29,15 @@ public:
 	std::vector<pollfd> _pollFds;
 
 	int createListeningSocket(const ServerConfig &config);
-	void acceptConnection(int listenFd);
-	void handleClient(int clientFd);
+	void acceptConnection(Socket& listeningSocket);
+	void handleClient(Socket& client);
 	void handleClientTimeouts();
 	void handleGetRequest(Response& res, const std::string &path);
 	void handlePostRequest(Response& res, const std::string &path, const std::string &requestBody);
 	void handleDeleteRequest(Response& res, const std::string &path);
 	void printSockets();
-	void sendResponse(Response& response, int clientFD);
+	void sendResponse(Response& response, Socket& client);
+	void deleteClient(Socket& client);
 };
 
 std::string getContentType(const std::string &path);

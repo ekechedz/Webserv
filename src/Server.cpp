@@ -48,23 +48,24 @@ int Server::createListeningSocket(const ServerConfig &config)
 	return sock;
 }
 
-void Server::acceptConnection(int listenFd)
+void Server::acceptConnection(Socket& listeningSocket)
 {
 	sockaddr_in clientAddr;
 	socklen_t len = sizeof(clientAddr);
-	int clientFd = accept(listenFd, (sockaddr *)&clientAddr, &len);
+	int clientFd = accept(listeningSocket.getFd(), (sockaddr *)&clientAddr, &len);
 	if (clientFd == -1)
 		return;
-	// TODO: Check line
-	// _sockets[clientFd] = Socket(clientFd, Socket::CLIENT, Socket::RECEIVING, NULL);
 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
 
-	struct pollfd pfd;
-	pfd.fd = clientFd;
-	pfd.events = POLLIN;
-	pfd.revents = 0;
+	// Adding client fd to Server::_pollFds vector
+	pollfd pfd = { clientFd, POLLIN, 0 };
 	_pollFds.push_back(pfd);
-	_sockets[clientFd] = Socket(clientFd, Socket::CLIENT, Socket::RECEIVING, &_sockets[listenFd].getServerConfig());
+
+	// Adding client to Server::_sockets map
+	_sockets[clientFd] = Socket(clientFd, Socket::CLIENT, Socket::RECEIVING, &listeningSocket.getServerConfig());
+
+	// DEBUG
+	printSockets();
 }
 
 void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
@@ -125,18 +126,17 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 		std::cout << "No matched location.\n";
 }
 
-void Server::handleClient(int clientFd)
+void Server::handleClient(Socket& client)
 {
-	printSockets();
 	char buffer[10000];
-	ssize_t bytes = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
+	ssize_t bytes = recv(client.getFd(), buffer, sizeof(buffer) - 1, 0);
 	if (bytes <= 0)
-		deleteClient(clientFd);
+		deleteClient(client);;
 
 	buffer[bytes] = '\0';
-	_sockets[clientFd].appendToBuffer(buffer);
-	std::string request = _sockets[clientFd].getBuffer();
-	const std::vector<LocationConfig> &locations = _sockets[clientFd].getServerConfig().getLocations();
+	client.appendToBuffer(buffer);
+	std::string request = client.getBuffer();
+	const std::vector<LocationConfig> &locations = client.getServerConfig().getLocations();
 
 	Request req;
 	Response res;
@@ -152,14 +152,14 @@ void Server::handleClient(int clientFd)
 		std::cerr << "Failed to parse request: " << e.what() << "\n";
 		res.setStatus(400);
 		res.setHeader("Connection", "close");
-		sendResponse(res, clientFd);
+		sendResponse(res, client);
 		return;
 	}
 
 	if (req.matchedLocation)
 	{
 		if (req.path == "/")
-			req.path = _sockets[clientFd].getServerConfig().getIndex();
+			req.path = client.getServerConfig().getIndex();
 
 		if (!req.matchedLocation->getRedirect().empty())
 		{
@@ -177,7 +177,7 @@ void Server::handleClient(int clientFd)
 			std::ostringstream oss;
 			oss << html.size();
 			res.setHeader("Content-Length", oss.str());
-			sendResponse(res, clientFd);
+			sendResponse(res, client);
 			return;
 		}
 	}
@@ -191,8 +191,8 @@ void Server::handleClient(int clientFd)
 	else
 		res.setStatus(405);
 	res.setHeader("Connection", "close");
-	sendResponse(res, clientFd);
-	_sockets[clientFd].clearBuffer();
+	sendResponse(res, client);
+	client.clearBuffer();
 }
 
 void Server::handleClientTimeouts()
@@ -233,27 +233,27 @@ void Server::run()
 			{
 				int fd = _pollFds[i].fd;
 				if (_sockets[fd].getType() == Socket::LISTENING)
-					acceptConnection(fd);
+					acceptConnection(_sockets[fd]);
 				else
-					handleClient(fd);
+					handleClient(_sockets[fd]);
 			}
 		}
 	}
 }
 
 // after removing a client or sending a response the indices in _pollFds may no longer match the map in _sockets
-void Server::deleteClient(int clientFD)
+void Server::deleteClient(Socket& client)
 {
-	close(clientFD);
+	close(client.getFd());
 	for (size_t i = 0; i < _pollFds.size(); ++i)
 	{
-		if (_pollFds[i].fd == clientFD)
+		if (_pollFds[i].fd == client.getFd())
 		{
 			_pollFds.erase(_pollFds.begin() + i);
 			break;
 		}
 	}
-	_sockets.erase(clientFD);
+	_sockets.erase(client.getFd());
 }
 
 void Server::printSockets()
@@ -272,17 +272,17 @@ void Server::printSockets()
 	std::cout << "===== Poll Fd List End =====\n";
 }
 
-void Server::sendResponse(Response& response, int clientFD)
+void Server::sendResponse(Response& response, Socket& client)
 {
 	std::string string = response.toString();
-	ssize_t sent = send(clientFD, string.c_str(), string.size(), 0);
+	ssize_t sent = send(client.getFd(), string.c_str(), string.size(), 0);
 	if (sent == -1) // just to be sure that send does not fail
 	{
 		perror("send failed");
-		deleteClient(clientFD);
+		deleteClient(client);;
 		return;
 	}
 
 	if (response.getHeaderValue("Connection") == "close")
-		deleteClient(clientFD);
+		deleteClient(client);;
 }
