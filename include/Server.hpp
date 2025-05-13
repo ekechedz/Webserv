@@ -36,6 +36,7 @@ public:
 	void handleGetRequest(Response& res, const std::string &path);
 	void handlePostRequest(Response& res, const std::string &path, const std::string &requestBody);
 	void handleDeleteRequest(Response& res, const std::string &path);
+	void printSockets();
 };
 
 std::string getContentType(const std::string &path);

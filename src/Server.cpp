@@ -14,9 +14,7 @@ Server::Server(const std::vector<ServerConfig> &configs)
 		pfd.events = POLLIN;
 		pfd.revents = 0;
 		_pollFds.push_back(pfd);
-		_sockets[sock].type = Socket::LISTENING;
-		_sockets[sock].state = Socket::RECEIVING;
-		_sockets[sock].server = &config;
+		_sockets[sock] = Socket(sock, Socket::LISTENING, Socket::RECEIVING, &config);
 		std::cout << "Listening on " << config.getHost() << ":" << config.getPort() << "\n";
 	}
 }
@@ -57,8 +55,8 @@ void Server::acceptConnection(int listenFd)
 	int clientFd = accept(listenFd, (sockaddr *)&clientAddr, &len);
 	if (clientFd == -1)
 		return;
-
-	_sockets[clientFd] = Socket(clientFd);
+	// TODO: Check line
+	// _sockets[clientFd] = Socket(clientFd, Socket::CLIENT, Socket::RECEIVING, NULL);
 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
 
 	struct pollfd pfd;
@@ -66,9 +64,7 @@ void Server::acceptConnection(int listenFd)
 	pfd.events = POLLIN;
 	pfd.revents = 0;
 	_pollFds.push_back(pfd);
-	_sockets[clientFd].type = Socket::CLIENT;
-	_sockets[clientFd].state = Socket::RECEIVING;
-	_sockets[clientFd].server = _sockets[listenFd].server;
+	_sockets[clientFd] = Socket(clientFd, Socket::CLIENT, Socket::RECEIVING, &_sockets[listenFd].getServerConfig());
 }
 
 void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
@@ -131,6 +127,7 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 
 void Server::handleClient(int clientFd)
 {
+	printSockets();
 	char buffer[10000];
 	ssize_t bytes = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
 	if (bytes <= 0)
@@ -139,7 +136,7 @@ void Server::handleClient(int clientFd)
 	buffer[bytes] = '\0';
 	_sockets[clientFd].appendToBuffer(buffer);
 	std::string request = _sockets[clientFd].getBuffer();
-	const std::vector<LocationConfig> &locations = _sockets[clientFd].server->getLocations();
+	const std::vector<LocationConfig> &locations = _sockets[clientFd].getServerConfig().getLocations();
 
 	Request req;
 	Response res;
@@ -162,7 +159,7 @@ void Server::handleClient(int clientFd)
 	if (req.matchedLocation)
 	{
 		if (req.path == "/")
-			req.path = _sockets[clientFd].server->getIndex();
+			req.path = _sockets[clientFd].getServerConfig().getIndex();
 
 		if (!req.matchedLocation->getRedirect().empty())
 		{
@@ -203,7 +200,7 @@ void Server::handleClientTimeouts()
 	for (std::map<int, Socket>::iterator it = _sockets.begin(); it != _sockets.end();)
 	{
 		Socket &client = it->second;
-		if (client.type != Socket::LISTENING && time(NULL) - client.getLastActivity() > 30)
+		if (client.getType() != Socket::LISTENING && time(NULL) - client.getLastActivity() > 30)
 		{
 			std::cout << "Client " << client.getFd() << " has timed out. Closing connection.\n";
 			close(client.getFd());
@@ -235,7 +232,7 @@ void Server::run()
 			if (_pollFds[i].revents & POLLIN)
 			{
 				int fd = _pollFds[i].fd;
-				if (_sockets[fd].type == Socket::LISTENING)
+				if (_sockets[fd].getType() == Socket::LISTENING)
 					acceptConnection(fd);
 				else
 					handleClient(fd);
@@ -257,4 +254,20 @@ void Server::deleteClient(int clientFD)
 		}
 	}
 	_sockets.erase(clientFD);
+}
+
+void Server::printSockets()
+{
+	std::cout << "===== Socket List =====\n";
+	for (std::map<int, Socket>::iterator it = _sockets.begin(); it != _sockets.end(); ++it)
+	{
+		std::cout << "Key in map: " << it->first
+			<< ", " << it->second;
+	}
+	std::cout << "===== Socket List End =====\n";
+	std::cout << "===== Poll Fd List =====\n";
+	for (std::vector<pollfd>::iterator it = _pollFds.begin(); it != _pollFds.end(); ++it) {
+		std::cout << "Fd: " << it->fd << ", Event: " << decodeEvents(it->events) << ", Revent: " << decodeEvents(it->revents) << "\n";
+	}
+	std::cout << "===== Poll Fd List End =====\n";
 }

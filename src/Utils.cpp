@@ -71,3 +71,19 @@ std::string decodeChunkedBody(std::istream &stream)
 
 	return body;
 }
+
+std::string decodeEvents(short int events)
+{
+	std::string result;
+	if (events & POLLIN)
+		result += "POLLIN ";
+	if (events & POLLOUT)
+		result += "POLLOUT ";
+	if (events & POLLERR)
+		result += "POLLERR ";
+	if (events & POLLHUP)
+		result += "POLLHUP ";
+	if (events & POLLNVAL)
+		result += "POLLNVAL ";
+	return result;
+}
