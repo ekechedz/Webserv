@@ -152,7 +152,7 @@ void Server::handleClient(int clientFd)
 		std::cerr << "Failed to parse request: " << e.what() << "\n";
 		res.setStatus(400);
 		res.setHeader("Connection", "close");
-		res.sendResponse(*this, clientFd);
+		sendResponse(res, clientFd);
 		return;
 	}
 
@@ -177,7 +177,7 @@ void Server::handleClient(int clientFd)
 			std::ostringstream oss;
 			oss << html.size();
 			res.setHeader("Content-Length", oss.str());
-			res.sendResponse(*this, clientFd);
+			sendResponse(res, clientFd);
 			return;
 		}
 	}
@@ -191,7 +191,7 @@ void Server::handleClient(int clientFd)
 	else
 		res.setStatus(405);
 	res.setHeader("Connection", "close");
-	res.sendResponse(*this, clientFd);
+	sendResponse(res, clientFd);
 	_sockets[clientFd].clearBuffer();
 }
 
@@ -270,4 +270,19 @@ void Server::printSockets()
 		std::cout << "Fd: " << it->fd << ", Event: " << decodeEvents(it->events) << ", Revent: " << decodeEvents(it->revents) << "\n";
 	}
 	std::cout << "===== Poll Fd List End =====\n";
+}
+
+void Server::sendResponse(Response& response, int clientFD)
+{
+	std::string string = response.toString();
+	ssize_t sent = send(clientFD, string.c_str(), string.size(), 0);
+	if (sent == -1) // just to be sure that send does not fail
+	{
+		perror("send failed");
+		deleteClient(clientFD);
+		return;
+	}
+
+	if (response.getHeaderValue("Connection") == "close")
+		deleteClient(clientFD);
 }
