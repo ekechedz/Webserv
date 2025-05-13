@@ -82,18 +82,3 @@ std::string Response::getHeaderValue(const std::string &key) const
 	}
 	return "";
 }
-
-void Response::sendResponse(Server &server, int clientFD)
-{
-	std::string response = toString();
-	ssize_t sent = send(clientFD, response.c_str(), response.size(), 0);
-	if (sent == -1) // just to be sure that send does not fail
-	{
-		perror("send failed");
-		server.deleteClient(clientFD);
-		return;
-	}
-
-	if (getHeaderValue("Connection") == "close")
-		server.deleteClient(clientFD);
-}
