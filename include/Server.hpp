@@ -3,6 +3,8 @@
 #include "ServerConfig.hpp"
 #include "Socket.hpp"
 #include "Response.hpp"
+#include "Request.hpp"
+#include "CGI.hpp"
 #include "Utils.hpp"
 
 #include <vector>

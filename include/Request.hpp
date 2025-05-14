@@ -1,9 +1,13 @@
+#pragma once
+
 #include <string>
 #include <map>
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
 #include <cctype>
+
+#include "LocationConfig.hpp"
 
 class Request {
 public:

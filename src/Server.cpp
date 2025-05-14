@@ -1,6 +1,8 @@
 #include "../include/Server.hpp"
 #include "../include/Socket.hpp"
 #include "../include/Request.hpp"
+#include "../include/Response.hpp"
+#include "../include/CGI.hpp"
 #include "../include/Webserver.hpp"
 
 Server::Server(const std::vector<ServerConfig> &configs)
@@ -199,6 +201,23 @@ void Server::handleClient(Socket& client)
 			sendResponse(res, client);
 			return;
 		}
+	}
+	// CGI Handling
+	if (req.matchedLocation && !req.matchedLocation->getCgiPath().empty())
+	{
+		CGI cgi(req.matchedLocation->getCgiPath(), req.matchedLocation->getCgiExt());
+		cgi.setupFromRequest(req);
+		std::string output = cgi.execute();
+		res.setBody(output);
+		res.setHeader("Content-Type", getContentType(req.path));
+		std::ostringstream oss;
+		oss << output.size();
+		res.setHeader("Content-Length", oss.str());
+	}
+	else
+	{
+		res.setStatus(200);
+		res.setHeader("Content-Type", getContentType(req.path));
 	}
 
 	// Handling request according to method
