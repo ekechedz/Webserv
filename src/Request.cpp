@@ -91,7 +91,6 @@ void Server::handleGetRequest(Response& res, const std::string &path)
 		res.setStatus(200);
 		res.setHeader("Content-Type", type);
 		res.setHeader("Content-Length", intToStr(content.str().size()));
-		res.setHeader("Connection", "close");
 		res.setBody(content.str());
 	}
 }
@@ -143,7 +142,6 @@ void Server::handlePostRequest(Response& res, const std::string &path, const std
 	res.setStatus(200);
 	res.setHeader("Content-Type", "text/html");
 	res.setHeader("Content-Length", intToStr(body.size()));
-	res.setHeader("Connection", "close");
 	res.setBody(body);
 
 	std::string response = res.toString();
@@ -181,5 +179,4 @@ void Server::handleDeleteRequest(Response& res, const std::string &path)
 	res.setBody(body.str());
 	res.setHeader("Content-Type", "text/html");
 	res.setHeader("Content-Length", intToStr(body.str().size()));
-	res.setHeader("Connection", "close");
 }

@@ -21,5 +21,7 @@
 #include <unistd.h>
 #include <poll.h>
 
+# define MAX_REQUESTS 100
+# define MAX_SOCKETS 100
 
 #endif

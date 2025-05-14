@@ -6,6 +6,7 @@ Socket::Socket()
 , _type(LISTENING)
 , _state(RECEIVING)
 , _server(NULL)
+, _nbrRequests(0)
 {}
 
 Socket::Socket(int newFD, Type newType, State newState, const ServerConfig* newServer)
@@ -14,6 +15,7 @@ Socket::Socket(int newFD, Type newType, State newState, const ServerConfig* newS
 , _type(newType)
 , _state(newState)
 , _server(newServer)
+, _nbrRequests(0)
 {}
 
 Socket::Socket(const Socket& other)
@@ -22,6 +24,7 @@ Socket::Socket(const Socket& other)
 , _type(other._type)
 , _state(other._state)
 , _server(other._server)
+, _nbrRequests(other._nbrRequests)
 {}
 
 Socket& Socket::operator=(const Socket& other)
@@ -33,6 +36,7 @@ Socket& Socket::operator=(const Socket& other)
 		_type = other._type;
 		_state = other._state;
 		_server = other._server;
+		_nbrRequests = other._nbrRequests;
 	}
 	return *this;
 }
@@ -105,4 +109,14 @@ void Socket::setValues(const int newFD, const Type newType, const State newState
 	_type = newType;
 	_state = newState;
 	_server = newServer;
+}
+
+int Socket::getNbrRequests() const
+{
+	return _nbrRequests;
+}
+
+void Socket::increaseNbrRequests()
+{
+	++_nbrRequests;
 }
