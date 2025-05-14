@@ -57,7 +57,8 @@ std::string Response::toString() const
 	X(501, "Not Implemented")        \
 	X(502, "Bad Gateway")            \
 	X(503, "Service Unavailable")    \
-	X(504, "Gateway Timeout")
+	X(504, "Gateway Timeout")		\
+	X(505, "HTTP Version Not Supported")
 
 const char *getReasonPhrase(int code)
 {

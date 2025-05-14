@@ -156,6 +156,12 @@ void Server::handleClient(Socket& client)
 		return;
 	}
 
+	if (req.protocol != "HTTP/1.1")
+	{
+		res.setStatus(505);
+		sendResponse(res, client);
+	}
+
 	if (req.matchedLocation)
 	{
 		if (req.path == "/")
@@ -193,6 +199,7 @@ void Server::handleClient(Socket& client)
 	res.setHeader("Connection", "close");
 	sendResponse(res, client);
 	client.clearBuffer();
+	printSockets();
 }
 
 void Server::handleClientTimeouts()
