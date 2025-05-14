@@ -1,6 +1,7 @@
 #include "../include/Server.hpp"
 #include "../include/Socket.hpp"
 #include "../include/Request.hpp"
+#include "../include/Webserver.hpp"
 
 Server::Server(const std::vector<ServerConfig> &configs)
 	: _configs(configs)
@@ -156,11 +157,24 @@ void Server::handleClient(Socket& client)
 		return;
 	}
 
+	// Handle max nbr of requests per client
+	client.increaseNbrRequests();
+	if (client.getNbrRequests() == MAX_REQUESTS)
+	{
+		res.setHeader("Connection", "close");
+	}
+
+	// Checking protocol version and returning error if wrong
 	if (req.protocol != "HTTP/1.1")
 	{
 		res.setStatus(505);
 		sendResponse(res, client);
+		return;
 	}
+
+	// Closing connection if client requests it
+	if (req.headers.count("Connection") && req.headers["Connection"] == "close")
+		res.setHeader("Connection", "close");
 
 	if (req.matchedLocation)
 	{
@@ -171,7 +185,6 @@ void Server::handleClient(Socket& client)
 		{
 			res.setStatus(301);
 			res.setHeader("Location", req.matchedLocation->getRedirect());
-			res.setHeader("Connection", "close");
 			std::string html =
 				"<html><head><title>301 Moved</title></head><body>"
 				"<h1>301 Moved Permanently</h1>"
@@ -188,6 +201,7 @@ void Server::handleClient(Socket& client)
 		}
 	}
 
+	// Handling request according to method
 	if (req.method == "GET")
 		handleGetRequest(res, req.path);
 	else if (req.method == "POST")
@@ -196,9 +210,11 @@ void Server::handleClient(Socket& client)
 		handleDeleteRequest(res, req.path);
 	else
 		res.setStatus(405);
-	res.setHeader("Connection", "close");
+	
 	sendResponse(res, client);
 	client.clearBuffer();
+
+	// DEBUG
 	printSockets();
 }
 

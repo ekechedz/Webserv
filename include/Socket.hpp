@@ -18,17 +18,20 @@ public:
 	Socket& operator=(const Socket& other);
 	~Socket();
 
+	// Getters
 	int getFd() const;
 	Type getType() const;
+	time_t getLastActivity() const;
 	const ServerConfig& getServerConfig() const;
+	const std::string &getBuffer() const;
+	int getNbrRequests() const;
 
+	void increaseNbrRequests();
 	void setFD(const int newFD);
 	void setValues(const int newFD, const Type newType, const State newState, const ServerConfig* newServer);
-	const std::string &getBuffer() const;
 	void appendToBuffer(const std::string &data);
 	void clearBuffer();
 
-	time_t getLastActivity() const;
 	void updateActivity();
 	bool hasTimedOut(int timeoutSeconds) const;
 	friend std::ostream& operator<<(std::ostream& lhs, const Socket& rhs);
@@ -40,5 +43,6 @@ private:
 	Type _type;
 	State _state;
 	const ServerConfig* _server;
+	int _nbrRequests;
 };
 
