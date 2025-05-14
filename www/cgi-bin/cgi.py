@@ -13,3 +13,7 @@ if os.environ.get("REQUEST_METHOD", "") == "POST":
     body = sys.stdin.read(int(os.environ.get("CONTENT_LENGTH", "0")))
     print("<p>POST Body: {}</p>".format(body))
 print("</body></html>")
+
+# This script is a simple CGI script that prints out the request method, query string, content type, and content length.
+# It also prints the body of the POST request if the request method is POST.
+# The script is executed by the web server when a request is made to the CGI script.
