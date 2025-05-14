@@ -40,13 +40,13 @@ const std::vector<std::string>& CGI::getArgs() const { return args; }
 void CGI::setupFromRequest(const Request& req) {
 	setEnvVar("REQUEST_METHOD", req.method);
 	setEnvVar("PATH_INFO", req.path);
-	// Extract QUERY_STRING from path if present
+/* 	// Extract QUERY_STRING from path if present
 	size_t qpos = req.path.find('?');
 	if (qpos != std::string::npos)
 		setEnvVar("QUERY_STRING", req.path.substr(qpos + 1));
 	else
 		setEnvVar("QUERY_STRING", "");
-    // Set to or leave empty
+	// Set to or leave empty */
 	setEnvVar("CONTENT_TYPE", req.headers.count("Content-Type") ? req.headers.at("Content-Type") : "");
 	setEnvVar("CONTENT_LENGTH", req.headers.count("Content-Length") ? req.headers.at("Content-Length") : "");
 	setRequestBody(req.body);
@@ -54,6 +54,34 @@ void CGI::setupFromRequest(const Request& req) {
 
 std::string CGI::execute()
 {
+	// Prepare environment
+	std::vector<char*> envp;
+	for (std::map<std::string, std::string>::iterator it = env.begin(); it != env.end(); ++it) {
+		std::string entry = it->first + "=" + it->second;
+		envp.push_back(strdup(entry.c_str()));
+	}
+	envp.push_back(NULL);
+
+	// Prepare arguments
+	std::vector<char*> execArgs;
+	execArgs.push_back(const_cast<char*>(interpreter.c_str()));
+	execArgs.push_back(const_cast<char*>(scriptPath.c_str()));
+	for (size_t i = 0; i < args.size(); ++i)
+	execArgs.push_back(const_cast<char*>(args[i].c_str()));
+	execArgs.push_back(NULL);
+
+	/* // print envp
+	for (size_t i = 0; envp[i] != NULL; ++i)
+		std::cout << envp[i] << std::endl;
+	// print interpreter
+	std::cout << interpreter << std::endl;
+	// check access to script
+	if (access(scriptPath.c_str(), X_OK) == -1)
+		throw std::runtime_error("Script not executable");
+	// check if interpreter is executable
+	if (access(interpreter.c_str(), X_OK) == -1)
+		throw std::runtime_error("Interpreter not executable");
+	 */
 	int inPipe[2], outPipe[2];
 	if (pipe(inPipe) == -1 || pipe(outPipe) == -1)
 		throw std::runtime_error("Pipe creation failed");
@@ -63,29 +91,12 @@ std::string CGI::execute()
 		throw std::runtime_error("Fork failed");
 
 	if (pid == 0) 
-    {
+	{
 		// Child process
 		dup2(inPipe[0], STDIN_FILENO);
 		dup2(outPipe[1], STDOUT_FILENO);
 		close(inPipe[1]);
 		close(outPipe[0]);
-
-		// Prepare environment
-		std::vector<char*> envp;
-		for (std::map<std::string, std::string>::iterator it = env.begin(); it != env.end(); ++it) {
-			std::string entry = it->first + "=" + it->second;
-			envp.push_back(strdup(entry.c_str()));
-		}
-		envp.push_back(NULL);
-
-		// Prepare arguments
-		std::vector<char*> execArgs;
-		execArgs.push_back(const_cast<char*>(interpreter.c_str()));
-		execArgs.push_back(const_cast<char*>(scriptPath.c_str()));
-		for (size_t i = 0; i < args.size(); ++i)
-			execArgs.push_back(const_cast<char*>(args[i].c_str()));
-		execArgs.push_back(NULL);
-
 		// Execute
 		execve(interpreter.c_str(), &execArgs[0], &envp[0]);
 		// If execve fails

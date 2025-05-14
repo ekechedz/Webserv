@@ -68,7 +68,7 @@ void Server::acceptConnection(Socket& listeningSocket)
 	_sockets[clientFd] = Socket(clientFd, Socket::CLIENT, Socket::RECEIVING, &listeningSocket.getServerConfig());
 
 	// DEBUG
-	printSockets();
+	//printSockets();
 }
 
 void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
@@ -183,7 +183,7 @@ void Server::handleClient(Socket& client)
 		if (req.path == "/")
 			req.path = client.getServerConfig().getIndex();
 
-		if (!req.matchedLocation->getRedirect().empty())
+		if (req.matchedLocation->getRedirect() != "")
 		{
 			res.setStatus(301);
 			res.setHeader("Location", req.matchedLocation->getRedirect());
@@ -203,8 +203,10 @@ void Server::handleClient(Socket& client)
 		}
 	}
 	// CGI Handling
-	if (req.matchedLocation && !req.matchedLocation->getCgiPath().empty())
+	if (req.matchedLocation && req.matchedLocation->getCgiPath() != "")
 	{
+		// Constructing CGI object
+		std::cout << "In handleClient CGI path: " << req.matchedLocation->getCgiPath() << "\n";
 		CGI cgi(req.matchedLocation->getCgiPath(), req.matchedLocation->getCgiExt());
 		cgi.setupFromRequest(req);
 		std::string output = cgi.execute();
@@ -234,7 +236,7 @@ void Server::handleClient(Socket& client)
 	client.clearBuffer();
 
 	// DEBUG
-	printSockets();
+	//printSockets();
 }
 
 void Server::handleClientTimeouts()
