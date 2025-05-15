@@ -17,7 +17,10 @@ void Response::setBody(const std::string &body)
 {
 	_body = body;
 }
-
+int Response::getStatus() const
+{
+	return _statusCode;
+}
 std::string Response::toString() const
 {
 	std::ostringstream response;

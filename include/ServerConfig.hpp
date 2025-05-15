@@ -30,6 +30,7 @@ public:
 	const std::map<int, std::string>& getErrorPages() const;
 	const std::vector<LocationConfig>& getLocations() const;
 	void initialisedCheck() const;
+	const std::string& getErrorPage(int code) const;
 
 };
 
