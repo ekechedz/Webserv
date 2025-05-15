@@ -87,6 +87,14 @@ size_t ServerConfig::getClientMaxBodySize() const { return client_max_body_size;
 const std::map<int, std::string>& ServerConfig::getErrorPages() const { return error_pages; }
 const std::vector<LocationConfig>& ServerConfig::getLocations() const { return locations; }
 
+const std::string& ServerConfig::getErrorPage(int code) const {
+	static const std::string empty;
+	std::map<int, std::string>::const_iterator it = error_pages.find(code);
+	if (it != error_pages.end())
+		return it->second;
+	return empty;
+}
+
 void ServerConfig::print() const
 {
 	std::cout << "==== SERVER ====" << std::endl;

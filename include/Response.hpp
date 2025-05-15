@@ -17,6 +17,7 @@ private:
 public:
 	Response();
 	void setStatus(int code);
+	int getStatus() const;
 	void setHeader(const std::string &key, const std::string &value);
 	void setBody(const std::string &body);
 	std::string toString() const;
