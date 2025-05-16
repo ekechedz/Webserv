@@ -49,7 +49,7 @@ int Server::createListeningSocket(const ServerConfig &config)
 	return sock;
 }
 
-void Server::acceptConnection(Socket& listeningSocket)
+void Server::acceptConnection(Socket &listeningSocket)
 {
 	sockaddr_in clientAddr;
 	socklen_t len = sizeof(clientAddr);
@@ -59,7 +59,7 @@ void Server::acceptConnection(Socket& listeningSocket)
 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
 
 	// Adding client fd to Server::_pollFds vector
-	pollfd pfd = { clientFd, POLLIN, 0 };
+	pollfd pfd = {clientFd, POLLIN, 0};
 	_pollFds.push_back(pfd);
 
 	// Adding client to Server::_sockets map
@@ -90,7 +90,7 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 		}
 	}
 
-	//Fallback to "/" location if no match
+	// Fallback to "/" location if no match
 	if (!bestMatch)
 	{
 		for (size_t i = 0; i < locations.size(); ++i)
@@ -127,13 +127,14 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 		std::cout << "No matched location.\n";
 }
 
-void Server::handleClient(Socket& client)
+void Server::handleClient(Socket &client)
 {
 	char buffer[10000];
 	ssize_t bytes = recv(client.getFd(), buffer, sizeof(buffer) - 1, 0);
 	if (bytes <= 0)
 	{
-		deleteClient(client);;
+		deleteClient(client);
+		;
 		return;
 	}
 	buffer[bytes] = '\0';
@@ -182,18 +183,18 @@ void Server::handleClient(Socket& client)
 		return;
 	}
 
-	const LocationConfig* loc = req.getMatchedLocation();
+	const LocationConfig *loc = req.getMatchedLocation();
 	if (loc)
 	{
 		std::cout << "Original request path: " << req.getPath() << std::endl;
 
-	if (req.getPath() == "/")
-	{
-		req.setPath(client.getServerConfig().getIndex());
-		std::cout << "Request path was '/', changed to index: " << req.getPath() << std::endl;
-	}
-	else
-		std::cout << "Request path unchanged: " << req.getPath() << std::endl;
+		if (req.getPath() == "/")
+		{
+			req.setPath(client.getServerConfig().getIndex());
+			std::cout << "Request path was '/', changed to index: " << req.getPath() << std::endl;
+		}
+		else
+			std::cout << "Request path unchanged: " << req.getPath() << std::endl;
 
 		if (!loc->getRedirect().empty())
 		{
@@ -228,7 +229,6 @@ void Server::handleClient(Socket& client)
 		handleDeleteRequest(res, path);
 	else
 		res.setStatus(405);
-
 
 	sendResponse(res, client);
 	client.clearBuffer();
@@ -284,7 +284,7 @@ void Server::run()
 }
 
 // after removing a client or sending a response the indices in _pollFds may no longer match the map in _sockets
-void Server::deleteClient(Socket& client)
+void Server::deleteClient(Socket &client)
 {
 	close(client.getFd());
 	for (size_t i = 0; i < _pollFds.size(); ++i)
@@ -304,32 +304,35 @@ void Server::printSockets()
 	for (std::map<int, Socket>::iterator it = _sockets.begin(); it != _sockets.end(); ++it)
 	{
 		std::cout << "Key in map: " << it->first
-			<< ", " << it->second;
+				  << ", " << it->second;
 	}
 	std::cout << "===== Socket List End =====\n";
 	std::cout << "===== Poll Fd List =====\n";
-	for (std::vector<pollfd>::iterator it = _pollFds.begin(); it != _pollFds.end(); ++it) {
+	for (std::vector<pollfd>::iterator it = _pollFds.begin(); it != _pollFds.end(); ++it)
+	{
 		std::cout << "Fd: " << it->fd << ", Event: " << decodeEvents(it->events) << ", Revent: " << decodeEvents(it->revents) << "\n";
 	}
 	std::cout << "===== Poll Fd List End =====\n";
 }
 
-void Server::sendResponse(Response& response, Socket& client)
+void Server::sendResponse(Response &response, Socket &client)
 {
 	std::string string = response.toString();
 	ssize_t sent = send(client.getFd(), string.c_str(), string.size(), 0);
 	if (sent == -1) // just to be sure that send does not fail
 	{
 		perror("send failed");
-		deleteClient(client);;
+		deleteClient(client);
+		;
 		return;
 	}
 
 	if (response.getHeaderValue("Connection") == "close")
-		deleteClient(client);;
+		deleteClient(client);
+	;
 }
 
-void Server::handleGetRequest(Response& res, const std::string &path)
+void Server::handleGetRequest(Response &res, const std::string &path)
 {
 	std::string fullPath = "www" + path;
 	std::ifstream file(fullPath.c_str(), std::ios::binary);
@@ -360,14 +363,15 @@ void Server::handleGetRequest(Response& res, const std::string &path)
 	}
 }
 
-void Server::handlePostRequest(Response& res, const std::string &path, const std::string &requestBody)
+void Server::handlePostRequest(Response &res, const std::string &path, const std::string &requestBody)
 {
 	// Construct full file path based on web root
 	std::string fullPath = "www" + path;
 
 	// Attempt to write the body directly to the file
 	std::ofstream outFile(fullPath.c_str());
-	if (!outFile.is_open()) {
+	if (!outFile.is_open())
+	{
 		res.setStatus(500);
 		std::string err = "Failed to open file for writing: " + fullPath;
 		res.setHeader("Content-Type", "text/plain");
@@ -384,8 +388,9 @@ void Server::handlePostRequest(Response& res, const std::string &path, const std
 		"<html><body>\n"
 		"<h1>POST Received</h1>\n"
 		"<br>\n"
-		"<p>Path: " + path + "</p>\n"
-		"</body></html>";
+		"<p>Path: " +
+		path + "</p>\n"
+			   "</body></html>";
 
 	res.setStatus(200);
 	res.setHeader("Content-Type", "text/html");
@@ -393,8 +398,7 @@ void Server::handlePostRequest(Response& res, const std::string &path, const std
 	res.setBody(body);
 }
 
-
-void Server::handleDeleteRequest(Response& res, const std::string &path)
+void Server::handleDeleteRequest(Response &res, const std::string &path)
 {
 	std::string fullPath = "www" + path;
 	std::ostringstream body;
