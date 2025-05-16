@@ -1,12 +1,12 @@
+#pragma once
+
 #include <string>
 #include <map>
-#include <sstream>
-#include <stdexcept>
-#include <algorithm>
-#include <cctype>
+
+class LocationConfig;
 
 class Request {
-public:
+private:
 	std::string method;
 	std::string path;
 	std::string protocol;
@@ -14,7 +14,23 @@ public:
 	std::string body;
 	const LocationConfig* matchedLocation;
 
-	Request() {}
+public:
+	Request();
+
+	std::string getMethod() const;
+	std::string getPath() const;
+	std::string getProtocol() const;
+	std::map<std::string, std::string> getHeaders() const;
+	std::string getBody() const;
+	const LocationConfig* getMatchedLocation() const;
+
+	void setMethod(const std::string& m);
+	void setPath(const std::string& p);
+	void setProtocol(const std::string& pr);
+	void setHeaders(const std::map<std::string, std::string>& h);
+	void setBody(const std::string& b);
+	void setMatchedLocation(const LocationConfig* loc);
+
 	void print() const;
 };
 

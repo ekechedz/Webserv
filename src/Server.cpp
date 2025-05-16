@@ -78,8 +78,8 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 	{
 		const std::string &locPath = locations[i].getPath();
 
-		if (req.path.compare(0, locPath.size(), locPath) == 0 &&
-			(req.path.size() == locPath.size() || req.path[locPath.size()] == '/'))
+		if (req.getPath().compare(0, locPath.size(), locPath) == 0 &&
+			(req.getPath().size() == locPath.size() || req.getPath()[locPath.size()] == '/'))
 
 		{
 			if (locPath.size() > longestMatch)
@@ -103,7 +103,7 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 		}
 	}
 
-	req.matchedLocation = bestMatch;
+	req.setMatchedLocation(bestMatch);
 
 	if (bestMatch)
 	{
@@ -132,8 +132,10 @@ void Server::handleClient(Socket& client)
 	char buffer[10000];
 	ssize_t bytes = recv(client.getFd(), buffer, sizeof(buffer) - 1, 0);
 	if (bytes <= 0)
+	{
 		deleteClient(client);;
-
+		return;
+	}
 	buffer[bytes] = '\0';
 	client.appendToBuffer(buffer);
 	std::string request = client.getBuffer();
@@ -144,7 +146,7 @@ void Server::handleClient(Socket& client)
 	try
 	{
 		req = parseHttpRequest(request);
-		std::cout << "Requested path: " << req.path << "\n";
+		std::cout << "Requested path: " << req.getPath() << "\n";
 		matchLocation(req, locations);
 		// req.print();
 	}
@@ -165,7 +167,7 @@ void Server::handleClient(Socket& client)
 	}
 
 	// Checking protocol version and returning error if wrong
-	if (req.protocol != "HTTP/1.1")
+	if (req.getProtocol() != "HTTP/1.1")
 	{
 		res.setStatus(505);
 		sendResponse(res, client);
@@ -173,24 +175,27 @@ void Server::handleClient(Socket& client)
 	}
 
 	// Closing connection if client requests it
-	if (req.headers.count("Connection") && req.headers["Connection"] == "close")
+	std::map<std::string, std::string> headers = req.getHeaders();
+	if (headers.count("Connection") && headers["Connection"] == "close")
 		res.setHeader("Connection", "close");
 
-	if (req.matchedLocation)
+	const LocationConfig* loc = req.getMatchedLocation();
+	if (loc)
 	{
-		if (req.path == "/")
-			req.path = client.getServerConfig().getIndex();
+		if (req.getPath() == "/")
+			req.setPath(client.getServerConfig().getIndex());
 
-		if (!req.matchedLocation->getRedirect().empty())
+		if (!loc->getRedirect().empty())
 		{
 			res.setStatus(301);
-			res.setHeader("Location", req.matchedLocation->getRedirect());
+			res.setHeader("Location", loc->getRedirect());
+
 			std::string html =
 				"<html><head><title>301 Moved</title></head><body>"
 				"<h1>301 Moved Permanently</h1>"
 				"<p>Redirecting to <a href=\"" +
-				req.matchedLocation->getRedirect() + "\">" +
-				req.matchedLocation->getRedirect() + "</a></p></body></html>";
+				loc->getRedirect() + "\">" +
+				loc->getRedirect() + "</a></p></body></html>";
 
 			res.setBody(html);
 			std::ostringstream oss;
@@ -201,16 +206,20 @@ void Server::handleClient(Socket& client)
 		}
 	}
 
-	// Handling request according to method
-	if (req.method == "GET")
-		handleGetRequest(res, req.path);
-	else if (req.method == "POST")
-		handlePostRequest(res, req.path, req.body);
-	else if (req.method == "DELETE")
-		handleDeleteRequest(res, req.path);
+	std::string method = req.getMethod();
+	std::string path = req.getPath();
+	std::string body = req.getBody();
+
+	if (method == "GET")
+		handleGetRequest(res, path);
+	else if (method == "POST")
+		handlePostRequest(res, path, body);
+	else if (method == "DELETE")
+		handleDeleteRequest(res, path);
 	else
 		res.setStatus(405);
-	
+
+
 	sendResponse(res, client);
 	client.clearBuffer();
 
