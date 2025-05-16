@@ -159,31 +159,41 @@ void Server::handleClient(Socket& client)
 		return;
 	}
 
-	// Handle max nbr of requests per client
 	client.increaseNbrRequests();
-	if (client.getNbrRequests() == MAX_REQUESTS)
-	{
-		res.setHeader("Connection", "close");
-	}
 
-	// Checking protocol version and returning error if wrong
+	std::map<std::string, std::string> headers = req.getHeaders();
+	std::string connectionHeader;
+
+	if (headers.count("Connection"))
+		connectionHeader = headers["Connection"];
+	else
+		connectionHeader = (req.getProtocol() == "HTTP/1.1") ? "keep-alive" : "close";
+
+	if (client.getNbrRequests() >= MAX_REQUESTS)
+		connectionHeader = "close";
+
+	res.setHeader("Connection", connectionHeader);
+
 	if (req.getProtocol() != "HTTP/1.1")
 	{
 		res.setStatus(505);
+		res.setHeader("Connection", "close");
 		sendResponse(res, client);
 		return;
 	}
 
-	// Closing connection if client requests it
-	std::map<std::string, std::string> headers = req.getHeaders();
-	if (headers.count("Connection") && headers["Connection"] == "close")
-		res.setHeader("Connection", "close");
-
 	const LocationConfig* loc = req.getMatchedLocation();
 	if (loc)
 	{
-		if (req.getPath() == "/")
-			req.setPath(client.getServerConfig().getIndex());
+		std::cout << "Original request path: " << req.getPath() << std::endl;
+
+	if (req.getPath() == "/")
+	{
+		req.setPath(client.getServerConfig().getIndex());
+		std::cout << "Request path was '/', changed to index: " << req.getPath() << std::endl;
+	}
+	else
+		std::cout << "Request path unchanged: " << req.getPath() << std::endl;
 
 		if (!loc->getRedirect().empty())
 		{
@@ -324,13 +334,18 @@ void Server::handleGetRequest(Response& res, const std::string &path)
 	std::string fullPath = "www" + path;
 	std::ifstream file(fullPath.c_str(), std::ios::binary);
 
-	// std::cout << "File opened successfully: " << fullPath << std::endl;
+	std::cout << "File opened successfully: " << fullPath << std::endl;
 
 	if (!file.is_open())
 	{
+		std::cout << "File is not  successfully: " << fullPath << std::endl;
+
+		std::string body = "<html><body><h1>404 Not Found</h1></body></html>";
 		res.setStatus(404);
-		// std::cout << "File not found: " << fullPath << "\nStatus Code: 404 Not Found\n";
-		return ;
+		res.setHeader("Content-Type", "text/html");
+		res.setHeader("Content-Length", intToStr(body.size()));
+		res.setBody(body);
+		return;
 	}
 	else
 	{
@@ -347,55 +362,37 @@ void Server::handleGetRequest(Response& res, const std::string &path)
 
 void Server::handlePostRequest(Response& res, const std::string &path, const std::string &requestBody)
 {
-	// std::cout << "Handling POST request to: " << path << std::endl;
-	// std::cout << "Request body:\n" << requestBody << std::endl;
+	// Construct full file path based on web root
+	std::string fullPath = "www" + path;
 
-	std::map<std::string, std::string> formData;
-	std::istringstream stream(requestBody);
-	std::string pair;
-
-	while (std::getline(stream, pair, '&'))
-	{
-		size_t eq = pair.find('=');
-		if (eq != std::string::npos)
-		{
-			std::string key = pair.substr(0, eq);
-			std::string value = pair.substr(eq + 1);
-			formData[key] = value;
-		}
+	// Attempt to write the body directly to the file
+	std::ofstream outFile(fullPath.c_str());
+	if (!outFile.is_open()) {
+		res.setStatus(500);
+		std::string err = "Failed to open file for writing: " + fullPath;
+		res.setHeader("Content-Type", "text/plain");
+		res.setHeader("Content-Length", intToStr(err.size()));
+		res.setBody(err);
+		return;
 	}
 
-	// writing to a file
-	std::ostringstream responseBody;
-	responseBody << "<html>\n";
-	responseBody << "<body>\n";
-	responseBody << "<h1>POST Received</h1>\n";
-	responseBody << "<br>\n";
-	responseBody << "<p>Path: " << path << "</p>\n";
-	responseBody << "<ul>\n";
-	std::map<std::string, std::string>::iterator it;
-	std::ofstream outFile("www/post_output.txt", std::ios::app);
-	if (outFile.is_open())
-	{
-		for (it = formData.begin(); it != formData.end(); ++it)
-			outFile << it->first << "=" << it->second << "\n";
-		outFile << "----\n";
-		outFile.close();
-	}
+	outFile << requestBody;
+	outFile.close();
 
-	for (it = formData.begin(); it != formData.end(); ++it)
-		responseBody << "<li>" << it->first << ": " << it->second << "</li>";
-	responseBody << "</ul></body></html>";
-
-	std::string body = responseBody.str();
+	// Prepare simple HTML response (or switch to plain text)
+	std::string body =
+		"<html><body>\n"
+		"<h1>POST Received</h1>\n"
+		"<br>\n"
+		"<p>Path: " + path + "</p>\n"
+		"</body></html>";
 
 	res.setStatus(200);
 	res.setHeader("Content-Type", "text/html");
 	res.setHeader("Content-Length", intToStr(body.size()));
 	res.setBody(body);
-
-	std::string response = res.toString();
 }
+
 
 void Server::handleDeleteRequest(Response& res, const std::string &path)
 {
