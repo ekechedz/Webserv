@@ -145,6 +145,7 @@ void Server::handleClient(Socket &client)
 
 	Request req;
 	Response res;
+	// TODO: change try catch to a better error handling
 	try
 	{
 		req = parseHttpRequest(request);

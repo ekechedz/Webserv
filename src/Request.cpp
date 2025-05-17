@@ -32,7 +32,8 @@ Request parseHttpRequest(const std::string &rawRequest)
 	std::string method, path, protocol;
 	requestLine >> method >> path >> protocol;
 	request.setMethod(method);
-	request.setPath(path);
+	request.setPath(path); 
+	// TODO: Query string handling
 	request.setProtocol(protocol);
 
 	// Parse headers
