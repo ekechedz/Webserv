@@ -2,6 +2,7 @@
 #include "../include/Socket.hpp"
 #include "../include/Request.hpp"
 #include "../include/Webserver.hpp"
+#include "../include/CGIHandler.hpp"
 
 Server::Server(const std::vector<ServerConfig> &configs)
 	: _configs(configs)
@@ -215,6 +216,10 @@ void Server::handleClient(Socket &client)
 			sendResponse(res, client);
 			return;
 		}
+
+		// Refactored CGI handling
+		if (handleCgiRequest(req, res, loc, client))
+			return;
 	}
 
 	std::string method = req.getMethod();
@@ -235,6 +240,31 @@ void Server::handleClient(Socket &client)
 
 	// DEBUG
 	printSockets();
+}
+
+bool Server::handleCgiRequest(const Request& req, Response& res, const LocationConfig* loc, Socket& client) {
+	if (!loc || loc->getCgiPath().empty() || loc->getCgiExt().empty())
+		return false;
+	std::string ext = req.getPath().substr(req.getPath().find_last_of("."));
+	if (ext != loc->getCgiExt())
+		return false;
+
+	// LOGGING
+	std::cout << "[CGI] Using Request/LocationConfig for CGIHandler" << std::endl;
+
+	CGIHandler cgi(req, *loc);
+	std::string cgiOutput = cgi.run();
+	if (cgi.wasSuccessful()) {
+		res.setStatus(200);
+		res.parseCgiOutput(cgiOutput);
+	} else {
+		res.setStatus(500);
+		res.setHeader("Content-Type", "text/plain");
+		res.setBody("CGI execution failed: " + cgi.getError());
+	}
+	sendResponse(res, client);
+	client.clearBuffer();
+	return true;
 }
 
 void Server::handleClientTimeouts()

@@ -35,6 +35,33 @@ std::string Response::toString() const
 	return response.str();
 }
 
+void Response::parseCgiOutput(const std::string &cgiOutput) {
+	std::istringstream stream(cgiOutput);
+	std::string line;
+	bool headersDone = false;
+	std::ostringstream body;
+	while (std::getline(stream, line)) {
+		if (!headersDone) {
+			if (line == "\r" || line == "" || line == "\n") {
+				headersDone = true;
+				continue;
+			}
+			size_t colon = line.find(":");
+			if (colon != std::string::npos) {
+				std::string key = line.substr(0, colon);
+				std::string value = line.substr(colon + 1);
+				value.erase(0, value.find_first_not_of(" \t"));
+				setHeader(key, value);
+			}
+		} else {
+			body << line << "\n";
+		}
+	}
+	std::string b = body.str();
+	if (!b.empty() && b[b.size()-1] == '\n') b.erase(b.size()-1);
+	setBody(b);
+}
+
 #define HTTP_STATUS_CODES            \
 	/* Successful (2xx): */          \
 	X(200, "OK")                     \

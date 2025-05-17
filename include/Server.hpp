@@ -4,6 +4,8 @@
 #include "Socket.hpp"
 #include "Response.hpp"
 #include "Utils.hpp"
+#include "Request.hpp"
+#include "LocationConfig.hpp"
 
 #include <vector>
 #include <map>
@@ -23,7 +25,7 @@ public:
 	Server(const std::vector<ServerConfig> &configs);
 	void run();
 
-	private:
+private:
 	std::vector<ServerConfig> _configs;
 	std::map<int, Socket> _sockets;
 	std::vector<pollfd> _pollFds;
@@ -35,6 +37,7 @@ public:
 	void handleGetRequest(Response& res, const std::string &path);
 	void handlePostRequest(Response& res, const std::string &path, const std::string &requestBody);
 	void handleDeleteRequest(Response& res, const std::string &path);
+	bool handleCgiRequest(const Request& req, Response& res, const LocationConfig* loc, Socket& client);
 	void printSockets();
 	void sendResponse(Response& response, Socket& client);
 	void deleteClient(Socket& client);

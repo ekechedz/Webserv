@@ -16,6 +16,7 @@ SRCS = \
 	$(SRC_DIR)/Request.cpp \
 	$(SRC_DIR)/Response.cpp \
 	$(SRC_DIR)/Socket.cpp \
+	$(SRC_DIR)/CGIHandler.cpp \
 
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 

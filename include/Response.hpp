@@ -22,6 +22,7 @@ public:
 	void setBody(const std::string &body);
 	std::string toString() const;
 	std::string getHeaderValue(const std::string &key) const;
+	void parseCgiOutput(const std::string &cgiOutput);
 };
 
 const char *getReasonPhrase(int code);
