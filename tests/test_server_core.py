@@ -29,14 +29,14 @@ class ServerCoreTest(unittest.TestCase):
         self.assertIn(b"Error: Usage: ./webserv <config_file>.conf", err)
         self.assertEqual(out, b"", "Expected no output to stdout")
 
-    # def test_01_empty_config_file(self):
-    #     with open(CONFIG_PATH, "w") as f:
-    #         f.write("")
+    def test_01_empty_config_file(self):
+        with open(CONFIG_PATH, "w") as f:
+            f.write("")
 
-    #     code, out, err = run_and_capture(["./webserv", CONFIG_PATH])
-    #     self.assertEqual(code, 1)
-    #     self.assertIn(b"Error: empty config", err)
-    #     self.assertEqual(out, b"", "Expected no output to stdout")
+        code, out, err = run_and_capture(["./webserv", CONFIG_PATH])
+        self.assertEqual(code, 1)
+        self.assertIn(b"Error: empty config", err)
+        self.assertEqual(out, b"", "Expected no output to stdout")
 
 #     def test_02_server_starts(self):
 #         with open(CONFIG_PATH, "w") as f:
