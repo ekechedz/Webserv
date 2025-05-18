@@ -1,4 +1,5 @@
-# These can be used for raw input testing
+# This command can be used for raw input testing and testing malformed requests
+# It will soon be added to the official tests
 
 # Malformed Request
 printf "\n\n\n\nBroken-Header\r\n\r\n" | nc localhost 8080
