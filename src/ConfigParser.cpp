@@ -27,6 +27,8 @@ void ConfigParser::loadFile(const std::string &filename)
 	while (std::getline(file, line))
 		ss << cleanLine(line) << '\n';
 	_fileContent = ss.str();
+	if (_fileContent.empty())
+		throw std::runtime_error("Configuration file is empty.");
 	file.close();
 }
 

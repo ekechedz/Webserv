@@ -1,3 +1,6 @@
+# run like python3 ./test_functions.py
+
+
 import subprocess
 import requests
 import time
