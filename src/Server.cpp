@@ -121,7 +121,7 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 			}
 		}
 	}
-	std::cout << "Are you there?\n";
+
 	// Fallback to "/" location if no match
 	if (!bestMatch)
 	{
@@ -135,22 +135,6 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 		}
 	}
 	req.setMatchedLocation(bestMatch);
-
-	if (bestMatch)
-	{
-		// const std::vector<std::string> &methods = bestMatch->getMethods();
-		// for (size_t j = 0; j < methods.size(); ++j)
-		// 	std::cout << methods[j] << " ";
-		// std::cout << "\n";
-		if (!bestMatch->getRedirect().empty())
-			std::cout << "Redirect: " << bestMatch->getRedirect() << "\n";
-		if (!bestMatch->getCgiPath().empty())
-			std::cout << "CGI Path: " << bestMatch->getCgiPath() << "\n";
-		if (!bestMatch->getCgiExt().empty())
-			std::cout << "CGI Extension: " << bestMatch->getCgiExt() << "\n";
-	}
-	else
-		std::cout << "No matched location.\n";
 }
 
 void Server::handleClient(Socket &client)

@@ -21,10 +21,15 @@ CGIHandler::CGIHandler(const Request &req, const LocationConfig &loc)
 		reqPath = reqPath.substr(1);
 
 	scriptPath_ = locationRoot + "/" + reqPath;
-	std::cout << scriptPath_ << std::endl;
 	interpreterPath_ = loc.getCgiPath();
-	requestBody_ = req.getBody();
-
+	std::string transferEncoding = req.getHeader("Transfer-Encoding");
+	if (transferEncoding == "chunked")
+	{
+		std::istringstream rawStream(req.getBody());
+		requestBody_ = decodeChunkedBody(rawStream);
+	}
+	else
+		requestBody_ = req.getBody();
 	setupEnvironment(req);
 }
 
@@ -34,7 +39,7 @@ void CGIHandler::setupEnvironment(const Request &req)
 	env_["SCRIPT_NAME"] = req.getPath();
 	env_["SERVER_PROTOCOL"] = req.getProtocol();
 	env_["CONTENT_LENGTH"] = requestBody_.empty() ? "0" : intToStr(requestBody_.size());
-
+	env_["PATH_INFO"] = req.getPath();
 
 	std::map<std::string, std::string> headers = req.getHeaders();
 	for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
@@ -113,13 +118,6 @@ std::string CGIHandler::run()
 		argv[0] = const_cast<char *>(interpreterPath_.c_str());
 		argv[1] = const_cast<char *>(scriptPath_.c_str());
 		argv[2] = NULL;
-
-		std::size_t slashPos = scriptPath_.rfind('/');
-		if (slashPos != std::string::npos)
-		{
-			std::string scriptDir = scriptPath_.substr(0, slashPos);
-			chdir(scriptDir.c_str());
-		}
 
 		execve(interpreterPath_.c_str(), argv, &envp[0]);
 		_exit(1);

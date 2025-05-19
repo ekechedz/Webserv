@@ -18,6 +18,14 @@ void Request::setHeaders(const std::map<std::string, std::string>& h) { headers 
 void Request::setBody(const std::string& b) { body = b; }
 void Request::setMatchedLocation(const LocationConfig* loc) { matchedLocation = loc; }
 
+std::string Request::getHeader(const std::string &key) const {
+	const std::map<std::string, std::string>& hdrs = getHeaders();
+	std::map<std::string, std::string>::const_iterator it = hdrs.find(key);
+	if (it != hdrs.end())
+		return it->second;
+	return "";
+}
+
 Request parseHttpRequest(const std::string &rawRequest)
 {
 	Request request;

@@ -23,6 +23,7 @@ public:
 	std::map<std::string, std::string> getHeaders() const;
 	std::string getBody() const;
 	const LocationConfig* getMatchedLocation() const;
+	std::string getHeader(const std::string &key) const;
 
 	void setMethod(const std::string& m);
 	void setPath(const std::string& p);
