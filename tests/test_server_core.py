@@ -34,16 +34,15 @@ class ServerCoreTest(unittest.TestCase):
         self.assertIn(b"Error: Usage: ./webserv <config_file>.conf", err)
         self.assertEqual(out, b"", "Expected no output to stdout")
 
-    # This test is commented out because the feature is not yet implemented.
-    # It will test how the server handles an empty config file.
-    # def test_01_empty_config_file(self):
-    #     with open(CONFIG_PATH, "w") as f:
-    #         f.write("")
-    #
-    #     code, out, err = run_and_capture(["./webserv", CONFIG_PATH])
-    #     self.assertEqual(code, 1)
-    #     self.assertIn(b"Error: empty config", err)
-    #     self.assertEqual(out, b"", "Expected no output to stdout")
+    def test_01_empty_config_file(self):
+        # It will test how the server handles an empty config file.
+        with open(CONFIG_PATH, "w") as f:
+            f.write("")
+    
+        code, out, err = run_and_capture(["./webserv", CONFIG_PATH])
+        self.assertEqual(code, 1)
+        self.assertIn(b"Error: Configuration file is empty.", err)
+        self.assertEqual(out, b"", "Expected no output to stdout")
 
     def test_02_missing_server_name(self):
         # The config is missing the server_name field, which should be an error
@@ -54,7 +53,6 @@ class ServerCoreTest(unittest.TestCase):
                 root www/;
                 client_max_body_size 3000000;
                 index /index.html;
-                error_page 404 404.html;
             }
         """)
         with open(CONFIG_PATH, "w") as f:
@@ -64,6 +62,112 @@ class ServerCoreTest(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn(b"Error: Server name not set.", err)
         self.assertEqual(out, b"", "Expected no output to stdout")
+
+    # def test_03_missing_host(self):
+    #     # The config is missing the host field, which should be an error
+    #     config = textwrap.dedent("""\
+    #         server {
+    #             server_name test;
+    #             listen 8080;
+    #             root www/;
+    #             index /index.html;
+    #         }
+    #     """)
+    #     with open(CONFIG_PATH, "w") as f:
+    #         f.write(config)
+
+    #     code, out, err = run_and_capture(["./webserv", CONFIG_PATH])
+    #     self.assertEqual(code, 1)
+    #     self.assertIn(b"Error: Server host not set.", err)
+    #     self.assertEqual(out, b"", "Expected no output to stdout")
+
+    # def test_04_missing_listen(self):
+    #     # The config is missing the listen (port) field, which should be an error
+    #     config = textwrap.dedent("""\
+    #         server {
+    #             server_name test;
+    #             host 127.0.0.1;
+    #             root www/;
+    #             index /index.html;
+    #         }
+    #     """)
+    #     with open(CONFIG_PATH, "w") as f:
+    #         f.write(config)
+
+    #     code, out, err = run_and_capture(["./webserv", CONFIG_PATH])
+    #     self.assertEqual(code, 1)
+    #     self.assertIn(b"Error: Server port not set.", err)
+    #     self.assertEqual(out, b"", "Expected no output to stdout")
+
+    # def test_05_missing_root(self):
+    #     # The config is missing the root field, which should be an error
+    #     config = textwrap.dedent("""\
+    #         server {
+    #             server_name test;
+    #             host 127.0.0.1;
+    #             listen 8080;
+    #             index /index.html;
+    #         }
+    #     """)
+    #     with open(CONFIG_PATH, "w") as f:
+    #         f.write(config)
+
+    #     code, out, err = run_and_capture(["./webserv", CONFIG_PATH])
+    #     self.assertEqual(code, 1)
+    #     self.assertIn(b"Error: Root directory not set.", err)
+    #     self.assertEqual(out, b"", "Expected no output to stdout")
+
+    # def test_06_missing_index(self):
+    #     # The config is missing the index field, which should be an error
+    #     config = textwrap.dedent("""\
+    #         server {
+    #             server_name test;
+    #             host 127.0.0.1;
+    #             listen 8080;
+    #             root www/;
+    #         }
+    #     """)
+    #     with open(CONFIG_PATH, "w") as f:
+    #         f.write(config)
+
+    #     code, out, err = run_and_capture(["./webserv", CONFIG_PATH])
+    #     self.assertEqual(code, 1)
+    #     self.assertIn(b"Error: Index file not set.", err)
+    #     self.assertEqual(out, b"", "Expected no output to stdout")
+
+    # def test_07_bind_failed(self):
+    #     # This test simulates a bind failure, e.g., if the port is already in use.
+    #     config = textwrap.dedent("""\
+    #         server {
+    #             server_name test;
+    #             host 127.0.0.1;
+    #             listen 8080;
+    #             root www/;
+    #             index /index.html;
+    #         }
+    #     """)
+    #     with open(CONFIG_PATH, "w") as f:
+    #         f.write(config)
+
+    #     # Start the server in a subprocess
+    #     server_proc = subprocess.Popen(["./webserv", CONFIG_PATH], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    #     # Give the server some time to start
+    #     time.sleep(1)
+
+    #     # Try to start it again, which should fail with a bind error
+    #     code, out, err = run_and_capture(["./webserv", CONFIG_PATH])
+    #     self.assertEqual(code, 1)
+    #     self.assertIn(b"Error: Bind failed", err)
+
+    #     # Clean up: terminate the first server instance
+    #     server_proc.terminate()
+    #     try:
+    #         # Wait for the server process to exit
+    #         server_proc.wait(timeout=1)
+    #     except subprocess.TimeoutExpired:
+    #         # If it doesn't exit in time, force kill it
+    #         server_proc.kill()
 
     # -------------------------
     # TEMPLATE FOR NEW TESTS
