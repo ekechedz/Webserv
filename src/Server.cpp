@@ -52,23 +52,54 @@ int Server::createListeningSocket(const ServerConfig &config)
 
 void Server::acceptConnection(Socket &listeningSocket)
 {
+		size_t currentClients = 0;
+	for (std::map<int, Socket>::iterator it = _sockets.begin(); it != _sockets.end(); ++it)
+	{
+		if (it->second.getType() == Socket::CLIENT)
+			++currentClients;
+	}
+
+	if (currentClients >= MAX_SOCKETS)
+	{
+		std::cerr << "Connection refused: MAX_CLIENTS reached.\n";
+
+		sockaddr_in clientAddr;
+		socklen_t len = sizeof(clientAddr);
+		int clientFd = accept(listeningSocket.getFd(), (sockaddr *)&clientAddr, &len);
+		if (clientFd != -1)
+		{
+			Response res;
+			res.setStatus(503);
+			res.setHeader("Connection", "close");
+			res.setHeader("Content-Type", "text/html");
+
+			std::string body =
+				"<html><body><h1>503 Service Unavailable</h1><p>Server is too busy.</p></body></html>";
+			res.setBody(body);
+			res.setHeader("Content-Length", intToStr(body.size()));
+
+			std::string responseStr = res.toString();
+			send(clientFd, responseStr.c_str(), responseStr.size(), 0);
+			close(clientFd);
+		}
+		return;
+	}
 	sockaddr_in clientAddr;
 	socklen_t len = sizeof(clientAddr);
 	int clientFd = accept(listeningSocket.getFd(), (sockaddr *)&clientAddr, &len);
 	if (clientFd == -1)
 		return;
+
 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
 
 	// Adding client fd to Server::_pollFds vector
 	pollfd pfd = {clientFd, POLLIN, 0};
 	_pollFds.push_back(pfd);
 
-	// Adding client to Server::_sockets map
 	_sockets[clientFd] = Socket(clientFd, Socket::CLIENT, Socket::RECEIVING, &listeningSocket.getServerConfig());
-
-	// DEBUG
-	printSockets();
+	//print_socket();
 }
+
 
 void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 {
@@ -103,29 +134,7 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 			}
 		}
 	}
-
 	req.setMatchedLocation(bestMatch);
-
-	if (bestMatch)
-	{
-		std::cout << "Matched Location Path: " << bestMatch->getPath() << "\n";
-		std::cout << "Matched Root: " << bestMatch->getRoot() << "\n";
-		std::cout << "Index: " << bestMatch->getIndex() << "\n";
-		std::cout << "Autoindex: " << (bestMatch->isAutoindex() ? "on" : "off") << "\n";
-		std::cout << "Allowed Methods: ";
-		const std::vector<std::string> &methods = bestMatch->getMethods();
-		for (size_t j = 0; j < methods.size(); ++j)
-			std::cout << methods[j] << " ";
-		std::cout << "\n";
-		if (!bestMatch->getRedirect().empty())
-			std::cout << "Redirect: " << bestMatch->getRedirect() << "\n";
-		if (!bestMatch->getCgiPath().empty())
-			std::cout << "CGI Path: " << bestMatch->getCgiPath() << "\n";
-		if (!bestMatch->getCgiExt().empty())
-			std::cout << "CGI Extension: " << bestMatch->getCgiExt() << "\n";
-	}
-	else
-		std::cout << "No matched location.\n";
 }
 
 void Server::handleClient(Socket &client)
@@ -149,7 +158,6 @@ void Server::handleClient(Socket &client)
 	try
 	{
 		req = parseHttpRequest(request);
-		std::cout << "Requested path: " << req.getPath() << "\n";
 		matchLocation(req, locations);
 		// req.print();
 	}
@@ -175,6 +183,7 @@ void Server::handleClient(Socket &client)
 	if (client.getNbrRequests() >= MAX_REQUESTS)
 		connectionHeader = "close";
 
+
 	res.setHeader("Connection", connectionHeader);
 
 	if (req.getProtocol() != "HTTP/1.1")
@@ -188,16 +197,8 @@ void Server::handleClient(Socket &client)
 	const LocationConfig *loc = req.getMatchedLocation();
 	if (loc)
 	{
-		std::cout << "Original request path: " << req.getPath() << std::endl;
-
 		if (req.getPath() == "/")
-		{
 			req.setPath(client.getServerConfig().getIndex());
-			std::cout << "Request path was '/', changed to index: " << req.getPath() << std::endl;
-		}
-		else
-			std::cout << "Request path unchanged: " << req.getPath() << std::endl;
-
 		if (!loc->getRedirect().empty())
 		{
 			res.setStatus(301);
@@ -240,7 +241,7 @@ void Server::handleClient(Socket &client)
 	client.clearBuffer();
 
 	// DEBUG
-	printSockets();
+	//printSockets();
 }
 
 bool Server::handleCgiRequest(const Request& req, Response& res, const LocationConfig* loc, Socket& client) {
@@ -252,7 +253,6 @@ bool Server::handleCgiRequest(const Request& req, Response& res, const LocationC
 
 	// LOGGING
 	std::cout << "[CGI] Using Request/LocationConfig for CGIHandler" << std::endl;
-
 	CGIHandler cgi(req, *loc);
 	std::string cgiOutput = cgi.run();
 	if (cgi.wasSuccessful()) {
@@ -368,7 +368,7 @@ void Server::handleGetRequest(Response &res, const std::string &path)
 	std::string fullPath = "www" + path;
 	std::ifstream file(fullPath.c_str(), std::ios::binary);
 
-	std::cout << "File opened successfully: " << fullPath << std::endl;
+	//std::cout << "File opened successfully: " << fullPath << std::endl;
 
 	if (!file.is_open())
 	{

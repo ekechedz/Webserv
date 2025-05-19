@@ -19,6 +19,10 @@ private:
 	std::string requestBody_;
 	bool success_;
 	std::string errorMsg_;
+
+	void setupEnvironment(const Request &req);
+	std::string extractQueryString(const std::string &path);
+	std::string getExtension(const std::string &filename);
 };
 
 #endif // CGI_HANDLER_HPP

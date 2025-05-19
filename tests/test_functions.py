@@ -67,14 +67,14 @@ def main():
         print("✅ Test 1: GET / passed")
 
         # Test 2: GET static file (create file first)
-        index_path = "../www/index.html"
+        index_path = "../www/empty.html"
         with open(index_path, "w") as f:
             f.write("Hello Static File")
 
-        r = requests.get(f"{HOST}/index.html")
-        assert r.status_code == 200, f"GET /index.html expected 200, got {r.status_code}"
+        r = requests.get(f"{HOST}/empty.html")
+        assert r.status_code == 200, f"GET /empty.html expected 200, got {r.status_code}"
         assert "Hello Static File" in r.text, "Static file content mismatch"
-        print("✅ Test 2: GET /index.html passed")
+        print("✅ Test 2: GET /empty.html passed")
 
         # Test 3: GET directory listing /upload/ (expect 200 or 403)
         r = requests.get(f"{HOST}/upload/")

@@ -1,6 +1,7 @@
 #include "../include/Utils.hpp"
 #include <iostream>
 #include <sstream>
+#include <cstdlib>
 
 std::string removeSemicolon(const std::string &str)
 {
@@ -44,29 +45,42 @@ std::string intToStr(int num)
 	oss << num;
 	return oss.str();
 }
+
 std::string decodeChunkedBody(std::istream &stream)
 {
 	std::string body;
 	std::string line;
 
-	while (std::getline(stream, line))
+	while (true)
 	{
+		if (!std::getline(stream, line))
+			break;
+
+		// Remove trailing '\r' if present
 		if (!line.empty() && line[line.size() - 1] == '\r')
 			line.erase(line.size() - 1);
 
-		std::istringstream chunkSizeStream(line);
-		int chunkSize = 0;
-		chunkSizeStream >> std::hex >> chunkSize;
-
+		// Convert hex chunk size to int
+		int chunkSize = static_cast<int>(strtol(line.c_str(), NULL, 16));
 		if (chunkSize == 0)
 			break;
 
 		char *buffer = new char[chunkSize];
 		stream.read(buffer, chunkSize);
-		body.append(buffer, chunkSize);
+
+		// Append exactly the bytes read
+		body.append(buffer, static_cast<std::string::size_type>(stream.gcount()));
 		delete[] buffer;
 
-		std::getline(stream, line);
+		// Ignore the trailing "\r\n"
+		stream.ignore(2);
+	}
+
+	// Consume any trailing headers after last zero chunk
+	while (std::getline(stream, line))
+	{
+		if (line == "\r" || line.empty())
+			break;
 	}
 
 	return body;
