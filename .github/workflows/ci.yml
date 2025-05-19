@@ -17,6 +17,9 @@ jobs:
       - name: Run make
         run: make
 
-      - name: Run tests
+      - name: Test server core
         run: python3 tests/test_server_core.py -v
+
+      - name: Test website integration
+        run: python3 tests/test_website_integration.py -v
 
