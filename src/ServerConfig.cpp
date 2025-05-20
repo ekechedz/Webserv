@@ -74,8 +74,6 @@ void ServerConfig::initialisedCheck() const {
 		throw std::runtime_error("Max body size not set.");
 	if (index.empty())
 		throw std::runtime_error("Index file not set.");
-	if (error_pages.empty())
-		throw std::runtime_error("Error pages not set.");
 }
 
 const std::string& ServerConfig::getHost() const { return host; }
