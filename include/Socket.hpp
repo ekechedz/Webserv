@@ -13,7 +13,7 @@ public:
 	enum State { RECEIVING, SENDING };
 
 	Socket();
-	Socket(int newFD, Type newType, State newState, const ServerConfig* newServer);
+	Socket(int newFD, Type newType, State newState, const ServerConfig* newServer, const std::string IPv4, const int port);
 	Socket(const Socket& other);
 	Socket& operator=(const Socket& other);
 	~Socket();
@@ -25,6 +25,8 @@ public:
 	const ServerConfig& getServerConfig() const;
 	const std::string &getBuffer() const;
 	int getNbrRequests() const;
+	std::string getIPv4() const;
+	int getPort() const;
 
 	void increaseNbrRequests();
 	void setFD(const int newFD);
@@ -44,5 +46,7 @@ private:
 	State _state;
 	const ServerConfig* _server;
 	int _nbrRequests;
+	std::string _IPv4;
+	int _port;
 };
 

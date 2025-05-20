@@ -16,7 +16,8 @@ Server::Server(const std::vector<ServerConfig> &configs)
 		pfd.events = POLLIN;
 		pfd.revents = 0;
 		_pollFds.push_back(pfd);
-		_sockets[sock] = Socket(sock, Socket::LISTENING, Socket::RECEIVING, &config);
+		std::cout << "Debug: Host: " << config.getHost() << ", Port: " << config.getPort() << std::endl;
+		_sockets[sock] = Socket(sock, Socket::LISTENING, Socket::RECEIVING, &config, config.getHost() , config.getPort());
 		std::cout << "Listening on " << config.getHost() << ":" << config.getPort() << "\n";
 	}
 }
@@ -96,7 +97,7 @@ void Server::acceptConnection(Socket &listeningSocket)
 	pollfd pfd = {clientFd, POLLIN, 0};
 	_pollFds.push_back(pfd);
 
-	_sockets[clientFd] = Socket(clientFd, Socket::CLIENT, Socket::RECEIVING, &listeningSocket.getServerConfig());
+	_sockets[clientFd] = Socket(clientFd, Socket::CLIENT, Socket::RECEIVING, &listeningSocket.getServerConfig(), listeningSocket.getServerConfig().getHost(), listeningSocket.getServerConfig().getPort());
 	//print_socket();
 }
 
@@ -139,6 +140,7 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 
 void Server::handleClient(Socket &client)
 {
+	printSockets();
 	char buffer[10000];
 	ssize_t bytes = recv(client.getFd(), buffer, sizeof(buffer) - 1, 0);
 	if (bytes <= 0)
@@ -170,6 +172,23 @@ void Server::handleClient(Socket &client)
 		return;
 	}
 
+	// Checking if the request contains a "Host" header and returning 'Bad Request' if not
+	if (req.getHeaders().count("Host") == 0)
+	{
+		res.setStatus(400);
+		res.setHeader("Connection", "close");
+		sendResponse(res, client);
+		return;
+	}
+
+	// Getting server config based on the "Host" header
+	{
+		ServerConfig *serverConfig = findExactServerConfig(client.getIPv4(), client.getPort(), req.getHeader("Host"));
+		if (!serverConfig)
+			serverConfig = findServerConfig(client.getIPv4(), client.getPort());
+		req.setServerConfig(serverConfig);
+	}
+
 	client.increaseNbrRequests();
 
 	std::map<std::string, std::string> headers = req.getHeaders();
@@ -198,7 +217,7 @@ void Server::handleClient(Socket &client)
 	if (loc)
 	{
 		if (req.getPath() == "/")
-			req.setPath(client.getServerConfig().getIndex());
+			req.setPath(req.getServerConfig()->getIndex());
 		if (!loc->getRedirect().empty())
 		{
 			res.setStatus(301);
@@ -239,9 +258,6 @@ void Server::handleClient(Socket &client)
 
 	sendResponse(res, client);
 	client.clearBuffer();
-
-	// DEBUG
-	//printSockets();
 }
 
 bool Server::handleCgiRequest(const Request& req, Response& res, const LocationConfig* loc, Socket& client) {
@@ -461,4 +477,24 @@ void Server::handleDeleteRequest(Response &res, const std::string &path)
 	res.setBody(body.str());
 	res.setHeader("Content-Type", "text/html");
 	res.setHeader("Content-Length", intToStr(body.str().size()));
+}
+
+ServerConfig* Server::findServerConfig(const std::string IPv4, int port)
+{
+	for (size_t i = 0; i < _configs.size(); ++i)
+	{
+		if (_configs[i].getHost() == IPv4 && _configs[i].getPort() == port)
+			return &_configs[i];
+	}
+	throw std::runtime_error("Unexpected: ServerConfig not found.");
+}
+
+ServerConfig* Server::findExactServerConfig(const std::string IPv4, int port, std::string serverName)
+{
+	for (size_t i = 0; i < _configs.size(); ++i)
+	{
+		if (_configs[i].getHost() == IPv4 && _configs[i].getPort() == port && _configs[i].getServerName() == serverName)
+			return &_configs[i];
+	}
+	return NULL;
 }

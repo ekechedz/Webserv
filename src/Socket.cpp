@@ -9,13 +9,15 @@ Socket::Socket()
 , _nbrRequests(0)
 {}
 
-Socket::Socket(int newFD, Type newType, State newState, const ServerConfig* newServer)
+Socket::Socket(int newFD, Type newType, State newState, const ServerConfig* newServer, const std::string IPv4, const int port)
 : _fd(newFD)
 , _lastActivity(std::time(NULL))
 , _type(newType)
 , _state(newState)
 , _server(newServer)
 , _nbrRequests(0)
+, _IPv4(IPv4)
+, _port(port)
 {}
 
 Socket::Socket(const Socket& other)
@@ -25,6 +27,8 @@ Socket::Socket(const Socket& other)
 , _state(other._state)
 , _server(other._server)
 , _nbrRequests(other._nbrRequests)
+, _IPv4(other._IPv4)
+, _port(other._port)
 {}
 
 Socket& Socket::operator=(const Socket& other)
@@ -37,6 +41,8 @@ Socket& Socket::operator=(const Socket& other)
 		_state = other._state;
 		_server = other._server;
 		_nbrRequests = other._nbrRequests;
+		_IPv4 = other._IPv4;
+		_port = other._port;
 	}
 	return *this;
 }
@@ -61,6 +67,15 @@ const ServerConfig& Socket::getServerConfig() const
 const std::string &Socket::getBuffer() const
 {
 	return _buffer;
+}
+
+std::string Socket::getIPv4() const
+{
+	return _IPv4;
+}
+int Socket::getPort() const
+{
+	return _port;
 }
 
 void Socket::appendToBuffer(const std::string &data)
@@ -99,7 +114,10 @@ std::ostream& operator<<(std::ostream& lhs, const Socket& rhs)
 		<< ", Type: " << (rhs._type == Socket::LISTENING ? "LISTENING" : "CLIENT")
 		<< ", State: " << (rhs._state == Socket::RECEIVING ? "RECEIVING" : "SENDING")
 		<< ", Buffer Size: " << rhs._buffer.size()
-		<< ", Last Activity: " << std::ctime(&rhs._lastActivity); 
+		<< ", Last Activity: " << std::ctime(&rhs._lastActivity)
+		<< ", IPv4: " << rhs._IPv4
+		<< ", Port: " << rhs._port
+		<< ", Nbr Requests: " << rhs._nbrRequests << std::endl;
 	return lhs;
 }
 

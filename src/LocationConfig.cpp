@@ -6,8 +6,8 @@ LocationConfig::LocationConfig() : autoindex(false)
 {
 	methods.push_back("GET");
 	autoindex = false;
-	root = "."; // or inherit from server block
-	index = "index.html";
+	root = "";
+	index = "";
 	cgi_path = "";
 	cgi_ext = "";
 	redirect = "";
