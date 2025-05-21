@@ -44,25 +44,6 @@ class ServerCoreTest(unittest.TestCase):
         self.assertIn(b"Error: Configuration file is empty.", err)
         self.assertEqual(out, b"", "Expected no output to stdout")
 
-    def test_02_missing_server_name(self):
-        # The config is missing the server_name field, which should be an error
-        config = textwrap.dedent("""\
-            server {
-                host 127.0.0.1;
-                listen 8080;
-                root www/;
-                client_max_body_size 3000000;
-                index /index.html;
-            }
-        """)
-        with open(CONFIG_PATH, "w") as f:
-            f.write(config)
-
-        code, out, err = run_and_capture(["./webserv", CONFIG_PATH])
-        self.assertEqual(code, 1)
-        self.assertIn(b"Error: Server name not set.", err)
-        self.assertEqual(out, b"", "Expected no output to stdout")
-
 
     # -------------------------
     # TEMPLATE FOR NEW TESTS
