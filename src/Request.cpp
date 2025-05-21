@@ -28,15 +28,17 @@ std::string Request::getHeader(const std::string &key) const {
 	return "";
 }
 
-Request parseHttpRequest(const std::string &rawRequest)
+void parseHttpRequest(const std::string &rawRequest, Request& request, Response& res)
 {
-	Request request;
 	std::istringstream stream(rawRequest);
 	std::string line;
 
 	// Parse request line
 	if (!std::getline(stream, line) || line.empty())
-		throw std::runtime_error("Invalid HTTP request line");
+	{
+		res.setStatus(400);
+		return;
+	}
 
 	std::istringstream requestLine(line);
 	std::string method, path, protocol;
@@ -73,14 +75,6 @@ Request parseHttpRequest(const std::string &rawRequest)
 		stream.read(&body[0], length);
 		request.setBody(body);
 	}
-
-
-
-	// std::cout << "Received HTTP request from client: "
-	// 		  << request.getMethod() << " "
-	// 		  << request.getPath() << " "
-	// 		  << request.getProtocol() << "\n";
-	return request;
 }
 void Request::print() const
 {

@@ -155,15 +155,9 @@ void Server::handleClient(Socket &client)
 
 	Request req;
 	Response res;
-	// TODO: change try catch to a better error handling
-	try
+	parseHttpRequest(requestString, req, res);
+	if (res.getStatus() == 400)
 	{
-		req = parseHttpRequest(requestString);
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "Failed to parse request: " << e.what() << "\n";
-		res.setStatus(400);
 		res.setHeader("Connection", "close");
 		sendResponse(res, client);
 		return;

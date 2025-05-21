@@ -5,6 +5,7 @@
 
 class LocationConfig;
 class ServerConfig;
+class Response;
 
 class Request {
 private:
@@ -39,4 +40,4 @@ public:
 	void print() const;
 };
 
-Request parseHttpRequest(const std::string &rawRequest);
+void parseHttpRequest(const std::string &rawRequest, Request& request, Response& res);
