@@ -10,6 +10,7 @@ std::string Request::getProtocol() const { return protocol; }
 std::map<std::string, std::string> Request::getHeaders() const { return headers; }
 std::string Request::getBody() const { return body; }
 const LocationConfig* Request::getMatchedLocation() const { return matchedLocation; }
+const ServerConfig* Request::getServerConfig() const { return serverConfig; }
 
 void Request::setMethod(const std::string& m) { method = m; }
 void Request::setPath(const std::string& p) { path = p; }
@@ -17,6 +18,7 @@ void Request::setProtocol(const std::string& pr) { protocol = pr; }
 void Request::setHeaders(const std::map<std::string, std::string>& h) { headers = h; }
 void Request::setBody(const std::string& b) { body = b; }
 void Request::setMatchedLocation(const LocationConfig* loc) { matchedLocation = loc; }
+void Request::setServerConfig(ServerConfig* config) { serverConfig = config; }
 
 std::string Request::getHeader(const std::string &key) const {
 	const std::map<std::string, std::string>& hdrs = getHeaders();

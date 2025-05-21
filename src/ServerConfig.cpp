@@ -6,12 +6,11 @@
 // need to match the declaration order
 ServerConfig::ServerConfig()
 	: host("0.0.0.0"),
-	  port(80),
+	  port(8080),
 	  server_name(""),
-	  root("."),
-	  index("index.html"),
-	  client_max_body_size(1000000),
-	  error_pages()
+	  root("www"),
+	  index("/index.html"),
+	  client_max_body_size(1000000)
 {
 }
 

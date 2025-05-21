@@ -64,8 +64,8 @@ std::vector<ServerConfig> ConfigParser::parse()
 			ServerConfig server;
 			server.parseBlock(stream);
 			server.initialisedCheck();
-			if (isPortUsed(servers, server.getPort()))
-				throw std::runtime_error("Matching port");
+			// if (isPortUsed(servers, server.getPort()))
+			// 	throw std::runtime_error("Matching port");
 			servers.push_back(server);
 		}
 	}

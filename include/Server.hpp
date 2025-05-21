@@ -41,6 +41,8 @@ private:
 	void printSockets();
 	void sendResponse(Response& response, Socket& client);
 	void deleteClient(Socket& client);
+	ServerConfig* findServerConfig(const std::string IPv4, int port);
+	ServerConfig* findExactServerConfig(const std::string IPv4, int port, std::string serverName);
 };
 
 std::string getContentType(const std::string &path);
