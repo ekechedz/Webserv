@@ -4,20 +4,22 @@
 #include "../include/Webserver.hpp"
 #include "../include/CGIHandler.hpp"
 
-Server::Server(const std::vector<ServerConfig> &configs)
+Server::Server(const std::vector<ServerConfig>& configs)
 	: _configs(configs)
 {
 	for (size_t i = 0; i < configs.size(); ++i)
 	{
-		const ServerConfig &config = configs[i];
+		const ServerConfig& config = configs[i];
+		// Only creating a socket if the current server config is the first of that ip-port-combo
+		if (findServerConfig(config.getHost(), config.getPort()) != &_configs[i])
+			return;
 		int sock = createListeningSocket(config);
 		struct pollfd pfd;
 		pfd.fd = sock;
 		pfd.events = POLLIN;
 		pfd.revents = 0;
 		_pollFds.push_back(pfd);
-		std::cout << "Debug: Host: " << config.getHost() << ", Port: " << config.getPort() << std::endl;
-		_sockets[sock] = Socket(sock, Socket::LISTENING, Socket::RECEIVING, &config, config.getHost() , config.getPort());
+		_sockets[sock] = Socket(sock, Socket::LISTENING, Socket::RECEIVING, config.getHost() , config.getPort());
 		std::cout << "Listening on " << config.getHost() << ":" << config.getPort() << "\n";
 	}
 }
@@ -97,8 +99,7 @@ void Server::acceptConnection(Socket &listeningSocket)
 	pollfd pfd = {clientFd, POLLIN, 0};
 	_pollFds.push_back(pfd);
 
-	_sockets[clientFd] = Socket(clientFd, Socket::CLIENT, Socket::RECEIVING, &listeningSocket.getServerConfig(), listeningSocket.getServerConfig().getHost(), listeningSocket.getServerConfig().getPort());
-	//print_socket();
+	_sockets[clientFd] = Socket(clientFd, Socket::CLIENT, Socket::RECEIVING, listeningSocket.getIPv4(), listeningSocket.getPort());
 }
 
 
@@ -140,7 +141,6 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 
 void Server::handleClient(Socket &client)
 {
-	printSockets();
 	char buffer[10000];
 	ssize_t bytes = recv(client.getFd(), buffer, sizeof(buffer) - 1, 0);
 	if (bytes <= 0)
@@ -151,17 +151,14 @@ void Server::handleClient(Socket &client)
 	}
 	buffer[bytes] = '\0';
 	client.appendToBuffer(buffer);
-	std::string request = client.getBuffer();
-	const std::vector<LocationConfig> &locations = client.getServerConfig().getLocations();
+	std::string requestString = client.getBuffer();
 
 	Request req;
 	Response res;
 	// TODO: change try catch to a better error handling
 	try
 	{
-		req = parseHttpRequest(request);
-		matchLocation(req, locations);
-		// req.print();
+		req = parseHttpRequest(requestString);
 	}
 	catch (const std::exception &e)
 	{
@@ -183,11 +180,17 @@ void Server::handleClient(Socket &client)
 
 	// Getting server config based on the "Host" header
 	{
+		// Getting the first serverConf that matches ip, port and name
 		ServerConfig *serverConfig = findExactServerConfig(client.getIPv4(), client.getPort(), req.getHeader("Host"));
+		// If name does not match: Getting the first serverConf that matches ip and port
 		if (!serverConfig)
 			serverConfig = findServerConfig(client.getIPv4(), client.getPort());
+		// If still no match, something went wrong
+		if (!serverConfig)
+			throw std::runtime_error("Unexpected: ServerConfig not found.");
 		req.setServerConfig(serverConfig);
 	}
+
 
 	client.increaseNbrRequests();
 
@@ -212,6 +215,11 @@ void Server::handleClient(Socket &client)
 		sendResponse(res, client);
 		return;
 	}
+
+
+	// Getting location config based on server config
+	const std::vector<LocationConfig> &locations = req.getServerConfig()->getLocations();
+	matchLocation(req, locations);
 
 	const LocationConfig *loc = req.getMatchedLocation();
 	if (loc)
@@ -478,7 +486,7 @@ void Server::handleDeleteRequest(Response &res, const std::string &path)
 	res.setHeader("Content-Type", "text/html");
 	res.setHeader("Content-Length", intToStr(body.str().size()));
 }
-
+// Returns the first serverConfig from the list that matches IP and port
 ServerConfig* Server::findServerConfig(const std::string IPv4, int port)
 {
 	for (size_t i = 0; i < _configs.size(); ++i)
@@ -486,9 +494,10 @@ ServerConfig* Server::findServerConfig(const std::string IPv4, int port)
 		if (_configs[i].getHost() == IPv4 && _configs[i].getPort() == port)
 			return &_configs[i];
 	}
-	throw std::runtime_error("Unexpected: ServerConfig not found.");
+	return NULL;
 }
 
+// Returns the first serverConfig from the list that matches IP, port and server name
 ServerConfig* Server::findExactServerConfig(const std::string IPv4, int port, std::string serverName)
 {
 	for (size_t i = 0; i < _configs.size(); ++i)

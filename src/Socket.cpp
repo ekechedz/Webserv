@@ -5,16 +5,14 @@ Socket::Socket()
 , _lastActivity(std::time(NULL))
 , _type(LISTENING)
 , _state(RECEIVING)
-, _server(NULL)
 , _nbrRequests(0)
 {}
 
-Socket::Socket(int newFD, Type newType, State newState, const ServerConfig* newServer, const std::string IPv4, const int port)
+Socket::Socket(int newFD, Type newType, State newState, const std::string IPv4, const int port)
 : _fd(newFD)
 , _lastActivity(std::time(NULL))
 , _type(newType)
 , _state(newState)
-, _server(newServer)
 , _nbrRequests(0)
 , _IPv4(IPv4)
 , _port(port)
@@ -25,7 +23,6 @@ Socket::Socket(const Socket& other)
 , _lastActivity(other._lastActivity)
 , _type(other._type)
 , _state(other._state)
-, _server(other._server)
 , _nbrRequests(other._nbrRequests)
 , _IPv4(other._IPv4)
 , _port(other._port)
@@ -39,7 +36,6 @@ Socket& Socket::operator=(const Socket& other)
 		_lastActivity = other._lastActivity;
 		_type = other._type;
 		_state = other._state;
-		_server = other._server;
 		_nbrRequests = other._nbrRequests;
 		_IPv4 = other._IPv4;
 		_port = other._port;
@@ -59,10 +55,6 @@ Socket::Type Socket::getType() const
 	return _type;
 }
 
-const ServerConfig& Socket::getServerConfig() const
-{
-	return *_server;
-}
 
 const std::string &Socket::getBuffer() const
 {
@@ -114,19 +106,18 @@ std::ostream& operator<<(std::ostream& lhs, const Socket& rhs)
 		<< ", Type: " << (rhs._type == Socket::LISTENING ? "LISTENING" : "CLIENT")
 		<< ", State: " << (rhs._state == Socket::RECEIVING ? "RECEIVING" : "SENDING")
 		<< ", Buffer Size: " << rhs._buffer.size()
-		<< ", Last Activity: " << std::ctime(&rhs._lastActivity)
 		<< ", IPv4: " << rhs._IPv4
 		<< ", Port: " << rhs._port
-		<< ", Nbr Requests: " << rhs._nbrRequests << std::endl;
+		<< ", Nbr Requests: " << rhs._nbrRequests
+		<< ", Last Activity: " << std::ctime(&rhs._lastActivity);
 	return lhs;
 }
 
-void Socket::setValues(const int newFD, const Type newType, const State newState, const ServerConfig* newServer)
+void Socket::setValues(const int newFD, const Type newType, const State newState)
 {
 	_fd = newFD;
 	_type = newType;
 	_state = newState;
-	_server = newServer;
 }
 
 int Socket::getNbrRequests() const
