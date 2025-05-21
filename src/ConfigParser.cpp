@@ -8,6 +8,8 @@
 #include <cstring>
 #include <cstddef>
 #include <string>
+#include "../include/Logger.hpp"
+#include "../include/Utils.hpp"
 
 ConfigParser::ConfigParser(const std::string &filename)
 {
@@ -18,9 +20,15 @@ void ConfigParser::loadFile(const std::string &filename)
 {
 	std::ifstream file(filename.c_str());
 	if (!file.is_open())
+	{
+		logError("Could not open config file: " + filename);
 		throw std::runtime_error("Could not open config file.");
+	}
 	if (filename.rfind(".conf") != filename.length() - 5)
+	{
+		logError("Invalid configuration file format: " + filename);
 		throw std::invalid_argument("Invalid configuration file format");
+	}
 
 	std::stringstream ss;
 	std::string line;

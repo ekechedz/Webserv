@@ -3,10 +3,13 @@
 #include "../include/Request.hpp"
 #include "../include/Webserver.hpp"
 #include "../include/CGIHandler.hpp"
+#include "../include/Logger.hpp"
+#include "../include/Utils.hpp"
 
 Server::Server(const std::vector<ServerConfig>& configs)
 	: _configs(configs)
 {
+	logInfo("Initializing server with " + intToStr(configs.size()) + " configurations");
 	for (size_t i = 0; i < configs.size(); ++i)
 	{
 		const ServerConfig& config = configs[i];
@@ -20,7 +23,7 @@ Server::Server(const std::vector<ServerConfig>& configs)
 		pfd.revents = 0;
 		_pollFds.push_back(pfd);
 		_sockets[sock] = Socket(sock, Socket::LISTENING, Socket::RECEIVING, config.getHost() , config.getPort());
-		std::cout << "Listening on " << config.getHost() << ":" << config.getPort() << "\n";
+		logInfo("Listening on " + config.getHost() + ":" + intToStr(config.getPort()));
 	}
 }
 
@@ -28,14 +31,17 @@ int Server::createListeningSocket(const ServerConfig &config)
 {
 	int sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock == -1)
+	{
+		logError("Socket creation failed: " + std::string(std::strerror(errno)));
 		throw std::runtime_error("Socket creation failed");
+	}
 
 	int opt = 1;
 	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0)
 	{
-		std::ostringstream oss;
-		oss << "Setsockopt failed: " << std::strerror(errno);
-		throw std::runtime_error(oss.str());
+		std::string error = "Setsockopt failed: " + std::string(std::strerror(errno));
+		logError(error);
+		throw std::runtime_error(error);
 	}
 	sockaddr_in addr;
 	std::memset(&addr, 0, sizeof(addr));
@@ -44,10 +50,16 @@ int Server::createListeningSocket(const ServerConfig &config)
 	addr.sin_addr.s_addr = inet_addr(config.getHost().c_str());
 
 	if (bind(sock, (sockaddr *)&addr, sizeof(addr)) == -1)
+	{
+		logError("Bind failed for " + config.getHost() + ":" + intToStr(config.getPort()) + " - " + std::string(std::strerror(errno)));
 		throw std::runtime_error("Bind failed");
+	}
 
 	if (listen(sock, SOMAXCONN) == -1)
+	{
+		logError("Listen failed: " + std::string(std::strerror(errno)));
 		throw std::runtime_error("Listen failed");
+	}
 
 	fcntl(sock, F_SETFL, O_NONBLOCK);
 	return sock;
@@ -81,6 +93,7 @@ void Server::acceptConnection(Socket &listeningSocket)
 			res.setBody(body);
 			res.setHeader("Content-Length", intToStr(body.size()));
 
+			logWarning("Server too busy, rejecting new connection");
 			std::string responseStr = res.toString();
 			send(clientFd, responseStr.c_str(), responseStr.size(), 0);
 			close(clientFd);
@@ -91,6 +104,10 @@ void Server::acceptConnection(Socket &listeningSocket)
 	socklen_t len = sizeof(clientAddr);
 	int clientFd = accept(listeningSocket.getFd(), (sockaddr *)&clientAddr, &len);
 	if (clientFd == -1)
+	{
+		logError("Failed to accept new connection: " + std::string(std::strerror(errno)));
+		return;
+	}
 		return;
 
 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
@@ -275,14 +292,15 @@ bool Server::handleCgiRequest(const Request& req, Response& res, const LocationC
 	if (ext != loc->getCgiExt())
 		return false;
 
-	// LOGGING
-	std::cout << "[CGI] Using Request/LocationConfig for CGIHandler" << std::endl;
+	logInfo("Processing CGI request: " + req.getPath());
 	CGIHandler cgi(req, *loc);
 	std::string cgiOutput = cgi.run();
 	if (cgi.wasSuccessful()) {
+		logInfo("CGI execution successful: " + req.getPath());
 		res.setStatus(200);
 		res.parseCgiOutput(cgiOutput);
 	} else {
+		logError("CGI execution failed: " + cgi.getError());
 		res.setStatus(500);
 		res.setHeader("Content-Type", "text/plain");
 		res.setBody("CGI execution failed: " + cgi.getError());
@@ -299,7 +317,7 @@ void Server::handleClientTimeouts()
 		Socket &client = it->second;
 		if (client.getType() != Socket::LISTENING && time(NULL) - client.getLastActivity() > 30)
 		{
-			std::cout << "Client " << client.getFd() << " has timed out. Closing connection.\n";
+			logInfo("Client " + intToStr(client.getFd()) + " has timed out. Closing connection.");
 			close(client.getFd());
 			_sockets.erase(it++);
 		}
@@ -310,11 +328,13 @@ void Server::handleClientTimeouts()
 
 void Server::run()
 {
+	logInfo("Server started and ready to accept connections");
 	while (true)
 	{
 		int ret = poll(_pollFds.data(), _pollFds.size(), 5000);
 		if (ret == -1)
 		{
+			logError("Poll error occurred");
 			std::cerr << "Poll error\n";
 			break;
 		}
@@ -341,6 +361,7 @@ void Server::run()
 // after removing a client or sending a response the indices in _pollFds may no longer match the map in _sockets
 void Server::deleteClient(Socket &client)
 {
+	logInfo("Closing connection with client " + intToStr(client.getFd()));
 	close(client.getFd());
 	for (size_t i = 0; i < _pollFds.size(); ++i)
 	{
@@ -355,19 +376,25 @@ void Server::deleteClient(Socket &client)
 
 void Server::printSockets()
 {
-	std::cout << "===== Socket List =====\n";
+	logDebug("===== Socket List =====");
+	std::ostringstream socketInfo;
 	for (std::map<int, Socket>::iterator it = _sockets.begin(); it != _sockets.end(); ++it)
 	{
-		std::cout << "Key in map: " << it->first
-				  << ", " << it->second;
+		socketInfo << "Key in map: " << it->first << ", " << it->second;
 	}
-	std::cout << "===== Socket List End =====\n";
-	std::cout << "===== Poll Fd List =====\n";
+	logDebug(socketInfo.str());
+	std::cout << socketInfo.str();
+	
+	socketInfo.str("");
+	socketInfo << "===== Poll Fd List =====";
 	for (std::vector<pollfd>::iterator it = _pollFds.begin(); it != _pollFds.end(); ++it)
 	{
-		std::cout << "Fd: " << it->fd << ", Event: " << decodeEvents(it->events) << ", Revent: " << decodeEvents(it->revents) << "\n";
+		socketInfo << "\nFd: " << it->fd 
+				  << ", Event: " << decodeEvents(it->events) 
+				  << ", Revent: " << decodeEvents(it->revents);
 	}
-	std::cout << "===== Poll Fd List End =====\n";
+	logDebug(socketInfo.str());
+	std::cout << socketInfo.str() << std::endl;
 }
 
 void Server::sendResponse(Response &response, Socket &client)
@@ -376,6 +403,7 @@ void Server::sendResponse(Response &response, Socket &client)
 	ssize_t sent = send(client.getFd(), string.c_str(), string.size(), 0);
 	if (sent == -1) // just to be sure that send does not fail
 	{
+		logError("Send failed to client " + intToStr(client.getFd()) + ": " + std::string(strerror(errno)));
 		perror("send failed");
 		deleteClient(client);
 		;
@@ -392,12 +420,10 @@ void Server::handleGetRequest(Response &res, const std::string &path)
 	std::string fullPath = "www" + path;
 	std::ifstream file(fullPath.c_str(), std::ios::binary);
 
-	//std::cout << "File opened successfully: " << fullPath << std::endl;
-
 	if (!file.is_open())
 	{
-		std::cout << "File is not  successfully: " << fullPath << std::endl;
-
+		logWarning("404 Not Found: " + fullPath);
+		
 		std::string body = "<html><body><h1>404 Not Found</h1></body></html>";
 		res.setStatus(404);
 		res.setHeader("Content-Type", "text/html");
@@ -411,6 +437,7 @@ void Server::handleGetRequest(Response &res, const std::string &path)
 		content << file.rdbuf();
 
 		std::string type = getContentType(fullPath);
+		logInfo("200 OK: " + fullPath + " (" + type + ")");
 		res.setStatus(200);
 		res.setHeader("Content-Type", type);
 		res.setHeader("Content-Length", intToStr(content.str().size()));
@@ -427,6 +454,7 @@ void Server::handlePostRequest(Response &res, const std::string &path, const std
 	std::ofstream outFile(fullPath.c_str());
 	if (!outFile.is_open())
 	{
+		logError("Failed to open file for writing: " + fullPath);
 		res.setStatus(500);
 		std::string err = "Failed to open file for writing: " + fullPath;
 		res.setHeader("Content-Type", "text/plain");
@@ -437,6 +465,8 @@ void Server::handlePostRequest(Response &res, const std::string &path, const std
 
 	outFile << requestBody;
 	outFile.close();
+	
+	logInfo("POST request successful: " + fullPath);
 
 	// Prepare simple HTML response (or switch to plain text)
 	std::string body =
@@ -460,6 +490,7 @@ void Server::handleDeleteRequest(Response &res, const std::string &path)
 
 	if (std::remove(fullPath.c_str()) == 0)
 	{
+		logInfo("File deleted successfully: " + fullPath);
 		res.setStatus(200);
 		body << "<html><body><h1>File Deleted</h1><p>Deleted: " << path << "</p></body></html>";
 	}
@@ -467,16 +498,19 @@ void Server::handleDeleteRequest(Response &res, const std::string &path)
 	{
 		if (errno == ENOENT)
 		{
+			logWarning("404 Not Found for DELETE: " + fullPath);
 			res.setStatus(404);
 			body << "<html><body><h1>404 Not Found</h1><p>File not found: " << path << "</p></body></html>";
 		}
 		else if (errno == EACCES || errno == EPERM)
 		{
+			logError("403 Forbidden for DELETE: " + fullPath);
 			res.setStatus(403);
 			body << "Permission denied";
 		}
 		else
 		{
+			logError("500 Internal Server Error for DELETE: " + fullPath + " - " + std::string(strerror(errno)));
 			res.setStatus(500);
 			body << "<html><body><h1>500 Internal Server Error</h1><p>Error deleting: " << path << "</p></body></html>";
 		}

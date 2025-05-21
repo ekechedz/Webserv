@@ -1,0 +1,18 @@
+[2025-05-21 18:39:06] INFO: Server starting up
+[2025-05-21 18:39:06] INFO: Initializing server with 1 configurations
+[2025-05-21 18:39:06] INFO: Listening on 127.0.0.1:8080
+[2025-05-21 18:39:06] INFO: Server configuration loaded successfully
+[2025-05-21 18:39:06] INFO: Server started and ready to accept connections
+[2025-05-21 18:40:28] INFO: Server starting up
+[2025-05-21 18:40:28] INFO: Initializing server with 1 configurations
+[2025-05-21 18:40:28] INFO: Listening on 127.0.0.1:8080
+[2025-05-21 18:40:28] INFO: Server configuration loaded successfully
+[2025-05-21 18:40:28] INFO: Server started and ready to accept connections
+[2025-05-21 18:41:07] INFO: Server starting up
+[2025-05-21 18:41:07] ERROR: Invalid arguments. Usage: ./webserv <config_file>.conf
+[2025-05-21 18:41:07] CRITICAL: Fatal error: Usage: ./webserv <config_file>.conf
+[2025-05-21 18:41:07] INFO: Server starting up
+[2025-05-21 18:41:07] CRITICAL: Fatal error: Configuration file is empty.
+[2025-05-21 18:41:07] INFO: Server starting up
+[2025-05-21 18:41:07] ERROR: Configuration error: Server name not set
+[2025-05-21 18:41:07] CRITICAL: Fatal error: Server name not set.
