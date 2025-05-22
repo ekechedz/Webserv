@@ -161,3 +161,8 @@
 [2025-05-22 12:35:20] INFO: Closing connection with client 109
 [2025-05-22 12:35:20] INFO: Closing connection with client 64
 [2025-05-22 12:35:20] INFO: Closing connection with client 96
+[2025-05-22 12:42:06] INFO: Server starting up
+[2025-05-22 12:42:06] INFO: Initializing server with 1 configurations
+[2025-05-22 12:42:06] INFO: Listening on 127.0.0.1:8080
+[2025-05-22 12:42:06] INFO: Server configuration loaded successfully
+[2025-05-22 12:42:06] INFO: Server started and ready to accept connections

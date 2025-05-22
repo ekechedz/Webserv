@@ -39,12 +39,20 @@ void parseHttpRequest(const std::string &rawRequest, Request& request, Response&
 	if (!std::getline(stream, line) || line.empty())
 	{
 		logError("Invalid HTTP request line");
-		throw std::runtime_error("Invalid HTTP request line");
+		res.setStatus(400);
+		return;
 	}
 
 	std::istringstream requestLine(line);
 	std::string method, path, protocol;
 	requestLine >> method >> path >> protocol;
+	
+	if (method.empty() || path.empty() || protocol.empty()) {
+		logError("Invalid HTTP request format");
+		res.setStatus(400);
+		return;
+	}
+	
 	request.setMethod(method);
 	request.setPath(path);
 	// TODO: Query string handling
@@ -66,17 +74,49 @@ void parseHttpRequest(const std::string &rawRequest, Request& request, Response&
 			value.erase(0, value.find_first_not_of(" \t"));
 			headers[key] = value;
 		}
+		else if (!line.empty())
+		{
+			logError("Invalid header format: " + line);
+			res.setStatus(400);
+			return;
+		}
 	}
 	request.setHeaders(headers);
 
 	if (headers.count("Transfer-Encoding") &&
 		headers["Transfer-Encoding"] == "chunked")
-		request.setBody(decodeChunkedBody(stream));
+	{
+		try {
+			request.setBody(decodeChunkedBody(stream));
+		} catch (const std::exception& e) {
+			logError("Error decoding chunked body: " + std::string(e.what()));
+			res.setStatus(400);
+			return;
+		}
+	}
 	else if (headers.count("Content-Length"))
 	{
-		int length = std::atoi(headers["Content-Length"].c_str());
+		int length;
+		try {
+			length = std::atoi(headers["Content-Length"].c_str());
+			if (length < 0) {
+				logError("Invalid Content-Length value: " + headers["Content-Length"]);
+				res.setStatus(400);
+				return;
+			}
+		} catch (const std::exception& e) {
+			logError("Error parsing Content-Length: " + std::string(e.what()));
+			res.setStatus(400);
+			return;
+		}
+		
 		std::string body(length, '\0');
 		stream.read(&body[0], length);
+		if (stream.gcount() != length) {
+			logError("Body size doesn't match Content-Length header");
+			res.setStatus(400);
+			return;
+		}
 		request.setBody(body);
 	}
 }
