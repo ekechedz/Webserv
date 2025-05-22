@@ -70,9 +70,8 @@ int Socket::getPort() const
 	return _port;
 }
 
-void Socket::appendToBuffer(const std::string &data)
-{
-	_buffer += data;
+void Socket::appendToBuffer(const char* data, size_t len) {
+    _buffer.append(data, len);
 	updateActivity();
 }
 
