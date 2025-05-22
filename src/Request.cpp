@@ -104,6 +104,12 @@ void parseHttpRequest(const std::string &rawRequest, Request& request, Response&
 				res.setStatus(400);
 				return;
 			}
+			// Check against client max body size if the request has a server config
+			if (request.getServerConfig() && static_cast<size_t>(length) > request.getServerConfig()->getClientMaxBodySize()) {
+				logError("Content-Length exceeds maximum size: " + headers["Content-Length"]);
+				res.setStatus(413); // Payload Too Large
+				return;
+			}
 		} catch (const std::exception& e) {
 			logError("Error parsing Content-Length: " + std::string(e.what()));
 			res.setStatus(400);

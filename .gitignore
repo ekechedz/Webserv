@@ -1,5 +1,6 @@
 .vscode/
 **/*.o
 webserv.log
+en.subject.pdf
 /webserv
 tests/tmp/

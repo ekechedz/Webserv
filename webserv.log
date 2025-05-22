@@ -26,3 +26,8 @@
 [2025-05-22 14:02:48] INFO: Upload file has been filled: www/upload/uploaded_file.txt
 [2025-05-22 14:02:48] INFO: POST request successful: www/upload/uploaded_file.txt
 [2025-05-22 14:02:48] INFO: Closing connection with client 5
+[2025-05-22 14:34:38] INFO: Server starting up
+[2025-05-22 14:34:38] INFO: Initializing server with 1 configurations
+[2025-05-22 14:34:38] INFO: Listening on 127.0.0.1:8080
+[2025-05-22 14:34:38] INFO: Server configuration loaded successfully
+[2025-05-22 14:34:38] INFO: Server started and ready to accept connections
