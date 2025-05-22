@@ -1,33 +1,57 @@
-[2025-05-22 13:56:32] INFO: Server starting up
-[2025-05-22 13:56:32] INFO: Initializing server with 1 configurations
-[2025-05-22 13:56:32] INFO: Listening on 127.0.0.1:8080
-[2025-05-22 13:56:32] INFO: Server configuration loaded successfully
-[2025-05-22 13:56:32] INFO: Server started and ready to accept connections
-[2025-05-22 13:56:38] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
-[2025-05-22 13:56:38] INFO: POST request successful: www/upload/uploaded_file.txt
-[2025-05-22 13:56:38] INFO: Closing connection with client 5
-[2025-05-22 13:58:37] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
-[2025-05-22 13:58:37] INFO: POST request successful: www/upload/uploaded_file.txt
-[2025-05-22 13:58:37] INFO: Closing connection with client 5
-[2025-05-22 14:01:44] INFO: Server starting up
-[2025-05-22 14:01:44] INFO: Initializing server with 1 configurations
-[2025-05-22 14:01:44] INFO: Listening on 127.0.0.1:8080
-[2025-05-22 14:01:44] INFO: Server configuration loaded successfully
-[2025-05-22 14:01:44] INFO: Server started and ready to accept connections
-[2025-05-22 14:02:30] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
-[2025-05-22 14:02:30] INFO: POST request successful: www/upload/uploaded_file.txt
-[2025-05-22 14:02:30] INFO: Closing connection with client 5
-[2025-05-22 14:02:46] INFO: Server starting up
-[2025-05-22 14:02:46] INFO: Initializing server with 1 configurations
-[2025-05-22 14:02:46] INFO: Listening on 127.0.0.1:8080
-[2025-05-22 14:02:46] INFO: Server configuration loaded successfully
-[2025-05-22 14:02:46] INFO: Server started and ready to accept connections
-[2025-05-22 14:02:48] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
-[2025-05-22 14:02:48] INFO: Upload file has been filled: www/upload/uploaded_file.txt
-[2025-05-22 14:02:48] INFO: POST request successful: www/upload/uploaded_file.txt
-[2025-05-22 14:02:48] INFO: Closing connection with client 5
-[2025-05-22 14:34:38] INFO: Server starting up
-[2025-05-22 14:34:38] INFO: Initializing server with 1 configurations
-[2025-05-22 14:34:38] INFO: Listening on 127.0.0.1:8080
-[2025-05-22 14:34:38] INFO: Server configuration loaded successfully
-[2025-05-22 14:34:38] INFO: Server started and ready to accept connections
+[2025-05-22 15:34:50] INFO: Server starting up
+[2025-05-22 15:34:50] INFO: Initializing server with 1 configurations
+[2025-05-22 15:34:50] INFO: Listening on 127.0.0.1:8080
+[2025-05-22 15:34:50] INFO: Server configuration loaded successfully
+[2025-05-22 15:34:50] INFO: Server started and ready to accept connections
+[2025-05-22 15:34:57] INFO: Server starting up
+[2025-05-22 15:34:57] INFO: Initializing server with 1 configurations
+[2025-05-22 15:34:57] INFO: Listening on 127.0.0.1:8080
+[2025-05-22 15:34:57] INFO: Server configuration loaded successfully
+[2025-05-22 15:34:57] INFO: Server started and ready to accept connections
+[2025-05-22 15:36:17] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
+[2025-05-22 15:36:17] INFO: POST request successful: Upload file has been filled: www/upload/uploaded_file.txt
+[2025-05-22 15:36:17] INFO: Closing connection with client 5
+[2025-05-22 15:37:23] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
+[2025-05-22 15:37:23] INFO: POST request successful: Upload file has been filled: www/upload/uploaded_file.txt
+[2025-05-22 15:37:23] INFO: Closing connection with client 5
+[2025-05-22 15:38:16] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
+[2025-05-22 15:38:16] INFO: POST request successful: Upload file has been filled: www/upload/uploaded_file.txt
+[2025-05-22 15:38:16] INFO: Closing connection with client 5
+[2025-05-22 15:38:21] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
+[2025-05-22 15:38:21] INFO: POST request successful: Upload file has been filled: www/upload/uploaded_file.txt
+[2025-05-22 15:38:21] INFO: Closing connection with client 5
+[2025-05-22 15:39:16] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
+[2025-05-22 15:39:16] INFO: POST request successful: Upload file has been filled: www/upload/uploaded_file.txt
+[2025-05-22 15:39:16] INFO: Closing connection with client 5
+[2025-05-22 15:39:37] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
+[2025-05-22 15:39:37] INFO: POST request successful: Upload file has been filled: www/upload/uploaded_file.txt
+[2025-05-22 15:39:37] INFO: Closing connection with client 5
+[2025-05-22 15:39:52] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
+[2025-05-22 15:39:52] INFO: POST request successful: Upload file has been filled: www/upload/uploaded_file.txt
+[2025-05-22 15:39:52] INFO: Closing connection with client 5
+[2025-05-22 15:41:05] INFO: Received request: POST /uploads HTTP/1.1
+[2025-05-22 15:41:05] INFO: POST request successful: Upload file has been filled: www/uploads
+[2025-05-22 15:41:05] INFO: Closing connection with client 5
+[2025-05-22 15:41:20] INFO: Received request: POST /uploads/ HTTP/1.1
+[2025-05-22 15:41:20] ERROR: Failed to open file for writing: www/uploads/
+[2025-05-22 15:41:20] INFO: Closing connection with client 5
+[2025-05-22 15:42:51] INFO: Received request: GET / HTTP/1.1
+[2025-05-22 15:42:51] INFO: 200 OK: www/index.html (text/html)
+[2025-05-22 15:42:51] INFO: Received request: GET /assets/css/main.css HTTP/1.1
+[2025-05-22 15:42:51] INFO: 200 OK: www/assets/css/main.css (text/css)
+[2025-05-22 15:42:51] INFO: Received request: GET /favicon.ico HTTP/1.1
+[2025-05-22 15:42:51] INFO: 200 OK: www/favicon.ico (application/octet-stream)
+[2025-05-22 15:42:51] INFO: Received request: GET /assets/image/favicon.ico HTTP/1.1
+[2025-05-22 15:42:51] WARNING: 404 Not Found: www/assets/image/favicon.ico
+[2025-05-22 15:43:16] INFO: Received request: GET /upload HTTP/1.1
+[2025-05-22 15:43:16] INFO: 200 OK: www/upload (application/octet-stream)
+[2025-05-22 15:43:24] INFO: Received request: GET /upload/ HTTP/1.1
+[2025-05-22 15:43:24] INFO: 200 OK: www/upload/ (application/octet-stream)
+[2025-05-22 15:43:35] INFO: Received request: GET /uploads/ HTTP/1.1
+[2025-05-22 15:43:35] WARNING: 404 Not Found: www/uploads/
+[2025-05-22 15:44:10] INFO: Client 5 has timed out. Closing connection.
+[2025-05-22 15:44:46] INFO: Received request: GET /upload/ HTTP/1.1
+[2025-05-22 15:44:46] INFO: 200 OK: www/upload/ (application/octet-stream)
+[2025-05-22 15:44:46] INFO: Closing connection with client 5
+[2025-05-22 15:45:34] INFO: Received request: GET /redirect HTTP/1.1
+[2025-05-22 15:45:34] INFO: Closing connection with client 5
