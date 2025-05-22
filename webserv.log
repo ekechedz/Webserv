@@ -1,168 +1,28 @@
-[2025-05-21 18:39:06] INFO: Server starting up
-[2025-05-21 18:39:06] INFO: Initializing server with 1 configurations
-[2025-05-21 18:39:06] INFO: Listening on 127.0.0.1:8080
-[2025-05-21 18:39:06] INFO: Server configuration loaded successfully
-[2025-05-21 18:39:06] INFO: Server started and ready to accept connections
-[2025-05-21 18:40:28] INFO: Server starting up
-[2025-05-21 18:40:28] INFO: Initializing server with 1 configurations
-[2025-05-21 18:40:28] INFO: Listening on 127.0.0.1:8080
-[2025-05-21 18:40:28] INFO: Server configuration loaded successfully
-[2025-05-21 18:40:28] INFO: Server started and ready to accept connections
-[2025-05-21 18:41:07] INFO: Server starting up
-[2025-05-21 18:41:07] ERROR: Invalid arguments. Usage: ./webserv <config_file>.conf
-[2025-05-21 18:41:07] CRITICAL: Fatal error: Usage: ./webserv <config_file>.conf
-[2025-05-21 18:41:07] INFO: Server starting up
-[2025-05-21 18:41:07] CRITICAL: Fatal error: Configuration file is empty.
-[2025-05-21 18:41:07] INFO: Server starting up
-[2025-05-21 18:41:07] ERROR: Configuration error: Server name not set
-[2025-05-21 18:41:07] CRITICAL: Fatal error: Server name not set.
-[2025-05-22 12:15:14] INFO: Server starting up
-[2025-05-22 12:15:14] INFO: Initializing server with 1 configurations
-[2025-05-22 12:15:14] INFO: Listening on 127.0.0.1:8080
-[2025-05-22 12:15:14] INFO: Server configuration loaded successfully
-[2025-05-22 12:15:14] INFO: Server started and ready to accept connections
-[2025-05-22 12:16:10] INFO: Server starting up
-[2025-05-22 12:16:10] INFO: Initializing server with 1 configurations
-[2025-05-22 12:16:10] INFO: Listening on 127.0.0.1:8080
-[2025-05-22 12:16:10] INFO: Server configuration loaded successfully
-[2025-05-22 12:16:10] INFO: Server started and ready to accept connections
-[2025-05-22 12:17:47] INFO: Server starting up
-[2025-05-22 12:17:47] INFO: Initializing server with 1 configurations
-[2025-05-22 12:17:47] INFO: Listening on 127.0.0.1:8080
-[2025-05-22 12:17:47] INFO: Server configuration loaded successfully
-[2025-05-22 12:17:47] INFO: Server started and ready to accept connections
-[2025-05-22 12:25:24] INFO: Server starting up
-[2025-05-22 12:25:24] INFO: Initializing server with 1 configurations
-[2025-05-22 12:25:24] INFO: Listening on 127.0.0.1:8080
-[2025-05-22 12:25:24] INFO: Server configuration loaded successfully
-[2025-05-22 12:25:24] INFO: Server started and ready to accept connections
-[2025-05-22 12:27:07] INFO: Server starting up
-[2025-05-22 12:27:07] INFO: Initializing server with 1 configurations
-[2025-05-22 12:27:07] INFO: Listening on 127.0.0.1:8080
-[2025-05-22 12:27:07] INFO: Server configuration loaded successfully
-[2025-05-22 12:27:07] INFO: Server started and ready to accept connections
-[2025-05-22 12:27:12] INFO: Received request: GET / HTTP/1.1
-[2025-05-22 12:27:12] INFO: 200 OK: www/index.html (text/html)
-[2025-05-22 12:27:12] INFO: Closing connection with client 5
-[2025-05-22 12:27:19] INFO: Received request: GET /cgi-bin/test.py HTTP/1.1
-[2025-05-22 12:27:19] INFO: Processing CGI request: /cgi-bin/test.py
-[2025-05-22 12:27:19] INFO: CGI Request: GET www/cgi-bin/test.py
-[2025-05-22 12:27:19] INFO: CGI script executed successfully: www/cgi-bin/test.py
-[2025-05-22 12:27:19] INFO: CGI execution successful: /cgi-bin/test.py
-[2025-05-22 12:27:19] INFO: Closing connection with client 5
-[2025-05-22 12:33:58] INFO: Server starting up
-[2025-05-22 12:33:58] INFO: Initializing server with 1 configurations
-[2025-05-22 12:33:58] INFO: Listening on 127.0.0.1:8080
-[2025-05-22 12:33:58] INFO: Server configuration loaded successfully
-[2025-05-22 12:33:58] INFO: Server started and ready to accept connections
-[2025-05-22 12:34:59] INFO: Server starting up
-[2025-05-22 12:34:59] INFO: Initializing server with 1 configurations
-[2025-05-22 12:34:59] INFO: Listening on 127.0.0.1:8080
-[2025-05-22 12:34:59] INFO: Server configuration loaded successfully
-[2025-05-22 12:34:59] INFO: Server started and ready to accept connections
-[2025-05-22 12:35:20] WARNING: Server too busy, rejecting new connection
-[2025-05-22 12:35:20] INFO: Closing connection with client 5
-[2025-05-22 12:35:20] INFO: Closing connection with client 6
-[2025-05-22 12:35:20] INFO: Closing connection with client 8
-[2025-05-22 12:35:20] INFO: Closing connection with client 10
-[2025-05-22 12:35:20] INFO: Closing connection with client 12
-[2025-05-22 12:35:20] INFO: Closing connection with client 14
-[2025-05-22 12:35:20] INFO: Closing connection with client 16
-[2025-05-22 12:35:20] INFO: Closing connection with client 7
-[2025-05-22 12:35:20] INFO: Closing connection with client 11
-[2025-05-22 12:35:20] INFO: Closing connection with client 15
-[2025-05-22 12:35:20] INFO: Closing connection with client 18
-[2025-05-22 12:35:20] INFO: Closing connection with client 20
-[2025-05-22 12:35:20] INFO: Closing connection with client 22
-[2025-05-22 12:35:20] INFO: Closing connection with client 24
-[2025-05-22 12:35:20] INFO: Closing connection with client 26
-[2025-05-22 12:35:20] INFO: Closing connection with client 28
-[2025-05-22 12:35:20] INFO: Closing connection with client 30
-[2025-05-22 12:35:20] INFO: Closing connection with client 32
-[2025-05-22 12:35:20] INFO: Closing connection with client 34
-[2025-05-22 12:35:20] INFO: Closing connection with client 36
-[2025-05-22 12:35:20] INFO: Closing connection with client 44
-[2025-05-22 12:35:20] INFO: Closing connection with client 46
-[2025-05-22 12:35:20] INFO: Closing connection with client 9
-[2025-05-22 12:35:20] INFO: Closing connection with client 17
-[2025-05-22 12:35:20] INFO: Closing connection with client 21
-[2025-05-22 12:35:20] INFO: Closing connection with client 25
-[2025-05-22 12:35:20] INFO: Closing connection with client 29
-[2025-05-22 12:35:20] INFO: Closing connection with client 33
-[2025-05-22 12:35:20] INFO: Closing connection with client 43
-[2025-05-22 12:35:20] INFO: Closing connection with client 47
-[2025-05-22 12:35:20] INFO: Closing connection with client 49
-[2025-05-22 12:35:20] INFO: Closing connection with client 51
-[2025-05-22 12:35:20] INFO: Closing connection with client 53
-[2025-05-22 12:35:20] INFO: Closing connection with client 55
-[2025-05-22 12:35:20] INFO: Closing connection with client 57
-[2025-05-22 12:35:20] INFO: Closing connection with client 59
-[2025-05-22 12:35:20] INFO: Closing connection with client 61
-[2025-05-22 12:35:20] INFO: Closing connection with client 63
-[2025-05-22 12:35:20] INFO: Closing connection with client 65
-[2025-05-22 12:35:20] INFO: Closing connection with client 67
-[2025-05-22 12:35:20] INFO: Closing connection with client 69
-[2025-05-22 12:35:20] INFO: Closing connection with client 71
-[2025-05-22 12:35:20] INFO: Closing connection with client 73
-[2025-05-22 12:35:20] INFO: Closing connection with client 75
-[2025-05-22 12:35:20] INFO: Closing connection with client 77
-[2025-05-22 12:35:20] INFO: Closing connection with client 79
-[2025-05-22 12:35:20] INFO: Closing connection with client 81
-[2025-05-22 12:35:20] INFO: Closing connection with client 83
-[2025-05-22 12:35:20] INFO: Closing connection with client 85
-[2025-05-22 12:35:20] INFO: Closing connection with client 87
-[2025-05-22 12:35:20] INFO: Closing connection with client 89
-[2025-05-22 12:35:20] INFO: Closing connection with client 91
-[2025-05-22 12:35:20] INFO: Closing connection with client 93
-[2025-05-22 12:35:20] INFO: Closing connection with client 95
-[2025-05-22 12:35:20] INFO: Closing connection with client 97
-[2025-05-22 12:35:20] INFO: Closing connection with client 99
-[2025-05-22 12:35:20] INFO: Closing connection with client 101
-[2025-05-22 12:35:20] INFO: Closing connection with client 104
-[2025-05-22 12:35:20] INFO: Closing connection with client 13
-[2025-05-22 12:35:20] INFO: Closing connection with client 23
-[2025-05-22 12:35:20] INFO: Closing connection with client 31
-[2025-05-22 12:35:20] INFO: Closing connection with client 45
-[2025-05-22 12:35:20] INFO: Closing connection with client 50
-[2025-05-22 12:35:20] INFO: Closing connection with client 54
-[2025-05-22 12:35:20] INFO: Closing connection with client 58
-[2025-05-22 12:35:20] INFO: Closing connection with client 62
-[2025-05-22 12:35:20] INFO: Closing connection with client 66
-[2025-05-22 12:35:20] INFO: Closing connection with client 70
-[2025-05-22 12:35:20] INFO: Closing connection with client 74
-[2025-05-22 12:35:20] INFO: Closing connection with client 78
-[2025-05-22 12:35:20] INFO: Closing connection with client 82
-[2025-05-22 12:35:20] INFO: Closing connection with client 86
-[2025-05-22 12:35:20] INFO: Closing connection with client 90
-[2025-05-22 12:35:20] INFO: Closing connection with client 94
-[2025-05-22 12:35:20] INFO: Closing connection with client 98
-[2025-05-22 12:35:20] INFO: Closing connection with client 102
-[2025-05-22 12:35:20] INFO: Closing connection with client 106
-[2025-05-22 12:35:20] INFO: Closing connection with client 108
-[2025-05-22 12:35:20] INFO: Closing connection with client 110
-[2025-05-22 12:35:20] INFO: Closing connection with client 19
-[2025-05-22 12:35:20] INFO: Closing connection with client 35
-[2025-05-22 12:35:20] INFO: Closing connection with client 52
-[2025-05-22 12:35:20] INFO: Closing connection with client 60
-[2025-05-22 12:35:20] INFO: Closing connection with client 68
-[2025-05-22 12:35:20] INFO: Closing connection with client 76
-[2025-05-22 12:35:20] INFO: Closing connection with client 84
-[2025-05-22 12:35:20] INFO: Closing connection with client 92
-[2025-05-22 12:35:20] INFO: Closing connection with client 100
-[2025-05-22 12:35:20] INFO: Closing connection with client 107
-[2025-05-22 12:35:20] INFO: Closing connection with client 111
-[2025-05-22 12:35:20] INFO: Closing connection with client 27
-[2025-05-22 12:35:20] INFO: Closing connection with client 56
-[2025-05-22 12:35:20] INFO: Closing connection with client 72
-[2025-05-22 12:35:20] INFO: Closing connection with client 88
-[2025-05-22 12:35:20] INFO: Closing connection with client 105
-[2025-05-22 12:35:20] INFO: Closing connection with client 48
-[2025-05-22 12:35:20] INFO: Closing connection with client 80
-[2025-05-22 12:35:20] INFO: Closing connection with client 109
-[2025-05-22 12:35:20] INFO: Closing connection with client 64
-[2025-05-22 12:35:20] INFO: Closing connection with client 96
-[2025-05-22 12:42:06] INFO: Server starting up
-[2025-05-22 12:42:06] INFO: Initializing server with 1 configurations
-[2025-05-22 12:42:06] INFO: Listening on 127.0.0.1:8080
-[2025-05-22 12:42:06] INFO: Server configuration loaded successfully
-[2025-05-22 12:42:06] INFO: Server started and ready to accept connections
+[2025-05-22 13:56:32] INFO: Server starting up
+[2025-05-22 13:56:32] INFO: Initializing server with 1 configurations
+[2025-05-22 13:56:32] INFO: Listening on 127.0.0.1:8080
+[2025-05-22 13:56:32] INFO: Server configuration loaded successfully
+[2025-05-22 13:56:32] INFO: Server started and ready to accept connections
+[2025-05-22 13:56:38] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
+[2025-05-22 13:56:38] INFO: POST request successful: www/upload/uploaded_file.txt
+[2025-05-22 13:56:38] INFO: Closing connection with client 5
+[2025-05-22 13:58:37] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
+[2025-05-22 13:58:37] INFO: POST request successful: www/upload/uploaded_file.txt
+[2025-05-22 13:58:37] INFO: Closing connection with client 5
+[2025-05-22 14:01:44] INFO: Server starting up
+[2025-05-22 14:01:44] INFO: Initializing server with 1 configurations
+[2025-05-22 14:01:44] INFO: Listening on 127.0.0.1:8080
+[2025-05-22 14:01:44] INFO: Server configuration loaded successfully
+[2025-05-22 14:01:44] INFO: Server started and ready to accept connections
+[2025-05-22 14:02:30] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
+[2025-05-22 14:02:30] INFO: POST request successful: www/upload/uploaded_file.txt
+[2025-05-22 14:02:30] INFO: Closing connection with client 5
+[2025-05-22 14:02:46] INFO: Server starting up
+[2025-05-22 14:02:46] INFO: Initializing server with 1 configurations
+[2025-05-22 14:02:46] INFO: Listening on 127.0.0.1:8080
+[2025-05-22 14:02:46] INFO: Server configuration loaded successfully
+[2025-05-22 14:02:46] INFO: Server started and ready to accept connections
+[2025-05-22 14:02:48] INFO: Received request: POST /upload/uploaded_file.txt HTTP/1.1
+[2025-05-22 14:02:48] INFO: Upload file has been filled: www/upload/uploaded_file.txt
+[2025-05-22 14:02:48] INFO: POST request successful: www/upload/uploaded_file.txt
+[2025-05-22 14:02:48] INFO: Closing connection with client 5

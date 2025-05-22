@@ -19,7 +19,7 @@ private:
     Logger();
     ~Logger();
     Logger(const Logger&);
-    Logger& operator=(const Logger&);
+    //Logger& operator=(const Logger&);
 
     Level currentLevel;
     std::ofstream logFile;

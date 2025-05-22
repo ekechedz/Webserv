@@ -456,10 +456,12 @@ void Server::handlePostRequest(Response &res, const std::string &path, const std
 		return;
 	}
 
-	outFile << requestBody;
+	if (outFile << requestBody)
+	{
+		logInfo("POST request successful: Upload file has been filled: " + fullPath);
+	}
+
 	outFile.close();
-	
-	logInfo("POST request successful: " + fullPath);
 
 	// Prepare simple HTML response (or switch to plain text)
 	std::string body =
@@ -489,18 +491,21 @@ void Server::handleDeleteRequest(Response &res, const std::string &path)
 	}
 	else
 	{
+		// File no found
 		if (errno == ENOENT)
 		{
 			logWarning("404 Not Found for DELETE: " + fullPath);
 			res.setStatus(404);
 			body << "<html><body><h1>404 Not Found</h1><p>File not found: " << path << "</p></body></html>";
 		}
+		// Permission denied
 		else if (errno == EACCES || errno == EPERM)
 		{
 			logError("403 Forbidden for DELETE: " + fullPath);
 			res.setStatus(403);
 			body << "Permission denied";
 		}
+		// Other errors
 		else
 		{
 			logError("500 Internal Server Error for DELETE: " + fullPath + " - " + std::string(strerror(errno)));
