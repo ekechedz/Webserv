@@ -16,3 +16,18 @@
 [2025-05-21 18:41:07] INFO: Server starting up
 [2025-05-21 18:41:07] ERROR: Configuration error: Server name not set
 [2025-05-21 18:41:07] CRITICAL: Fatal error: Server name not set.
+[2025-05-22 12:15:14] INFO: Server starting up
+[2025-05-22 12:15:14] INFO: Initializing server with 1 configurations
+[2025-05-22 12:15:14] INFO: Listening on 127.0.0.1:8080
+[2025-05-22 12:15:14] INFO: Server configuration loaded successfully
+[2025-05-22 12:15:14] INFO: Server started and ready to accept connections
+[2025-05-22 12:16:10] INFO: Server starting up
+[2025-05-22 12:16:10] INFO: Initializing server with 1 configurations
+[2025-05-22 12:16:10] INFO: Listening on 127.0.0.1:8080
+[2025-05-22 12:16:10] INFO: Server configuration loaded successfully
+[2025-05-22 12:16:10] INFO: Server started and ready to accept connections
+[2025-05-22 12:17:47] INFO: Server starting up
+[2025-05-22 12:17:47] INFO: Initializing server with 1 configurations
+[2025-05-22 12:17:47] INFO: Listening on 127.0.0.1:8080
+[2025-05-22 12:17:47] INFO: Server configuration loaded successfully
+[2025-05-22 12:17:47] INFO: Server started and ready to accept connections
