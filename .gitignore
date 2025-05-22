@@ -1,4 +1,5 @@
 .vscode/
 **/*.o
+webserv.log
 /webserv
 tests/tmp/

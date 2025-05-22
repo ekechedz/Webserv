@@ -1,4 +1,5 @@
 #include "../include/Utils.hpp"
+#include "../include/Logger.hpp"
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
@@ -100,4 +101,25 @@ std::string decodeEvents(short int events)
 	if (events & POLLNVAL)
 		result += "POLLNVAL ";
 	return result;
+}
+
+// Logging utility functions
+void logError(const std::string &msg)
+{
+	Logger::getInstance().log(Logger::ERROR, msg);
+}
+
+void logWarning(const std::string &msg)
+{
+	Logger::getInstance().log(Logger::WARNING, msg);
+}
+
+void logInfo(const std::string &msg)
+{
+	Logger::getInstance().log(Logger::INFO, msg);
+}
+
+void logDebug(const std::string &msg)
+{
+	Logger::getInstance().log(Logger::DEBUG, msg);
 }

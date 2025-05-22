@@ -20,6 +20,8 @@ public:
 	int getStatus() const;
 	void setHeader(const std::string &key, const std::string &value);
 	void setBody(const std::string &body);
+	void setError(int code, const std::string& message);
+	void setWarning(const std::string& message);
 	std::string toString() const;
 	std::string getHeaderValue(const std::string &key) const;
 	void parseCgiOutput(const std::string &cgiOutput);

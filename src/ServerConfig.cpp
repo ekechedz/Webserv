@@ -1,5 +1,6 @@
 #include "../include/ServerConfig.hpp"
 #include "../include/Utils.hpp"
+#include "../include/Logger.hpp"
 #include <sstream>
 
 // one of the important things is that the order here
@@ -63,16 +64,26 @@ void ServerConfig::parseBlock(std::istream &stream)
 }
 
 void ServerConfig::initialisedCheck() const {
-	if (port == 0)
+	if (port == 0) {
+		logError("Configuration error: Server port not set");
 		throw std::runtime_error("Server port not set.");
-	if (server_name.empty())
+	}
+	if (server_name.empty()) {
+		logError("Configuration error: Server name not set");
 		throw std::runtime_error("Server name not set.");
-	if (root.empty())
+	}
+	if (root.empty()) {
+		logError("Configuration error: Root directory not set");
 		throw std::runtime_error("Root directory not set.");
-	if (client_max_body_size == 0)
+	}
+	if (client_max_body_size == 0) {
+		logError("Configuration error: Max body size not set");
 		throw std::runtime_error("Max body size not set.");
-	if (index.empty())
+	}
+	if (index.empty()) {
+		logError("Configuration error: Index file not set");
 		throw std::runtime_error("Index file not set.");
+	}
 }
 
 const std::string& ServerConfig::getHost() const { return host; }
@@ -95,13 +106,18 @@ const std::string& ServerConfig::getErrorPage(int code) const {
 void ServerConfig::print() const
 {
 	std::cout << "==== SERVER ====" << std::endl;
-	std::cout	<< "Host: " << host
-				<< "\nPort: " << port
-				<< "\nRoot: " << root
-				<< "\nIndex: " << index
-				<< "\nServername: " << server_name
-				<< "\nClient Max Body Size: " << client_max_body_size
-				<< std::endl;
+	
+	std::ostringstream infoStream;
+	infoStream << "Host: " << host
+			<< "\nPort: " << port
+			<< "\nRoot: " << root
+			<< "\nIndex: " << index
+			<< "\nServername: " << server_name
+			<< "\nClient Max Body Size: " << client_max_body_size;
+	
+	logDebug(infoStream.str());
+	std::cout << infoStream.str() << std::endl;
+	
 	std::cout << "Error pages:\n";
 	for (std::map<int, std::string>::const_iterator it = error_pages.begin(); it != error_pages.end(); ++it)
 		std::cout << "\tError: " << it->first << ", Path: " << it->second << std::endl;

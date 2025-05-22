@@ -1,5 +1,6 @@
 #include "../include/LocationConfig.hpp"
 #include "../include/Utils.hpp"
+#include "../include/Logger.hpp"
 #include <sstream>
 
 LocationConfig::LocationConfig() : autoindex(false)
@@ -72,12 +73,18 @@ void LocationConfig::setCgiExt(const std::string &e) { cgi_ext = e; }
 void LocationConfig::print() const
 {
 	std::cout << "--- Location: " << path << " ---" << std::endl;
-	std::cout << "Root: " << root
+	
+	std::ostringstream infoStream;
+	infoStream << "Root: " << root
 			  << "\nIndex: " << index
 			  << "\nAutoindex: " << (autoindex ? "on" : "off")
 			  << "\nRedirect: " << redirect
 			  << "\nCGI Path: " << cgi_path
-			  << "\nCGI Ext: " << cgi_ext << std::endl;
+			  << "\nCGI Ext: " << cgi_ext;
+	
+	logDebug(infoStream.str());
+	std::cout << infoStream.str() << std::endl;
+	
 	std::cout << "Methods: ";
 	for (size_t i = 0; i < methods.size(); ++i)
 		std::cout << methods[i] << " ";

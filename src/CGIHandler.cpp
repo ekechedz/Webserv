@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <iostream>
+#include "../include/Logger.hpp"
 
 CGIHandler::CGIHandler(const Request &req, const LocationConfig &loc)
 	: success_(false)
@@ -22,6 +23,9 @@ CGIHandler::CGIHandler(const Request &req, const LocationConfig &loc)
 
 	scriptPath_ = locationRoot + "/" + reqPath;
 	interpreterPath_ = loc.getCgiPath();
+	
+	logInfo("CGI Request: " + req.getMethod() + " " + scriptPath_);
+	
 	std::string transferEncoding = req.getHeader("Transfer-Encoding");
 	if (transferEncoding == "chunked")
 	{
@@ -84,6 +88,7 @@ std::string CGIHandler::run()
 	if (pipe(inPipe) == -1 || pipe(outPipe) == -1 || pipe(errPipe) == -1)
 	{
 		errorMsg_ = "Pipe creation failed";
+		logError(errorMsg_);
 		return "";
 	}
 
@@ -91,6 +96,7 @@ std::string CGIHandler::run()
 	if (pid < 0)
 	{
 		errorMsg_ = "Fork failed";
+		logError(errorMsg_);
 		return "";
 	}
 
@@ -120,6 +126,7 @@ std::string CGIHandler::run()
 		argv[2] = NULL;
 
 		execve(interpreterPath_.c_str(), argv, &envp[0]);
+		logError("CGI execve failed: " + std::string(strerror(errno)));
 		_exit(1);
 	}
 	else
@@ -150,11 +157,13 @@ std::string CGIHandler::run()
 		if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
 		{
 			success_ = true;
+			logInfo("CGI script executed successfully: " + scriptPath_);
 			return output.str();
 		}
 		else
 		{
 			errorMsg_ = "CGI script failed: " + errOutput.str();
+			logError(errorMsg_ + " for script: " + scriptPath_);
 			return "";
 		}
 	}

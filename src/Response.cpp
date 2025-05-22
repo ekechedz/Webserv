@@ -1,5 +1,7 @@
 #include "../include/Response.hpp"
 #include "../include/Server.hpp"
+#include "../include/Logger.hpp"
+#include "../include/Utils.hpp"
 
 Response::Response() : _statusCode(0) {}
 
@@ -17,6 +19,18 @@ void Response::setBody(const std::string &body)
 {
 	_body = body;
 }
+
+void Response::setError(int code, const std::string& message)
+{
+    setStatus(code);
+    logError("HTTP " + intToStr(code) + ": " + message);
+}
+
+void Response::setWarning(const std::string& message)
+{
+    logWarning(message);
+}
+
 int Response::getStatus() const
 {
 	return _statusCode;

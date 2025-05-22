@@ -1,5 +1,7 @@
 #include "../include/Server.hpp"
 #include "../include/Request.hpp"
+#include "../include/Logger.hpp"
+#include "../include/Utils.hpp"
 #include <cstdlib>
 
 Request::Request() : matchedLocation(NULL){}
@@ -36,8 +38,8 @@ void parseHttpRequest(const std::string &rawRequest, Request& request, Response&
 	// Parse request line
 	if (!std::getline(stream, line) || line.empty())
 	{
-		res.setStatus(400);
-		return;
+		logError("Invalid HTTP request line");
+		throw std::runtime_error("Invalid HTTP request line");
 	}
 
 	std::istringstream requestLine(line);
@@ -47,6 +49,8 @@ void parseHttpRequest(const std::string &rawRequest, Request& request, Response&
 	request.setPath(path);
 	// TODO: Query string handling
 	request.setProtocol(protocol);
+
+	logInfo("Received request: " + method + " " + path + " " + protocol);
 
 	// Parse headers
 	std::map<std::string, std::string> headers;
