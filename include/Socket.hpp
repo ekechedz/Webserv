@@ -30,7 +30,7 @@ public:
 	void increaseNbrRequests();
 	void setFD(const int newFD);
 	void setValues(const int newFD, const Type newType, const State newState);
-	void appendToBuffer(const std::string &data);
+	void appendToBuffer(const char* data, size_t len);
 	void clearBuffer();
 
 	void updateActivity();
@@ -47,4 +47,3 @@ private:
 	std::string _IPv4;
 	int _port;
 };
-

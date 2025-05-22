@@ -5,14 +5,15 @@
 #include "../include/CGIHandler.hpp"
 #include "../include/Logger.hpp"
 #include "../include/Utils.hpp"
+#include <sys/stat.h> // For mkdir
 
-Server::Server(const std::vector<ServerConfig>& configs)
+Server::Server(const std::vector<ServerConfig> &configs)
 	: _configs(configs)
 {
 	logInfo("Initializing server with " + intToStr(configs.size()) + " configurations");
 	for (size_t i = 0; i < configs.size(); ++i)
 	{
-		const ServerConfig& config = configs[i];
+		const ServerConfig &config = configs[i];
 		// Only creating a socket if the current server config is the first of that ip-port-combo
 		if (findServerConfig(config.getHost(), config.getPort()) != &_configs[i])
 			return;
@@ -22,7 +23,7 @@ Server::Server(const std::vector<ServerConfig>& configs)
 		pfd.events = POLLIN;
 		pfd.revents = 0;
 		_pollFds.push_back(pfd);
-		_sockets[sock] = Socket(sock, Socket::LISTENING, Socket::RECEIVING, config.getHost() , config.getPort());
+		_sockets[sock] = Socket(sock, Socket::LISTENING, Socket::RECEIVING, config.getHost(), config.getPort());
 		logInfo("Listening on " + config.getHost() + ":" + intToStr(config.getPort()));
 	}
 }
@@ -67,7 +68,7 @@ int Server::createListeningSocket(const ServerConfig &config)
 
 void Server::acceptConnection(Socket &listeningSocket)
 {
-		size_t currentClients = 0;
+	size_t currentClients = 0;
 	for (std::map<int, Socket>::iterator it = _sockets.begin(); it != _sockets.end(); ++it)
 	{
 		if (it->second.getType() == Socket::CLIENT)
@@ -118,7 +119,6 @@ void Server::acceptConnection(Socket &listeningSocket)
 	_sockets[clientFd] = Socket(clientFd, Socket::CLIENT, Socket::RECEIVING, listeningSocket.getIPv4(), listeningSocket.getPort());
 }
 
-
 void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 {
 	const LocationConfig *bestMatch = NULL;
@@ -157,7 +157,7 @@ void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 
 void Server::handleClient(Socket &client)
 {
-	char buffer[10000];
+	char buffer[30000];
 	ssize_t bytes = recv(client.getFd(), buffer, sizeof(buffer) - 1, 0);
 	if (bytes <= 0)
 	{
@@ -166,9 +166,24 @@ void Server::handleClient(Socket &client)
 		return;
 	}
 	buffer[bytes] = '\0';
-	client.appendToBuffer(buffer);
+	client.appendToBuffer(buffer, bytes);
 	std::string requestString = client.getBuffer();
-
+	size_t headerEnd = requestString.find("\r\n\r\n");
+	if (headerEnd != std::string::npos)
+	{
+		size_t contentLengthPos = requestString.find("Content-Length:");
+		if (contentLengthPos != std::string::npos)
+		{
+			size_t lenStart = contentLengthPos + 15;
+			while (lenStart < requestString.size() && (requestString[lenStart] == ' ' || requestString[lenStart] == '\t'))
+				++lenStart;
+			size_t lenEnd = requestString.find("\r\n", lenStart);
+			int contentLength = atoi(requestString.substr(lenStart, lenEnd - lenStart).c_str());
+			size_t totalExpected = headerEnd + 4 + contentLength;
+			if (requestString.size() < totalExpected)
+				return;
+		}
+	}
 	Request req;
 	Response res;
 	parseHttpRequest(requestString, req, res);
@@ -201,7 +216,6 @@ void Server::handleClient(Socket &client)
 		req.setServerConfig(serverConfig);
 	}
 
-
 	client.increaseNbrRequests();
 
 	std::map<std::string, std::string> headers = req.getHeaders();
@@ -215,7 +229,6 @@ void Server::handleClient(Socket &client)
 	if (client.getNbrRequests() >= MAX_REQUESTS)
 		connectionHeader = "close";
 
-
 	res.setHeader("Connection", connectionHeader);
 
 	if (req.getProtocol() != "HTTP/1.1")
@@ -225,7 +238,6 @@ void Server::handleClient(Socket &client)
 		sendResponse(res, client);
 		return;
 	}
-
 
 	// Getting location config based on server config
 	const std::vector<LocationConfig> &locations = req.getServerConfig()->getLocations();
@@ -268,7 +280,7 @@ void Server::handleClient(Socket &client)
 	if (method == "GET")
 		handleGetRequest(res, path);
 	else if (method == "POST")
-		handlePostRequest(res, path, body);
+		handlePostRequest(req, res, path, body);
 	else if (method == "DELETE")
 		handleDeleteRequest(res, path);
 	else
@@ -278,7 +290,8 @@ void Server::handleClient(Socket &client)
 	client.clearBuffer();
 }
 
-bool Server::handleCgiRequest(const Request& req, Response& res, const LocationConfig* loc, Socket& client) {
+bool Server::handleCgiRequest(const Request &req, Response &res, const LocationConfig *loc, Socket &client)
+{
 	if (!loc || loc->getCgiPath().empty() || loc->getCgiExt().empty())
 		return false;
 	std::string ext = req.getPath().substr(req.getPath().find_last_of("."));
@@ -288,11 +301,14 @@ bool Server::handleCgiRequest(const Request& req, Response& res, const LocationC
 	logInfo("Processing CGI request: " + req.getPath());
 	CGIHandler cgi(req, *loc);
 	std::string cgiOutput = cgi.run();
-	if (cgi.wasSuccessful()) {
+	if (cgi.wasSuccessful())
+	{
 		logInfo("CGI execution successful: " + req.getPath());
 		res.setStatus(200);
 		res.parseCgiOutput(cgiOutput);
-	} else {
+	}
+	else
+	{
 		logError("CGI execution failed: " + cgi.getError());
 		res.setStatus(500);
 		res.setHeader("Content-Type", "text/plain");
@@ -377,14 +393,14 @@ void Server::printSockets()
 	}
 	logDebug(socketInfo.str());
 	std::cout << socketInfo.str();
-	
+
 	socketInfo.str("");
 	socketInfo << "===== Poll Fd List =====";
 	for (std::vector<pollfd>::iterator it = _pollFds.begin(); it != _pollFds.end(); ++it)
 	{
-		socketInfo << "\nFd: " << it->fd 
-				  << ", Event: " << decodeEvents(it->events) 
-				  << ", Revent: " << decodeEvents(it->revents);
+		socketInfo << "\nFd: " << it->fd
+				   << ", Event: " << decodeEvents(it->events)
+				   << ", Revent: " << decodeEvents(it->revents);
 	}
 	logDebug(socketInfo.str());
 	std::cout << socketInfo.str() << std::endl;
@@ -416,7 +432,7 @@ void Server::handleGetRequest(Response &res, const std::string &path)
 	if (!file.is_open())
 	{
 		logWarning("404 Not Found: " + fullPath);
-		
+
 		std::string body = "<html><body><h1>404 Not Found</h1></body></html>";
 		res.setStatus(404);
 		res.setHeader("Content-Type", "text/html");
@@ -438,12 +454,84 @@ void Server::handleGetRequest(Response &res, const std::string &path)
 	}
 }
 
-void Server::handlePostRequest(Response &res, const std::string &path, const std::string &requestBody)
+void Server::handlePostRequest(Request &req, Response &res, const std::string &path, const std::string &requestBody)
 {
-	// Construct full file path based on web root
-	std::string fullPath = "www" + path;
+	std::string uploadDir = "www/upload/";
 
-	// Attempt to write the body directly to the file
+	// Check if this is a file upload (multipart/form-data)
+	if (path == "/upload")
+	{
+
+		std::string boundary;
+		std::string contentType = req.getHeader("Content-Type");
+		size_t boundaryPos = contentType.find("boundary=");
+		if (boundaryPos != std::string::npos)
+		{
+			boundary = "--" + contentType.substr(boundaryPos + 9);
+		}
+		if (boundary.empty())
+		{
+			res.setStatus(400);
+			res.setBody("No boundary found in Content-Type");
+			return;
+		}
+
+		// Find the start of the file content
+		size_t fileStart = requestBody.find("\r\n\r\n");
+		if (fileStart == std::string::npos)
+		{
+			res.setStatus(400);
+			res.setBody("Malformed multipart body");
+			return;
+		}
+		fileStart += 4; // Skip past the header
+
+		// Find the end of the file content
+		size_t fileEnd = requestBody.find(boundary, fileStart);
+		if (fileEnd == std::string::npos)
+		{
+			res.setStatus(400);
+			res.setBody("Malformed multipart body (no end boundary)");
+			return;
+		}
+		std::string fileContent = requestBody.substr(fileStart, fileEnd - fileStart - 2); // -2 for \r\n
+
+		// Extract filename from Content-Disposition
+		size_t filenamePos = requestBody.find("filename=\"");
+		if (filenamePos == std::string::npos)
+		{
+			res.setStatus(400);
+			res.setBody("No filename found in multipart body");
+			return;
+		}
+		filenamePos += 10;
+		size_t filenameEnd = requestBody.find("\"", filenamePos);
+		std::string filename = requestBody.substr(filenamePos, filenameEnd - filenamePos);
+
+		std::string fullPath = uploadDir + filename;
+		std::ofstream outFile(fullPath.c_str(), std::ios::binary);
+		if (!outFile.is_open())
+		{
+			res.setStatus(500);
+			res.setBody("Failed to open file for writing: " + fullPath);
+			return;
+		}
+		outFile.write(fileContent.c_str(), fileContent.size());
+		outFile.close();
+
+		std::string body =
+			"<html><body>"
+			"<script>alert('File uploaded!'); window.location.href='/';</script>"
+			"</body></html>";
+		res.setStatus(200);
+		res.setHeader("Content-Type", "text/html");
+		res.setHeader("Content-Length", intToStr(body.size()));
+		res.setBody(body);
+		return;
+	}
+
+	// Fallback: normal POST (not file upload)
+	std::string fullPath = "www" + path;
 	std::ofstream outFile(fullPath.c_str());
 	if (!outFile.is_open())
 	{
@@ -457,13 +545,9 @@ void Server::handlePostRequest(Response &res, const std::string &path, const std
 	}
 
 	if (outFile << requestBody)
-	{
 		logInfo("POST request successful: Upload file has been filled: " + fullPath);
-	}
 
 	outFile.close();
-
-	// Prepare simple HTML response (or switch to plain text)
 	std::string body =
 		"<html><body>\n"
 		"<h1>POST Received</h1>\n"
@@ -519,7 +603,7 @@ void Server::handleDeleteRequest(Response &res, const std::string &path)
 	res.setHeader("Content-Length", intToStr(body.str().size()));
 }
 // Returns the first serverConfig from the list that matches IP and port
-ServerConfig* Server::findServerConfig(const std::string IPv4, int port)
+ServerConfig *Server::findServerConfig(const std::string IPv4, int port)
 {
 	for (size_t i = 0; i < _configs.size(); ++i)
 	{
@@ -530,7 +614,7 @@ ServerConfig* Server::findServerConfig(const std::string IPv4, int port)
 }
 
 // Returns the first serverConfig from the list that matches IP, port and server name
-ServerConfig* Server::findExactServerConfig(const std::string IPv4, int port, std::string serverName)
+ServerConfig *Server::findExactServerConfig(const std::string IPv4, int port, std::string serverName)
 {
 	for (size_t i = 0; i < _configs.size(); ++i)
 	{
