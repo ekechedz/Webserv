@@ -38,6 +38,7 @@ private:
 	void handlePostRequest(Response& res, const std::string &path, const std::string &requestBody);
 	void handleDeleteRequest(Response& res, const std::string &path);
 	bool handleCgiRequest(const Request& req, Response& res, const LocationConfig* loc, Socket& client);
+	void list_directory(const std::string &path, Response& res);
 	void printSockets();
 	void sendResponse(Response& response, Socket& client);
 	void deleteClient(Socket& client);
