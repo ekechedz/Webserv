@@ -108,7 +108,6 @@ void Server::acceptConnection(Socket &listeningSocket)
 		logError("Failed to accept new connection: " + std::string(std::strerror(errno)));
 		return;
 	}
-		return;
 
 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
 
