@@ -14,3 +14,6 @@ std::string removeSemicolon(const std::string &str);
 std::string intToStr(int num);
 std::string decodeChunkedBody(std::istream &stream);
 std::string decodeEvents(short int events);
+
+// Directory listing utility functions
+bool isDirectory(const std::string &path);
