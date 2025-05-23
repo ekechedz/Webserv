@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <sys/stat.h>
 
 std::string removeSemicolon(const std::string &str)
 {
@@ -122,4 +123,13 @@ void logInfo(const std::string &msg)
 void logDebug(const std::string &msg)
 {
 	Logger::getInstance().log(Logger::DEBUG, msg);
+}
+
+// Directory listing utility functions
+bool isDirectory(const std::string &path)
+{
+	struct stat statbuf;
+	if (stat(path.c_str(), &statbuf) != 0)
+		return false;
+	return S_ISDIR(statbuf.st_mode);
 }

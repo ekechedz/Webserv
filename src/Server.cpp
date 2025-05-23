@@ -5,7 +5,8 @@
 #include "../include/CGIHandler.hpp"
 #include "../include/Logger.hpp"
 #include "../include/Utils.hpp"
-#include <sys/stat.h> // For mkdir
+#include <dirent.h>
+#include <algorithm>
 
 Server::Server(const std::vector<ServerConfig> &configs)
 	: _configs(configs)
@@ -278,7 +279,7 @@ void Server::handleClient(Socket &client)
 	std::string body = req.getBody();
 
 	if (method == "GET")
-		handleGetRequest(res, path);
+		handleGetRequest(res, req);
 	else if (method == "POST")
 		handlePostRequest(req, res, path, body);
 	else if (method == "DELETE")
@@ -424,9 +425,32 @@ void Server::sendResponse(Response &response, Socket &client)
 	;
 }
 
-void Server::handleGetRequest(Response &res, const std::string &path)
+void Server::handleGetRequest(Response &res, const Request &req)
 {
+	const std::string& path = req.getPath();
 	std::string fullPath = "www" + path;
+	
+	// Check if path is a directory
+	if (isDirectory(fullPath)) {
+		// If it's a directory, check if we should serve directory listing
+		const LocationConfig* loc = req.getMatchedLocation();
+		if (loc && loc->isAutoindex()) {
+			logInfo("Directory listing requested: " + fullPath);
+			list_directory(fullPath, res);
+			return;
+		} else {
+			// Autoindex is disabled, return 403 Forbidden
+			logWarning("403 Forbidden: Directory listing disabled for " + fullPath);
+			std::string body = "<html><body><h1>403 Forbidden</h1><p>Directory listing is disabled.</p></body></html>";
+			res.setStatus(403);
+			res.setHeader("Content-Type", "text/html");
+			res.setHeader("Content-Length", intToStr(body.size()));
+			res.setBody(body);
+			return;
+		}
+	}
+	
+	// Handle regular file request
 	std::ifstream file(fullPath.c_str(), std::ios::binary);
 
 	if (!file.is_open())
@@ -602,6 +626,86 @@ void Server::handleDeleteRequest(Response &res, const std::string &path)
 	res.setHeader("Content-Type", "text/html");
 	res.setHeader("Content-Length", intToStr(body.str().size()));
 }
+
+void Server::list_directory(const std::string &path, Response& res)
+{
+	DIR* dir = opendir(path.c_str());
+	if (!dir) {
+		logError("Failed to open directory: " + path + " - " + std::string(strerror(errno)));
+		res.setStatus(500);
+		std::string body = "<html><body><h1>500 Internal Server Error</h1><p>Cannot read directory.</p></body></html>";
+		res.setHeader("Content-Type", "text/html");
+		res.setHeader("Content-Length", intToStr(body.size()));
+		res.setBody(body);
+		return;
+	}
+
+	// Extract the URL path from the filesystem path
+	std::string urlPath = path;
+	if (urlPath.length() >= 3 && urlPath.substr(0, 3) == "www") {
+		urlPath = urlPath.substr(3);
+	}
+	if (urlPath.empty()) {
+		urlPath = "/";
+	}
+
+	// Start building HTML response
+	std::ostringstream html;
+	html << "<html><head><title>Index of " << urlPath << "</title></head><body>\n";
+	html << "<h1>Index of " << urlPath << "</h1>\n";
+	html << "<ul>\n";
+
+	// Add parent directory link if not at root
+	if (urlPath != "/") {
+		html << "<li><a href=\"../\">[Parent Directory]</a></li>\n";
+	}
+
+	// Read directory entries
+	std::vector<std::string> entries;
+	struct dirent* entry;
+	while ((entry = readdir(dir)) != NULL) {
+		std::string name = entry->d_name;
+		
+		// Skip current and parent directory entries
+		if (name == "." || name == "..") {
+			continue;
+		}
+		entries.push_back(name);
+	}
+	closedir(dir);
+
+	// Simple alphabetical sort
+	std::sort(entries.begin(), entries.end());
+
+	// Generate list items for each entry
+	for (std::vector<std::string>::const_iterator it = entries.begin(); 
+		 it != entries.end(); ++it) {
+		const std::string& name = *it;
+		std::string fullEntryPath = path + "/" + name;
+		
+		bool isDir = isDirectory(fullEntryPath);
+		std::string displayName = name;
+		if (isDir) {
+			displayName += "/";
+		}
+
+		html << "<li><a href=\"" << name;
+		if (isDir) html << "/";
+		html << "\">" << displayName << "</a></li>\n";
+	}
+
+	html << "</ul>\n";
+	html << "</body></html>\n";
+
+	std::string responseBody = html.str();
+	res.setStatus(200);
+	res.setHeader("Content-Type", "text/html");
+	res.setHeader("Content-Length", intToStr(responseBody.size()));
+	res.setBody(responseBody);
+	
+	logInfo("Directory listing generated for: " + path);
+}
+
 // Returns the first serverConfig from the list that matches IP and port
 ServerConfig *Server::findServerConfig(const std::string IPv4, int port)
 {
@@ -623,3 +727,5 @@ ServerConfig *Server::findExactServerConfig(const std::string IPv4, int port, st
 	}
 	return NULL;
 }
+
+

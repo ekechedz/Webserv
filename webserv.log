@@ -55,3 +55,70 @@
 [2025-05-22 15:44:46] INFO: Closing connection with client 5
 [2025-05-22 15:45:34] INFO: Received request: GET /redirect HTTP/1.1
 [2025-05-22 15:45:34] INFO: Closing connection with client 5
+[2025-05-23 18:36:41] INFO: Server starting up
+[2025-05-23 18:36:41] INFO: Initializing server with 1 configurations
+[2025-05-23 18:36:41] INFO: Listening on 127.0.0.1:8080
+[2025-05-23 18:36:41] INFO: Server configuration loaded successfully
+[2025-05-23 18:36:41] INFO: Server started and ready to accept connections
+[2025-05-23 18:36:53] INFO: Received request: GET /images/ HTTP/1.1
+[2025-05-23 18:36:53] INFO: Directory listing requested: www/images/
+[2025-05-23 18:36:53] INFO: Directory listing generated for: www/images/
+[2025-05-23 18:36:53] INFO: Closing connection with client 5
+[2025-05-23 18:37:01] INFO: Received request: GET /images/thumbnails/ HTTP/1.1
+[2025-05-23 18:37:01] INFO: Directory listing requested: www/images/thumbnails/
+[2025-05-23 18:37:01] INFO: Directory listing generated for: www/images/thumbnails/
+[2025-05-23 18:37:01] INFO: Closing connection with client 5
+[2025-05-23 18:37:13] INFO: Received request: GET /images/ HTTP/1.1
+[2025-05-23 18:37:13] INFO: Directory listing requested: www/images/
+[2025-05-23 18:37:13] INFO: Directory listing generated for: www/images/
+[2025-05-23 18:37:13] INFO: Received request: GET /favicon.ico HTTP/1.1
+[2025-05-23 18:37:13] INFO: 200 OK: www/favicon.ico (application/octet-stream)
+[2025-05-23 18:37:25] INFO: Received request: GET /upload/ HTTP/1.1
+[2025-05-23 18:37:25] WARNING: 403 Forbidden: Directory listing disabled for www/upload/
+[2025-05-23 18:38:00] INFO: Client 5 has timed out. Closing connection.
+[2025-05-23 18:38:13] INFO: Server starting up
+[2025-05-23 18:38:13] INFO: Initializing server with 1 configurations
+[2025-05-23 18:38:13] INFO: Listening on 127.0.0.1:8080
+[2025-05-23 18:38:13] INFO: Server configuration loaded successfully
+[2025-05-23 18:38:13] INFO: Server started and ready to accept connections
+[2025-05-23 18:38:23] INFO: Received request: GET / HTTP/1.1
+[2025-05-23 18:38:23] INFO: 200 OK: www/index.html (text/html)
+[2025-05-23 18:38:23] INFO: Received request: GET /assets/css/main.css HTTP/1.1
+[2025-05-23 18:38:23] INFO: 200 OK: www/assets/css/main.css (text/css)
+[2025-05-23 18:38:23] INFO: Received request: GET /assets/image/favicon.ico HTTP/1.1
+[2025-05-23 18:38:23] WARNING: 404 Not Found: www/assets/image/favicon.ico
+[2025-05-23 18:38:23] INFO: Closing connection with client 5
+[2025-05-23 18:38:27] INFO: Received request: GET / HTTP/1.1
+[2025-05-23 18:38:27] INFO: 200 OK: www/index.html (text/html)
+[2025-05-23 18:38:27] INFO: Received request: GET /assets/css/main.css HTTP/1.1
+[2025-05-23 18:38:27] INFO: 200 OK: www/assets/css/main.css (text/css)
+[2025-05-23 18:38:39] INFO: Received request: GET /uploads/ HTTP/1.1
+[2025-05-23 18:38:39] WARNING: 404 Not Found: www/uploads/
+[2025-05-23 18:38:51] INFO: Received request: GET /upload/ HTTP/1.1
+[2025-05-23 18:38:51] INFO: Directory listing requested: www/upload/
+[2025-05-23 18:38:51] INFO: Directory listing generated for: www/upload/
+[2025-05-23 18:38:53] INFO: Received request: GET / HTTP/1.1
+[2025-05-23 18:38:53] INFO: 200 OK: www/index.html (text/html)
+[2025-05-23 18:38:54] INFO: Received request: GET /assets/css/main.css HTTP/1.1
+[2025-05-23 18:38:54] INFO: 200 OK: www/assets/css/main.css (text/css)
+[2025-05-23 18:39:29] INFO: Client 5 has timed out. Closing connection.
+[2025-05-23 18:45:47] INFO: Server starting up
+[2025-05-23 18:45:47] INFO: Initializing server with 1 configurations
+[2025-05-23 18:45:47] INFO: Listening on 127.0.0.1:8080
+[2025-05-23 18:45:47] INFO: Server configuration loaded successfully
+[2025-05-23 18:45:47] INFO: Server started and ready to accept connections
+[2025-05-23 18:45:53] INFO: Received request: GET /images/ HTTP/1.1
+[2025-05-23 18:45:53] INFO: Directory listing requested: www/images/
+[2025-05-23 18:45:53] INFO: Directory listing generated for: www/images/
+[2025-05-23 18:45:53] INFO: Closing connection with client 5
+[2025-05-23 19:03:19] INFO: Received request: GET /images/ HTTP/1.1
+[2025-05-23 19:03:19] INFO: Directory listing requested: www/images/
+[2025-05-23 19:03:19] INFO: Directory listing generated for: www/images/
+[2025-05-23 19:03:21] INFO: Received request: GET /images/sample.png HTTP/1.1
+[2025-05-23 19:03:21] INFO: 200 OK: www/images/sample.png (image/png)
+[2025-05-23 19:03:24] INFO: Received request: GET /images/test.jpg HTTP/1.1
+[2025-05-23 19:03:24] INFO: 200 OK: www/images/test.jpg (image/jpeg)
+[2025-05-23 19:03:26] INFO: Received request: GET /images/thumbnails/ HTTP/1.1
+[2025-05-23 19:03:26] INFO: Directory listing requested: www/images/thumbnails/
+[2025-05-23 19:03:26] INFO: Directory listing generated for: www/images/thumbnails/
+[2025-05-23 19:04:01] INFO: Client 5 has timed out. Closing connection.
