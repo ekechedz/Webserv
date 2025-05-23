@@ -20,6 +20,7 @@ Socket::Socket(int newFD, Type newType, State newState, const std::string IPv4, 
 
 Socket::Socket(const Socket& other)
 : _fd(other._fd)
+, _buffer(other._buffer)
 , _lastActivity(other._lastActivity)
 , _type(other._type)
 , _state(other._state)
@@ -33,6 +34,7 @@ Socket& Socket::operator=(const Socket& other)
 	if (this != &other)
 	{
 		_fd = other._fd;
+		_buffer = other._buffer;
 		_lastActivity = other._lastActivity;
 		_type = other._type;
 		_state = other._state;

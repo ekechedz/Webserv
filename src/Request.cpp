@@ -4,7 +4,7 @@
 #include "../include/Utils.hpp"
 #include <cstdlib>
 
-Request::Request() : matchedLocation(NULL){}
+Request::Request() : matchedLocation(NULL), serverConfig(NULL){}
 
 std::string Request::getMethod() const { return method; }
 std::string Request::getPath() const { return path; }

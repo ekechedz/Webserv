@@ -276,8 +276,15 @@ void Server::handleClient(Socket &client)
 	else
 		res.setStatus(405);
 
+	// Check if we need to keep connection alive before sending response
+	bool shouldClose = (res.getHeaderValue("Connection") == "close");
+	
 	sendResponse(res, client);
-	client.clearBuffer();
+	
+	// Only clear buffer if client wasn't deleted
+	if (!shouldClose) {
+		client.clearBuffer();
+	}
 }
 
 bool Server::handleCgiRequest(const Request& req, Response& res, const LocationConfig* loc, Socket& client) {
@@ -300,8 +307,16 @@ bool Server::handleCgiRequest(const Request& req, Response& res, const LocationC
 		res.setHeader("Content-Type", "text/plain");
 		res.setBody("CGI execution failed: " + cgi.getError());
 	}
+	
+	// Check if connection will close before sending response
+	bool shouldClose = (res.getHeaderValue("Connection") == "close");
+	
+	// Clear buffer before potentially deleting the client
+	if (!shouldClose) {
+		client.clearBuffer();
+	}
+	
 	sendResponse(res, client);
-	client.clearBuffer();
 	return true;
 }
 
@@ -344,10 +359,15 @@ void Server::run()
 			if (_pollFds[i].revents & POLLIN)
 			{
 				int fd = _pollFds[i].fd;
-				if (_sockets[fd].getType() == Socket::LISTENING)
-					acceptConnection(_sockets[fd]);
+				// Check if socket still exists (could be deleted during previous iteration)
+				std::map<int, Socket>::iterator it = _sockets.find(fd);
+				if (it == _sockets.end())
+					continue;
+					
+				if (it->second.getType() == Socket::LISTENING)
+					acceptConnection(it->second);
 				else
-					handleClient(_sockets[fd]);
+					handleClient(it->second);
 			}
 		}
 	}
