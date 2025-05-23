@@ -122,3 +122,20 @@
 [2025-05-23 19:03:26] INFO: Directory listing requested: www/images/thumbnails/
 [2025-05-23 19:03:26] INFO: Directory listing generated for: www/images/thumbnails/
 [2025-05-23 19:04:01] INFO: Client 5 has timed out. Closing connection.
+[2025-05-23 19:26:48] INFO: Server starting up
+[2025-05-23 19:26:48] INFO: Initializing server with 1 configurations
+[2025-05-23 19:26:48] INFO: Listening on 127.0.0.1:8080
+[2025-05-23 19:26:48] INFO: Server configuration loaded successfully
+[2025-05-23 19:26:48] INFO: Server started and ready to accept connections
+[2025-05-23 19:26:51] INFO: Received request: GET / HTTP/1.1
+[2025-05-23 19:26:51] INFO: 200 OK: www/index.html (text/html)
+[2025-05-23 19:26:51] INFO: Received request: GET /assets/css/main.css HTTP/1.1
+[2025-05-23 19:26:51] INFO: 200 OK: www/assets/css/main.css (text/css)
+[2025-05-23 19:26:51] INFO: Received request: GET /favicon.ico HTTP/1.1
+[2025-05-23 19:26:51] INFO: 200 OK: www/favicon.ico (application/octet-stream)
+[2025-05-23 19:26:51] INFO: Closing connection with client 5
+[2025-05-23 19:26:58] INFO: Received request: GET /upload/ HTTP/1.1
+[2025-05-23 19:26:58] INFO: Directory listing requested: www/upload/
+[2025-05-23 19:26:58] INFO: Directory listing generated for: www/upload/
+[2025-05-23 19:27:00] INFO: Received request: GET /upload/large_file.txt HTTP/1.1
+[2025-05-23 19:27:00] INFO: 200 OK: www/upload/large_file.txt (application/octet-stream)
