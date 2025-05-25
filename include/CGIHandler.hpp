@@ -9,6 +9,7 @@
 class CGIHandler {
 public:
 	CGIHandler(const Request& req, const LocationConfig& loc);
+	void handleFileUpload(const std::string& body, const std::string& uploadDir);
 	std::string run();
 	bool wasSuccessful() const;
 	std::string getError() const;

@@ -43,6 +43,12 @@ void LocationConfig::parseBlock(std::istream &stream)
 			while (iss >> method)
 				methods.push_back(method);
 		}
+		else if (key == "upload_dir")
+		{
+			std::string val;
+			iss >> val;
+			setUploadDir(val);
+		}
 		else if (key == "redirect")
 			iss >> redirect;
 		else if (key == "cgi_path")
@@ -60,7 +66,9 @@ const std::vector<std::string> &LocationConfig::getMethods() const { return meth
 const std::string &LocationConfig::getRedirect() const { return redirect; }
 const std::string &LocationConfig::getCgiPath() const { return cgi_path; }
 const std::string &LocationConfig::getCgiExt() const { return cgi_ext; }
+const std::string &LocationConfig::getUploadDir() const { return upload_dir; }
 
+void LocationConfig::setUploadDir(const std::string &dir) { upload_dir = dir; }
 void LocationConfig::setPath(const std::string &p) { path = p; }
 void LocationConfig::setRoot(const std::string &r) { root = r; }
 void LocationConfig::setIndex(const std::string &i) { index = i; }
@@ -73,18 +81,18 @@ void LocationConfig::setCgiExt(const std::string &e) { cgi_ext = e; }
 void LocationConfig::print() const
 {
 	std::cout << "--- Location: " << path << " ---" << std::endl;
-	
+
 	std::ostringstream infoStream;
 	infoStream << "Root: " << root
-			  << "\nIndex: " << index
-			  << "\nAutoindex: " << (autoindex ? "on" : "off")
-			  << "\nRedirect: " << redirect
-			  << "\nCGI Path: " << cgi_path
-			  << "\nCGI Ext: " << cgi_ext;
-	
+			   << "\nIndex: " << index
+			   << "\nAutoindex: " << (autoindex ? "on" : "off")
+			   << "\nRedirect: " << redirect
+			   << "\nCGI Path: " << cgi_path
+			   << "\nCGI Ext: " << cgi_ext;
+
 	logDebug(infoStream.str());
 	std::cout << infoStream.str() << std::endl;
-	
+
 	std::cout << "Methods: ";
 	for (size_t i = 0; i < methods.size(); ++i)
 		std::cout << methods[i] << " ";

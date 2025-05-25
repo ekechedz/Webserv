@@ -13,6 +13,7 @@ private:
 	std::string redirect;
 	std::string cgi_path;
 	std::string cgi_ext;
+	std::string upload_dir;
 public:
 
 	LocationConfig();
@@ -27,7 +28,9 @@ public:
 	const std::string& getRedirect() const;
 	const std::string& getCgiPath() const;
 	const std::string& getCgiExt() const;
-
+	const std::string& getUploadDir() const;
+	
+    void setUploadDir(const std::string& dir);
 	void setPath(const std::string& p);
 	void setRoot(const std::string& r);
 	void setIndex(const std::string& i);

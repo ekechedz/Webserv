@@ -12,6 +12,86 @@
 #include <iostream>
 #include "../include/Logger.hpp"
 
+#include <fstream>
+
+void CGIHandler::handleFileUpload(const std::string &body, const std::string &uploadDir)
+{
+	// Extract boundary from Content-Type header
+	std::string contentType = env_["CONTENT_TYPE"];
+	std::string boundary;
+	std::size_t boundaryPos = contentType.find("boundary=");
+	if (boundaryPos != std::string::npos)
+	{
+		boundary = "--" + contentType.substr(boundaryPos + 9); // "boundary=" is 9 characters
+	}
+	else
+	{
+		logError("Boundary not found in Content-Type header");
+		return;
+	}
+
+	// Split the body into parts using the boundary
+	std::string::size_type start = 0, end;
+	while ((end = body.find(boundary, start)) != std::string::npos)
+	{
+		std::string part = body.substr(start, end - start);
+		start = end + boundary.length();
+
+		// Skip empty parts or the final boundary marker
+		if (part.empty() || part == "--")
+		{
+			continue;
+		}
+
+		// Extract headers and body of the part
+		std::size_t headerEnd = part.find("\r\n\r\n");
+		if (headerEnd == std::string::npos)
+		{
+			logError("Malformed multipart/form-data part");
+			continue;
+		}
+
+		std::string headers = part.substr(0, headerEnd);
+		std::string fileContent = part.substr(headerEnd + 4); // Skip "\r\n\r\n"
+
+		// Extract filename from Content-Disposition header
+		std::string filename;
+		std::size_t filenamePos = headers.find("filename=\"");
+		if (filenamePos != std::string::npos)
+		{
+			filenamePos += 10; // Move past "filename=\""
+			std::size_t endPos = headers.find("\"", filenamePos);
+			if (endPos != std::string::npos)
+			{
+				filename = headers.substr(filenamePos, endPos - filenamePos);
+			}
+			else
+			{
+				logError("Malformed Content-Disposition header");
+				continue;
+			}
+		}
+		else
+		{
+			logError("Filename not found in Content-Disposition header");
+			continue;
+		}
+
+		// Save the file to the upload directory
+		std::string filePath = uploadDir + "/" + filename;
+		std::ofstream outFile(filePath.c_str(), std::ios::binary); // Use .c_str() for C++98 compatibility
+		if (!outFile)
+		{
+			logError("Failed to open file for writing: " + filePath);
+			continue;
+		}
+		outFile.write(fileContent.c_str(), fileContent.size());
+		outFile.close();
+
+		logInfo("File uploaded successfully: " + filePath);
+	}
+}
+
 CGIHandler::CGIHandler(const Request &req, const LocationConfig &loc)
 	: success_(false)
 {
@@ -35,6 +115,13 @@ CGIHandler::CGIHandler(const Request &req, const LocationConfig &loc)
 	}
 	else
 		requestBody_ = req.getBody();
+
+	std::string contentType = req.getHeader("Content-Type");
+	if (req.getMethod() == "POST" && contentType.find("multipart/form-data") != std::string::npos)
+	{
+		std::string uploadDir = loc.getUploadDir();
+		handleFileUpload(requestBody_, uploadDir);
+	}
 	setupEnvironment(req);
 }
 
@@ -180,7 +267,8 @@ std::string CGIHandler::getError() const
 	return errorMsg_;
 }
 
-bool Server::handleCgiRequest(const Request& req, Response& res, const LocationConfig* loc, Socket& client) {
+bool Server::handleCgiRequest(const Request &req, Response &res, const LocationConfig *loc, Socket &client)
+{
 	if (!loc || loc->getCgiPath().empty() || loc->getCgiExt().empty())
 		return false;
 	std::string ext = req.getPath().substr(req.getPath().find_last_of("."));
@@ -190,11 +278,14 @@ bool Server::handleCgiRequest(const Request& req, Response& res, const LocationC
 	logInfo("Processing CGI request: " + req.getPath());
 	CGIHandler cgi(req, *loc);
 	std::string cgiOutput = cgi.run();
-	if (cgi.wasSuccessful()) {
+	if (cgi.wasSuccessful())
+	{
 		logInfo("CGI execution successful: " + req.getPath());
 		res.setStatus(200);
 		res.parseCgiOutput(cgiOutput);
-	} else {
+	}
+	else
+	{
 		logError("CGI execution failed: " + cgi.getError());
 		res.setStatus(500);
 		res.setHeader("Content-Type", "text/plain");
@@ -205,7 +296,8 @@ bool Server::handleCgiRequest(const Request& req, Response& res, const LocationC
 	bool shouldClose = (res.getHeaderValue("Connection") == "close");
 
 	// Clear buffer before potentially deleting the client
-	if (!shouldClose) {
+	if (!shouldClose)
+	{
 		client.clearBuffer();
 	}
 
