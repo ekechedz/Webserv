@@ -1,5 +1,6 @@
 #include "../include/CGIHandler.hpp"
 #include "../include/Utils.hpp"
+#include "../include/Server.hpp"
 #include <unistd.h>
 #include <sys/wait.h>
 #include <fcntl.h>
@@ -23,9 +24,9 @@ CGIHandler::CGIHandler(const Request &req, const LocationConfig &loc)
 
 	scriptPath_ = locationRoot + "/" + reqPath;
 	interpreterPath_ = loc.getCgiPath();
-	
+
 	logInfo("CGI Request: " + req.getMethod() + " " + scriptPath_);
-	
+
 	std::string transferEncoding = req.getHeader("Transfer-Encoding");
 	if (transferEncoding == "chunked")
 	{
@@ -177,4 +178,37 @@ bool CGIHandler::wasSuccessful() const
 std::string CGIHandler::getError() const
 {
 	return errorMsg_;
+}
+
+bool Server::handleCgiRequest(const Request& req, Response& res, const LocationConfig* loc, Socket& client) {
+	if (!loc || loc->getCgiPath().empty() || loc->getCgiExt().empty())
+		return false;
+	std::string ext = req.getPath().substr(req.getPath().find_last_of("."));
+	if (ext != loc->getCgiExt())
+		return false;
+
+	logInfo("Processing CGI request: " + req.getPath());
+	CGIHandler cgi(req, *loc);
+	std::string cgiOutput = cgi.run();
+	if (cgi.wasSuccessful()) {
+		logInfo("CGI execution successful: " + req.getPath());
+		res.setStatus(200);
+		res.parseCgiOutput(cgiOutput);
+	} else {
+		logError("CGI execution failed: " + cgi.getError());
+		res.setStatus(500);
+		res.setHeader("Content-Type", "text/plain");
+		res.setBody("CGI execution failed: " + cgi.getError());
+	}
+
+	// Check if connection will close before sending response
+	bool shouldClose = (res.getHeaderValue("Connection") == "close");
+
+	// Clear buffer before potentially deleting the client
+	if (!shouldClose) {
+		client.clearBuffer();
+	}
+
+	sendResponse(res, client);
+	return true;
 }
