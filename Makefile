@@ -18,6 +18,9 @@ SRCS = \
 	$(SRC_DIR)/Socket.cpp \
 	$(SRC_DIR)/CGIHandler.cpp \
 	$(SRC_DIR)/Logger.cpp \
+	$(SRC_DIR)/HandleRequest.cpp \
+	$(SRC_DIR)/HandleClient.cpp \
+	$(SRC_DIR)/ListingDirectory.cpp \
 
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
