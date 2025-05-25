@@ -3,6 +3,7 @@
 #include "../include/Server.hpp"
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <vector>
 #include <cstring>
@@ -104,6 +105,14 @@ CGIHandler::CGIHandler(const Request &req, const LocationConfig &loc)
 
 	scriptPath_ = locationRoot + "/" + reqPath;
 	interpreterPath_ = loc.getCgiPath();
+
+	struct stat buffer;
+	if (stat(scriptPath_.c_str(), &buffer) != 0)
+	{
+		errorMsg_ = "CGI script not found3: " + scriptPath_;
+		logError(errorMsg_);
+		return;
+	}
 
 	logInfo("CGI Request: " + req.getMethod() + " " + scriptPath_);
 
@@ -226,7 +235,6 @@ std::string CGIHandler::run()
 			write(inPipe[1], requestBody_.c_str(), requestBody_.size());
 		close(inPipe[1]);
 
-
 		int status;
 		int timeout = 5; // Timeout in seconds
 		pid_t result;
@@ -302,19 +310,29 @@ bool Server::handleCgiRequest(const Request &req, Response &res, const LocationC
 
 	logInfo("Processing CGI request: " + req.getPath());
 	CGIHandler cgi(req, *loc);
-	std::string cgiOutput = cgi.run();
-	if (cgi.wasSuccessful())
+
+	// Check if the CGI script was found
+	if (!cgi.wasSuccessful() && cgi.getError().find("not found") != std::string::npos)
 	{
-		logInfo("CGI execution successful: " + req.getPath());
-		res.setStatus(200);
-		res.parseCgiOutput(cgiOutput);
-	}
+		res.setStatus(404);
+		res.setHeader("Content-Type", "text/html");
+		res.setBody("<html><body><h1>404 Not Found</h1>\n<p>The requested CGI script was not found: " + req.getPath() + "</p>\n</body></html>\n");	}
 	else
 	{
-		logError("CGI execution failed: " + cgi.getError());
-		res.setStatus(500);
-		res.setHeader("Content-Type", "text/plain");
-		res.setBody("CGI execution failed: " + cgi.getError());
+		std::string cgiOutput = cgi.run();
+		if (cgi.wasSuccessful())
+		{
+			logInfo("CGI execution successful: " + req.getPath());
+			res.setStatus(200);
+			res.parseCgiOutput(cgiOutput);
+		}
+		else
+		{
+			logError("CGI execution failed: " + cgi.getError());
+			res.setStatus(500);
+			res.setHeader("Content-Type", "text/plain");
+			res.setBody("CGI execution failed: " + cgi.getError());
+		}
 	}
 
 	// Check if connection will close before sending response
