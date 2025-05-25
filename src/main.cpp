@@ -3,10 +3,20 @@
 #include <vector>
 #include <pthread.h>
 #include <signal.h>
+#include <cstdlib>
 #include "../include/ConfigParser.hpp"
 #include "../include/Server.hpp"
 #include "../include/ServerConfig.hpp"
 #include "../include/Logger.hpp"
+
+void handleSigint(int signal)
+{
+	if (signal == SIGINT)
+	{
+		logInfo("SIGINT received. Shutting down the server...");
+		std::exit(0);
+	}
+}
 
 int main(int argc, char **argv)
 {
@@ -22,6 +32,10 @@ int main(int argc, char **argv)
 			Logger::getInstance().log(Logger::ERROR, "Invalid arguments. Usage: ./webserv <config_file>.conf");
 			throw std::invalid_argument("Usage: ./webserv <config_file>.conf");
 		}
+		
+		// Register the SIGINT handler
+		signal(SIGINT, handleSigint);
+		logInfo("SIGINT handler registered. Press Ctrl+C to stop the server.");
 
 		signal(SIGPIPE, SIG_IGN);
 
