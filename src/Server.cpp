@@ -118,6 +118,7 @@ void Server::acceptConnection(Socket &listeningSocket)
 	_pollFds.push_back(pfd);
 
 	_sockets[clientFd] = Socket(clientFd, Socket::CLIENT, Socket::RECEIVING, listeningSocket.getIPv4(), listeningSocket.getPort());
+	logInfo("Accepted new connection on fd " + intToStr(clientFd));
 }
 
 void Server::handleClientTimeouts()
@@ -222,6 +223,7 @@ ServerConfig* Server::findServerConfig(const std::string IPv4, int port)
 		if (_configs[i].getHost() == IPv4 && _configs[i].getPort() == port)
 			return &_configs[i];
 	}
+	logWarning("No matching server configuration found for " + IPv4 + ":" + intToStr(port));
 	return NULL;
 }
 

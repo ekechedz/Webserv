@@ -8,18 +8,22 @@
 
 void Server::handleGetRequest(Response &res, const Request &req)
 {
-	const std::string& path = req.getPath();
+	const std::string &path = req.getPath();
 	std::string fullPath = "www" + path;
 
 	// Check if path is a directory
-	if (isDirectory(fullPath)) {
+	if (isDirectory(fullPath))
+	{
 		// If it's a directory, check if we should serve directory listing
-		const LocationConfig* loc = req.getMatchedLocation();
-		if (loc && loc->isAutoindex()) {
+		const LocationConfig *loc = req.getMatchedLocation();
+		if (loc && loc->isAutoindex())
+		{
 			logInfo("Directory listing requested: " + fullPath);
 			list_directory(fullPath, res);
 			return;
-		} else {
+		}
+		else
+		{
 			// Autoindex is disabled, return 403 Forbidden
 			logWarning("403 Forbidden: Directory listing disabled for " + fullPath);
 			std::string body = "<html><body><h1>403 Forbidden</h1><p>Directory listing is disabled.</p></body></html>";
@@ -36,14 +40,27 @@ void Server::handleGetRequest(Response &res, const Request &req)
 
 	if (!file.is_open())
 	{
-		logWarning("404 Not Found: " + fullPath);
-
-		std::string body = "<html><body><h1>404 Not Found</h1></body></html>";
-		res.setStatus(404);
-		res.setHeader("Content-Type", "text/html");
-		res.setHeader("Content-Length", intToStr(body.size()));
-		res.setBody(body);
-		return;
+		const ServerConfig *serverConfig = req.getServerConfig();
+		if (serverConfig)
+		{
+			const std::string &errorPagePath = serverConfig->getErrorPage(404);
+			if (!errorPagePath.empty())
+			{
+				std::string customErrorPage = "www/" + errorPagePath;
+				std::ifstream errorFile(customErrorPage.c_str(), std::ios::binary);
+				if (errorFile.is_open())
+				{
+					std::ostringstream content;
+					content << errorFile.rdbuf();
+					errorFile.close();
+					res.setStatus(404);
+					res.setHeader("Content-Type", "text/html");
+					res.setHeader("Content-Length", intToStr(content.str().size()));
+					res.setBody(content.str());
+					return;
+				}
+			}
+		}
 	}
 	else
 	{
