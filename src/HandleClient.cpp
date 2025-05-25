@@ -180,22 +180,51 @@ void Server::handleClient(Socket &client)
 	std::string path = req.getPath();
 	std::string body = req.getBody();
 
+	// Get allowed methods from the matched location
+	const std::vector<std::string> &allowedMethods = loc->getMethods();
+
+	// Check if the method is allowed
+	if (std::find(allowedMethods.begin(), allowedMethods.end(), method) == allowedMethods.end())
+	{
+		// Method not allowed, respond with 405
+		res.setStatus(405);
+
+		// Add the Allow header with the permitted methods
+		std::ostringstream allowHeader;
+		for (size_t i = 0; i < allowedMethods.size(); ++i)
+		{
+			if (i > 0)
+				allowHeader << ", ";
+			allowHeader << allowedMethods[i];
+		}
+		res.setHeader("Allow", allowHeader.str());
+
+		// Set the response body
+		std::string html =
+			"<html><head><title>405 Method Not Allowed</title></head><body>"
+			"<h1>405 Method Not Allowed</h1>"
+			"<p>The method " +
+			method + " is not allowed for the requested resource.</p>"
+					 "</body></html>";
+		res.setHeader("Content-Type", "text/html");
+		res.setHeader("Content-Length", intToStr(html.size()));
+		res.setBody(html);
+
+		sendResponse(res, client);
+		return;
+	}
+
 	if (method == "GET")
 		handleGetRequest(res, req);
 	else if (method == "POST")
 		handlePostRequest(req, res, path, body);
 	else if (method == "DELETE")
 		handleDeleteRequest(res, path);
-	else
-		res.setStatus(405);
 
-	// Check if we need to keep connection alive before sending response
 	bool shouldClose = (res.getHeaderValue("Connection") == "close");
 
 	sendResponse(res, client);
 
-	// Only clear buffer if client wasn't deleted
-	if (!shouldClose) {
-	client.clearBuffer();
-	}
+	if (!shouldClose)
+		client.clearBuffer();
 }

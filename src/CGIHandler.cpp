@@ -199,8 +199,7 @@ std::string CGIHandler::run()
 		close(errPipe[0]);
 
 		std::vector<char *> envp;
-		std::map<std::string, std::string>::const_iterator it;
-		for (it = env_.begin(); it != env_.end(); ++it)
+		for (std::map<std::string, std::string>::const_iterator it = env_.begin(); it != env_.end(); ++it)
 		{
 			std::string entry = it->first + "=" + it->second;
 			char *env_entry = strdup(entry.c_str());
@@ -227,29 +226,55 @@ std::string CGIHandler::run()
 			write(inPipe[1], requestBody_.c_str(), requestBody_.size());
 		close(inPipe[1]);
 
-		std::stringstream output;
-		char buf[4096];
-		ssize_t n;
-		while ((n = read(outPipe[0], buf, sizeof(buf))) > 0)
-			output.write(buf, n);
-		close(outPipe[0]);
-
-		std::stringstream errOutput;
-		while ((n = read(errPipe[0], buf, sizeof(buf))) > 0)
-			errOutput.write(buf, n);
-		close(errPipe[0]);
 
 		int status;
-		waitpid(pid, &status, 0);
+		int timeout = 5; // Timeout in seconds
+		pid_t result;
+		time_t startTime = time(NULL);
+
+		do
+		{
+			result = waitpid(pid, &status, WNOHANG);
+			if (result == 0) // Child is still running
+			{
+				if (time(NULL) - startTime >= timeout)
+				{
+					kill(pid, SIGKILL); // Terminate the child process
+					logError("CGI script timed out");
+					errorMsg_ = "CGI script timed out";
+					return "";
+				}
+				usleep(100000); // Sleep for 100ms before checking again
+			}
+		} while (result == 0);
 
 		if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
 		{
+			std::stringstream output;
+			char buf[4096];
+			ssize_t n;
+			while ((n = read(outPipe[0], buf, sizeof(buf))) > 0)
+				output.write(buf, n);
+			close(outPipe[0]);
+
+			std::stringstream errOutput;
+			while ((n = read(errPipe[0], buf, sizeof(buf))) > 0)
+				errOutput.write(buf, n);
+			close(errPipe[0]);
+
 			success_ = true;
 			logInfo("CGI script executed successfully: " + scriptPath_);
 			return output.str();
 		}
 		else
 		{
+			std::stringstream errOutput;
+			char buf[4096];
+			ssize_t n;
+			while ((n = read(errPipe[0], buf, sizeof(buf))) > 0)
+				errOutput.write(buf, n);
+			close(errPipe[0]);
+
 			errorMsg_ = "CGI script failed: " + errOutput.str();
 			logError(errorMsg_ + " for script: " + scriptPath_);
 			return "";
