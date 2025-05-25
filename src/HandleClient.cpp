@@ -6,7 +6,6 @@
 #include "../include/Logger.hpp"
 #include "../include/Utils.hpp"
 
-
 void matchLocation(Request &req, const std::vector<LocationConfig> &locations)
 {
 	const LocationConfig *bestMatch = NULL;
@@ -61,7 +60,7 @@ void Server::deleteClient(Socket &client)
 
 void Server::handleClient(Socket &client)
 {
-	char buffer[10000];
+	char buffer[30000];
 	ssize_t bytes = recv(client.getFd(), buffer, sizeof(buffer) - 1, 0);
 	if (bytes <= 0)
 	{
@@ -72,7 +71,22 @@ void Server::handleClient(Socket &client)
 	buffer[bytes] = '\0';
 	client.appendToBuffer(buffer, bytes);
 	std::string requestString = client.getBuffer();
-
+	size_t headerEnd = requestString.find("\r\n\r\n");
+	if (headerEnd != std::string::npos)
+	{
+		size_t contentLengthPos = requestString.find("Content-Length:");
+		if (contentLengthPos != std::string::npos)
+		{
+			size_t lenStart = contentLengthPos + 15;
+			while (lenStart < requestString.size() && (requestString[lenStart] == ' ' || requestString[lenStart] == '\t'))
+				++lenStart;
+			size_t lenEnd = requestString.find("\r\n", lenStart);
+			int contentLength = atoi(requestString.substr(lenStart, lenEnd - lenStart).c_str());
+			size_t totalExpected = headerEnd + 4 + contentLength;
+			if (requestString.size() < totalExpected)
+				return;
+		}
+	}
 	Request req;
 	Response res;
 	parseHttpRequest(requestString, req, res);
@@ -117,7 +131,6 @@ void Server::handleClient(Socket &client)
 
 	if (client.getNbrRequests() >= MAX_REQUESTS)
 		connectionHeader = "close";
-
 
 	res.setHeader("Connection", connectionHeader);
 
@@ -170,7 +183,7 @@ void Server::handleClient(Socket &client)
 	if (method == "GET")
 		handleGetRequest(res, req);
 	else if (method == "POST")
-		handlePostRequest(res, path, body);
+		handlePostRequest(req, res, path, body);
 	else if (method == "DELETE")
 		handleDeleteRequest(res, path);
 	else
@@ -183,6 +196,6 @@ void Server::handleClient(Socket &client)
 
 	// Only clear buffer if client wasn't deleted
 	if (!shouldClose) {
-		client.clearBuffer();
+	client.clearBuffer();
 	}
 }

@@ -59,12 +59,84 @@ void Server::handleGetRequest(Response &res, const Request &req)
 	}
 }
 
-void Server::handlePostRequest(Response &res, const std::string &path, const std::string &requestBody)
+void Server::handlePostRequest(Request &req, Response &res, const std::string &path, const std::string &requestBody)
 {
-	// Construct full file path based on web root
-	std::string fullPath = "www" + path;
+	std::string uploadDir = "www/upload/";
 
-	// Attempt to write the body directly to the file
+	// Check if this is a file upload (multipart/form-data)
+	if (path == "/upload")
+	{
+
+		std::string boundary;
+		std::string contentType = req.getHeader("Content-Type");
+		size_t boundaryPos = contentType.find("boundary=");
+		if (boundaryPos != std::string::npos)
+		{
+			boundary = "--" + contentType.substr(boundaryPos + 9);
+		}
+		if (boundary.empty())
+		{
+			res.setStatus(400);
+			res.setBody("No boundary found in Content-Type");
+			return;
+		}
+
+		// Find the start of the file content
+		size_t fileStart = requestBody.find("\r\n\r\n");
+		if (fileStart == std::string::npos)
+		{
+			res.setStatus(400);
+			res.setBody("Malformed multipart body");
+			return;
+		}
+		fileStart += 4; // Skip past the header
+
+		// Find the end of the file content
+		size_t fileEnd = requestBody.find(boundary, fileStart);
+		if (fileEnd == std::string::npos)
+		{
+			res.setStatus(400);
+			res.setBody("Malformed multipart body (no end boundary)");
+			return;
+		}
+		std::string fileContent = requestBody.substr(fileStart, fileEnd - fileStart - 2); // -2 for \r\n
+
+		// Extract filename from Content-Disposition
+		size_t filenamePos = requestBody.find("filename=\"");
+		if (filenamePos == std::string::npos)
+		{
+			res.setStatus(400);
+			res.setBody("No filename found in multipart body");
+			return;
+		}
+		filenamePos += 10;
+		size_t filenameEnd = requestBody.find("\"", filenamePos);
+		std::string filename = requestBody.substr(filenamePos, filenameEnd - filenamePos);
+
+		std::string fullPath = uploadDir + filename;
+		std::ofstream outFile(fullPath.c_str(), std::ios::binary);
+		if (!outFile.is_open())
+		{
+			res.setStatus(500);
+			res.setBody("Failed to open file for writing: " + fullPath);
+			return;
+		}
+		outFile.write(fileContent.c_str(), fileContent.size());
+		outFile.close();
+
+		std::string body =
+			"<html><body>"
+			"<script>alert('File uploaded!'); window.location.href='/';</script>"
+			"</body></html>";
+		res.setStatus(200);
+		res.setHeader("Content-Type", "text/html");
+		res.setHeader("Content-Length", intToStr(body.size()));
+		res.setBody(body);
+		return;
+	}
+
+	// Fallback: normal POST (not file upload)
+	std::string fullPath = "www" + path;
 	std::ofstream outFile(fullPath.c_str());
 	if (!outFile.is_open())
 	{
@@ -78,13 +150,9 @@ void Server::handlePostRequest(Response &res, const std::string &path, const std
 	}
 
 	if (outFile << requestBody)
-	{
 		logInfo("POST request successful: Upload file has been filled: " + fullPath);
-	}
 
 	outFile.close();
-
-	// Prepare simple HTML response (or switch to plain text)
 	std::string body =
 		"<html><body>\n"
 		"<h1>POST Received</h1>\n"
