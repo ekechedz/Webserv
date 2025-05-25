@@ -50,42 +50,34 @@ std::string intToStr(int num)
 
 std::string decodeChunkedBody(std::istream &stream)
 {
-	std::string body;
+	std::string decodedBody;
 	std::string line;
 
-	while (true)
+	while (std::getline(stream, line))
 	{
-		if (!std::getline(stream, line))
-			break;
 
-		// Remove trailing '\r' if present
 		if (!line.empty() && line[line.size() - 1] == '\r')
-			line.erase(line.size() - 1);
+			line = line.substr(0, line.size() - 1);
 
-		// Convert hex chunk size to int
-		int chunkSize = static_cast<int>(strtol(line.c_str(), NULL, 16));
+		std::istringstream chunkSizeStream(line);
+		size_t chunkSize;
+		chunkSizeStream >> std::hex >> chunkSize;
+
 		if (chunkSize == 0)
 			break;
 
-		char *buffer = new char[chunkSize];
-		stream.read(buffer, chunkSize);
+		std::string chunk(chunkSize, '\0');
+		stream.read(&chunk[0], chunkSize);
+		decodedBody += chunk;
 
-		// Append exactly the bytes read
-		body.append(buffer, static_cast<std::string::size_type>(stream.gcount()));
-		delete[] buffer;
-
-		// Ignore the trailing "\r\n"
-		stream.ignore(2);
-	}
-
-	// Consume any trailing headers after last zero chunk
-	while (std::getline(stream, line))
-	{
-		if (line == "\r" || line.empty())
+		char cr, lf;
+		stream.get(cr);
+		stream.get(lf);
+		if (cr != '\r' || lf != '\n')
 			break;
 	}
 
-	return body;
+	return decodedBody;
 }
 
 std::string decodeEvents(short int events)
