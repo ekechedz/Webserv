@@ -32,6 +32,7 @@ public:
 	void setValues(const int newFD, const Type newType, const State newState);
 	void appendToBuffer(const char* data, size_t len);
 	void clearBuffer();
+	void setState(State newState);
 
 	void updateActivity();
 	bool hasTimedOut(int timeoutSeconds) const;

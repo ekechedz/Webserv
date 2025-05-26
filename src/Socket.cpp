@@ -100,6 +100,11 @@ void Socket::setFD(const int newFD)
 {
 	_fd = newFD;
 }
+void Socket::setState(State newState)
+{
+	_state = newState;
+}
+
 
 std::ostream& operator<<(std::ostream& lhs, const Socket& rhs)
 {

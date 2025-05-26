@@ -197,9 +197,17 @@ void Server::printSockets()
 	std::cout << socketInfo.str() << std::endl;
 }
 
-void Server::sendResponse(Response &response, Socket &client)
+void Server::sendResponse(Response& response, Socket& client)
 {
+	// Converting the response class to a string
 	std::string string = response.toString();
+
+	// Setting the client state to SENDING
+	client.setState(Socket::SENDING);
+
+	// 
+	client.clearBuffer();
+	client.appendToBuffer(string.c_str(), string.size());
 	ssize_t sent = send(client.getFd(), string.c_str(), string.size(), 0);
 	if (sent == -1) // just to be sure that send does not fail
 	{
@@ -239,3 +247,12 @@ ServerConfig* Server::findExactServerConfig(const std::string IPv4, int port, st
 }
 
 
+pollfd& Server::findPollFd(int targetFD)
+{
+	for (size_t i = 0; i < _pollFds.size(); ++i)
+	{
+		if (_pollFds[i].fd == targetFD)
+			return _pollFds[i];
+	}
+	throw std::runtime_error("PollFd not found for fd: " + intToStr(targetFD));
+}

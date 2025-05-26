@@ -44,6 +44,7 @@ private:
 	void deleteClient(Socket& client);
 	ServerConfig* findServerConfig(const std::string IPv4, int port);
 	ServerConfig* findExactServerConfig(const std::string IPv4, int port, std::string serverName);
+	pollfd& findPollFd(int targetFD);
 };
 
 std::string getContentType(const std::string &path);
