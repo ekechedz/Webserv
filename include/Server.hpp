@@ -40,7 +40,8 @@ private:
 	bool handleCgiRequest(const Request& req, Response& res, const LocationConfig* loc, Socket& client);
 	void list_directory(const std::string &path, Response& res);
 	void printSockets();
-	void sendResponse(Response& response, Socket& client);
+	void makeReadyforSend(Response& response, Socket& client);
+	void sendResponse(Socket& client);
 	void deleteClient(Socket& client);
 	ServerConfig* findServerConfig(const std::string IPv4, int port);
 	ServerConfig* findExactServerConfig(const std::string IPv4, int port, std::string serverName);

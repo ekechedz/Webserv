@@ -91,7 +91,7 @@
 │  else                                                                      │
 │      res.setStatus(405);                                                   │
 │                                                                            │
-│  sendResponse(res, client);                                                │
+│  makeReadyforSend(res, client);                                                │
 │  client.clearBuffer();                                                     │
 └───────────────┬────────────────────────────────────────┬───────────────────┘
                 │                                        │
@@ -151,7 +151,7 @@
                                    │
                                    ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
-│                        Server::sendResponse()                             │
+│                        Server::makeReadyforSend()                             │
 │                                                                          │
 │ // Convert Response object to string                                     │
 │ std::string responseString = response.toString();                        │

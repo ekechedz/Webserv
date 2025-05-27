@@ -55,7 +55,6 @@ void parseHttpRequest(const std::string &rawRequest, Request& request, Response&
 	
 	request.setMethod(method);
 	request.setPath(path);
-	// TODO: Query string handling
 	request.setProtocol(protocol);
 
 	logInfo("Received request: " + method + " " + path + " " + protocol);

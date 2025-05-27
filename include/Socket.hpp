@@ -21,11 +21,14 @@ public:
 	// Getters
 	int getFd() const;
 	Type getType() const;
+	State getState() const;
 	time_t getLastActivity() const;
-	const std::string &getBuffer() const;
+	const std::string& getBuffer() const;
 	int getNbrRequests() const;
 	std::string getIPv4() const;
 	int getPort() const;
+	bool getNeedsToClose() const;
+
 
 	void increaseNbrRequests();
 	void setFD(const int newFD);
@@ -33,6 +36,8 @@ public:
 	void appendToBuffer(const char* data, size_t len);
 	void clearBuffer();
 	void setState(State newState);
+	void setNeedsToClose(bool needsToClose);
+	void trimBuffer(size_t len);
 
 	void updateActivity();
 	bool hasTimedOut(int timeoutSeconds) const;
@@ -47,4 +52,5 @@ private:
 	int _nbrRequests;
 	std::string _IPv4;
 	int _port;
+	bool _needsToClose;
 };

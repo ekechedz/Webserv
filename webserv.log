@@ -88,3 +88,455 @@
 [2025-05-26 15:35:55] INFO: Received request: GET /favicon.ico HTTP/1.1
 [2025-05-26 15:35:55] INFO: 200 OK: www/favicon.ico (application/octet-stream)
 [2025-05-26 15:35:57] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 09:14:56] INFO: Server starting up
+[2025-05-27 09:14:56] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 09:14:56] INFO: Initializing server with 1 configurations
+[2025-05-27 09:14:56] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 09:14:56] INFO: Server configuration loaded successfully
+[2025-05-27 09:14:56] INFO: Server started and ready to accept connections
+[2025-05-27 09:14:57] INFO: Accepted new connection on fd 5
+[2025-05-27 09:14:57] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 09:14:57] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 09:14:57] INFO: Accepted new connection on fd 6
+[2025-05-27 09:14:57] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 09:14:57] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 09:14:57] INFO: Accepted new connection on fd 7
+[2025-05-27 09:14:57] INFO: Received request: GET /index.html HTTP/1.1
+[2025-05-27 09:14:57] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 09:14:57] INFO: Accepted new connection on fd 8
+[2025-05-27 09:14:57] INFO: Received request: GET /generic.html HTTP/1.1
+[2025-05-27 09:14:57] INFO: 200 OK: www/generic.html (text/html)
+[2025-05-27 09:22:40] INFO: Server starting up
+[2025-05-27 09:22:40] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 09:22:40] INFO: Initializing server with 1 configurations
+[2025-05-27 09:22:40] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 09:22:40] INFO: Server configuration loaded successfully
+[2025-05-27 09:22:40] INFO: Server started and ready to accept connections
+[2025-05-27 09:22:44] INFO: Accepted new connection on fd 5
+[2025-05-27 09:22:44] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 09:22:44] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 09:22:44] INFO: Received request: GET /assets/css/main.css HTTP/1.1
+[2025-05-27 09:22:44] INFO: 200 OK: www/assets/css/main.css (text/css)
+[2025-05-27 09:22:50] INFO: Received request: GET /generic.html HTTP/1.1
+[2025-05-27 09:22:50] INFO: 200 OK: www/generic.html (text/html)
+[2025-05-27 09:22:50] INFO: Accepted new connection on fd 6
+[2025-05-27 09:22:50] INFO: Received request: GET /assets/css/main.css HTTP/1.1
+[2025-05-27 09:22:50] INFO: 200 OK: www/assets/css/main.css (text/css)
+[2025-05-27 09:22:50] INFO: Received request: GET /assets/css/generic.css HTTP/1.1
+[2025-05-27 09:22:50] INFO: 200 OK: www/assets/css/generic.css (text/css)
+[2025-05-27 09:22:52] INFO: Received request: GET /index.html HTTP/1.1
+[2025-05-27 09:22:52] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 09:22:52] INFO: Received request: GET /assets/css/main.css HTTP/1.1
+[2025-05-27 09:22:52] INFO: 200 OK: www/assets/css/main.css (text/css)
+[2025-05-27 09:22:57] INFO: Received request: GET /generic.html HTTP/1.1
+[2025-05-27 09:22:57] INFO: 200 OK: www/generic.html (text/html)
+[2025-05-27 09:22:57] INFO: Received request: GET /assets/css/main.css HTTP/1.1
+[2025-05-27 09:22:57] INFO: 200 OK: www/assets/css/main.css (text/css)
+[2025-05-27 09:22:57] INFO: Received request: GET /assets/css/generic.css HTTP/1.1
+[2025-05-27 09:22:57] INFO: 200 OK: www/assets/css/generic.css (text/css)
+[2025-05-27 09:23:00] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 10:54:26] INFO: Server starting up
+[2025-05-27 10:54:26] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 10:54:26] INFO: Initializing server with 1 configurations
+[2025-05-27 10:54:26] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 10:54:26] INFO: Server configuration loaded successfully
+[2025-05-27 10:54:26] INFO: Server started and ready to accept connections
+[2025-05-27 10:54:27] INFO: Accepted new connection on fd 5
+[2025-05-27 10:54:27] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 10:54:27] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 10:54:27] INFO: Closing connection with client 5
+[2025-05-27 10:54:27] INFO: Accepted new connection on fd 5
+[2025-05-27 10:54:27] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 10:54:27] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 10:54:27] INFO: Closing connection with client 5
+[2025-05-27 10:54:27] INFO: Accepted new connection on fd 5
+[2025-05-27 10:54:27] INFO: Received request: GET /index.html HTTP/1.1
+[2025-05-27 10:54:27] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 10:54:27] INFO: Closing connection with client 5
+[2025-05-27 10:54:27] INFO: Accepted new connection on fd 5
+[2025-05-27 10:54:27] INFO: Received request: GET /generic.html HTTP/1.1
+[2025-05-27 10:54:27] INFO: 200 OK: www/generic.html (text/html)
+[2025-05-27 10:54:27] INFO: Closing connection with client 5
+[2025-05-27 11:04:54] INFO: Server starting up
+[2025-05-27 11:04:54] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:04:54] INFO: Initializing server with 1 configurations
+[2025-05-27 11:04:54] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:04:54] INFO: Server configuration loaded successfully
+[2025-05-27 11:04:54] INFO: Server started and ready to accept connections
+[2025-05-27 11:04:55] INFO: Accepted new connection on fd 5
+[2025-05-27 11:04:55] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:04:55] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:05:09] INFO: Server starting up
+[2025-05-27 11:05:09] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:05:09] INFO: Initializing server with 1 configurations
+[2025-05-27 11:05:09] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:05:09] INFO: Server configuration loaded successfully
+[2025-05-27 11:05:09] INFO: Server started and ready to accept connections
+[2025-05-27 11:05:14] INFO: Accepted new connection on fd 5
+[2025-05-27 11:05:14] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:05:14] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:05:24] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:07:50] INFO: Server starting up
+[2025-05-27 11:07:50] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:07:50] INFO: Initializing server with 1 configurations
+[2025-05-27 11:07:50] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:07:50] INFO: Server configuration loaded successfully
+[2025-05-27 11:07:50] INFO: Server started and ready to accept connections
+[2025-05-27 11:07:51] INFO: Accepted new connection on fd 5
+[2025-05-27 11:07:51] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:07:51] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:07:53] INFO: Closing connection with client 5
+[2025-05-27 11:09:54] INFO: Server starting up
+[2025-05-27 11:09:54] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:09:54] INFO: Initializing server with 1 configurations
+[2025-05-27 11:09:54] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:09:54] INFO: Server configuration loaded successfully
+[2025-05-27 11:09:54] INFO: Server started and ready to accept connections
+[2025-05-27 11:09:55] INFO: Accepted new connection on fd 5
+[2025-05-27 11:09:55] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:09:55] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:11:19] INFO: Server starting up
+[2025-05-27 11:11:19] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:11:19] INFO: Initializing server with 1 configurations
+[2025-05-27 11:11:19] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:11:19] INFO: Server configuration loaded successfully
+[2025-05-27 11:11:19] INFO: Server started and ready to accept connections
+[2025-05-27 11:11:27] INFO: Accepted new connection on fd 5
+[2025-05-27 11:11:27] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:11:27] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:11:27] INFO: Accepted new connection on fd 6
+[2025-05-27 11:11:45] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:15:57] INFO: Server starting up
+[2025-05-27 11:15:57] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:15:57] INFO: Initializing server with 1 configurations
+[2025-05-27 11:15:57] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:15:57] INFO: Server configuration loaded successfully
+[2025-05-27 11:15:57] INFO: Server started and ready to accept connections
+[2025-05-27 11:16:01] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:19:54] INFO: Server starting up
+[2025-05-27 11:19:54] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:19:54] INFO: Initializing server with 1 configurations
+[2025-05-27 11:19:54] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:19:54] INFO: Server configuration loaded successfully
+[2025-05-27 11:19:54] INFO: Server started and ready to accept connections
+[2025-05-27 11:20:01] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:21:36] INFO: Server starting up
+[2025-05-27 11:21:36] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:21:36] INFO: Initializing server with 1 configurations
+[2025-05-27 11:21:36] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:21:36] INFO: Server configuration loaded successfully
+[2025-05-27 11:21:36] INFO: Server started and ready to accept connections
+[2025-05-27 11:21:58] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:22:02] INFO: Server starting up
+[2025-05-27 11:22:02] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:22:02] INFO: Initializing server with 1 configurations
+[2025-05-27 11:22:02] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:22:02] INFO: Server configuration loaded successfully
+[2025-05-27 11:22:02] INFO: Server started and ready to accept connections
+[2025-05-27 11:22:34] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:23:25] INFO: Server starting up
+[2025-05-27 11:23:25] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:23:25] INFO: Initializing server with 1 configurations
+[2025-05-27 11:23:25] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:23:25] INFO: Server configuration loaded successfully
+[2025-05-27 11:23:25] INFO: Server started and ready to accept connections
+[2025-05-27 11:23:48] INFO: Accepted new connection on fd 5
+[2025-05-27 11:23:48] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:23:48] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:23:48] DEBUG: Sent 0 bytes to client 5
+[2025-05-27 11:23:48] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:23:48] DEBUG: Sent full response to client 5
+[2025-05-27 11:23:48] INFO: Accepted new connection on fd 6
+[2025-05-27 11:24:06] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:34:12] INFO: Server starting up
+[2025-05-27 11:34:12] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:34:12] INFO: Initializing server with 1 configurations
+[2025-05-27 11:34:12] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:34:12] INFO: Server configuration loaded successfully
+[2025-05-27 11:34:12] INFO: Server started and ready to accept connections
+[2025-05-27 11:34:15] INFO: Accepted new connection on fd 5
+[2025-05-27 11:34:15] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:34:15] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:34:15] DEBUG: Attempting to send 0 bytes to client 5
+[2025-05-27 11:34:15] DEBUG: Sent 0 bytes to client 5
+[2025-05-27 11:34:15] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:34:15] DEBUG: Sent full response to client 5
+[2025-05-27 11:34:15] INFO: Accepted new connection on fd 6
+[2025-05-27 11:34:19] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:35:04] INFO: Server starting up
+[2025-05-27 11:35:04] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:35:04] INFO: Initializing server with 1 configurations
+[2025-05-27 11:35:04] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:35:04] INFO: Server configuration loaded successfully
+[2025-05-27 11:35:04] INFO: Server started and ready to accept connections
+[2025-05-27 11:35:07] INFO: Accepted new connection on fd 5
+[2025-05-27 11:35:07] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:35:07] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:35:07] DEBUG: Client buffer content: 
+[2025-05-27 11:35:07] DEBUG: Attempting to send 0 bytes to client 5
+[2025-05-27 11:35:07] DEBUG: Sent 0 bytes to client 5
+[2025-05-27 11:35:07] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:35:07] DEBUG: Sent full response to client 5
+[2025-05-27 11:35:07] INFO: Accepted new connection on fd 6
+[2025-05-27 11:35:09] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:36:19] INFO: Server starting up
+[2025-05-27 11:36:19] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:36:19] INFO: Initializing server with 1 configurations
+[2025-05-27 11:36:19] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:36:19] INFO: Server configuration loaded successfully
+[2025-05-27 11:36:19] INFO: Server started and ready to accept connections
+[2025-05-27 11:36:22] INFO: Accepted new connection on fd 5
+[2025-05-27 11:36:22] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:36:22] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:36:22] DEBUG: Prepared response for client 5, buffer size: 1636
+[2025-05-27 11:36:22] DEBUG: Sent 0 bytes to client 5
+[2025-05-27 11:36:22] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:36:22] DEBUG: Sent full response to client 5
+[2025-05-27 11:36:22] INFO: Accepted new connection on fd 6
+[2025-05-27 11:36:24] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:36:50] INFO: Server starting up
+[2025-05-27 11:36:50] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:36:50] INFO: Initializing server with 1 configurations
+[2025-05-27 11:36:50] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:36:50] INFO: Server configuration loaded successfully
+[2025-05-27 11:36:50] INFO: Server started and ready to accept connections
+[2025-05-27 11:36:52] INFO: Accepted new connection on fd 5
+[2025-05-27 11:36:52] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:36:52] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:36:52] DEBUG: Prepared response for client 5, buffer size: 1636
+[2025-05-27 11:36:52] DEBUG: Buffer content: HTTP/1.1 200 OK
+Connection: keep-alive
+Content-Length: 1524
+Content-Type: text/html
+Content-Length: 1524
+
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<title>WEBSERV</title>
+	<meta charset="utf-8">
+	<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body>
+
+	<link rel="icon" href="/image/favicon.ico" type="image/png">
+
+	<!-- Header -->
+	<header id="header">
+		<div class="inner">
+			<nav id="nav"><a href="index.html">Home</a>
+				<a href="generic.html">Generic</a>
+
+		</div>
+	</header><!-- Banner -->
+	<section id="banner">
+		<div class="inner">
+			<header>
+				<h1>WEBSERV</h1>
+			</header>
+			<div class="flex ">
+
+				<div>
+
+					<h3>GET</h3>
+					<p> Is used to retrieve data on a server</p>
+					<a href="#" class="button">TRY IT</a>
+				</div>
+
+				<div>
+
+					<h3>POST</h3>
+					<p>Is used to create new resources.</p>
+					<a href="#" class="button">TRY IT</a>
+				</div>
+
+				<div>
+
+					<h3>DELETE</h3>
+					<p>Is used to remove data from a database</p>
+					<a href="#" class="button">TRY IT</a>
+				</div>
+				<div>
+					<h3>UPLOAD</h3>
+					<p>Upload a file to the server.</p>
+					<form action="/upload" method="POST" enctype="multipart/form-data">
+						<input type="file" name="file" required><br><br>
+						<input type="submit" value="Upload" class="button">
+					</form>
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<footer>
+				<div class="inner">
+					<p>&copy; 2025 WEBSERV. All rights reserved.</p>
+				</div>
+			</footer>
+		</div>
+
+[2025-05-27 11:36:52] INFO: Accepted new connection on fd 6
+[2025-05-27 11:36:52] DEBUG: Sent 0 bytes to client 5
+[2025-05-27 11:36:52] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:36:52] DEBUG: Sent full response to client 5
+[2025-05-27 11:36:54] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:42:36] INFO: Server starting up
+[2025-05-27 11:42:36] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:42:36] INFO: Initializing server with 1 configurations
+[2025-05-27 11:42:36] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:42:36] INFO: Server configuration loaded successfully
+[2025-05-27 11:42:36] INFO: Server started and ready to accept connections
+[2025-05-27 11:42:39] INFO: Accepted new connection on fd 5
+[2025-05-27 11:42:39] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:42:39] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:42:39] DEBUG: Sent 0 bytes to client 5
+[2025-05-27 11:42:39] DEBUG: Buffer size: 0, buffer content: 
+[2025-05-27 11:42:39] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:42:39] DEBUG: Sent full response to client 5
+[2025-05-27 11:42:39] INFO: Accepted new connection on fd 6
+[2025-05-27 11:42:41] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:43:11] INFO: Server starting up
+[2025-05-27 11:43:11] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:43:11] INFO: Initializing server with 1 configurations
+[2025-05-27 11:43:11] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:43:11] INFO: Server configuration loaded successfully
+[2025-05-27 11:43:11] INFO: Server started and ready to accept connections
+[2025-05-27 11:43:13] INFO: Accepted new connection on fd 5
+[2025-05-27 11:43:13] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:43:13] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:43:13] DEBUG: Sent 0 bytes to client 5
+[2025-05-27 11:43:13] DEBUG: Buffer size: 0, buffer content: 
+[2025-05-27 11:43:13] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:43:13] DEBUG: Sent full response to client 5
+[2025-05-27 11:43:13] INFO: Accepted new connection on fd 6
+[2025-05-27 11:43:15] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:43:34] INFO: Server starting up
+[2025-05-27 11:43:34] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:43:34] INFO: Initializing server with 1 configurations
+[2025-05-27 11:43:34] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:43:34] INFO: Server configuration loaded successfully
+[2025-05-27 11:43:34] INFO: Server started and ready to accept connections
+[2025-05-27 11:43:36] INFO: Accepted new connection on fd 5
+[2025-05-27 11:43:36] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:43:36] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:43:36] INFO: Accepted new connection on fd 6
+[2025-05-27 11:43:36] DEBUG: Sent 0 bytes to client 5
+[2025-05-27 11:43:36] DEBUG: Buffer size: 0, buffer content: 
+[2025-05-27 11:43:36] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:43:36] DEBUG: Sent full response to client 5
+[2025-05-27 11:43:37] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:44:50] INFO: Server starting up
+[2025-05-27 11:44:50] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:44:50] INFO: Initializing server with 1 configurations
+[2025-05-27 11:44:50] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:44:50] INFO: Server configuration loaded successfully
+[2025-05-27 11:44:50] INFO: Server started and ready to accept connections
+[2025-05-27 11:44:52] INFO: Accepted new connection on fd 5
+[2025-05-27 11:44:52] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:44:52] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:44:52] DEBUG: Buffer size: 0, buffer content: 
+[2025-05-27 11:44:52] DEBUG: Sent 0 bytes to client 5
+[2025-05-27 11:44:52] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:44:52] DEBUG: Sent full response to client 5
+[2025-05-27 11:44:52] INFO: Accepted new connection on fd 6
+[2025-05-27 11:44:55] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:47:25] INFO: Server starting up
+[2025-05-27 11:47:25] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:47:25] INFO: Initializing server with 1 configurations
+[2025-05-27 11:47:25] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:47:25] INFO: Server configuration loaded successfully
+[2025-05-27 11:47:25] INFO: Server started and ready to accept connections
+[2025-05-27 11:47:27] INFO: Accepted new connection on fd 5
+[2025-05-27 11:47:27] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:47:27] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:47:27] DEBUG: Sent 1636 bytes to client 5
+[2025-05-27 11:47:27] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:47:27] DEBUG: Sent full response to client 5
+[2025-05-27 11:47:27] INFO: Accepted new connection on fd 6
+[2025-05-27 11:47:27] INFO: Received request: GET /assets/css/main.css HTTP/1.1
+[2025-05-27 11:47:27] INFO: 200 OK: www/assets/css/main.css (text/css)
+[2025-05-27 11:47:27] DEBUG: Sent 2310 bytes to client 5
+[2025-05-27 11:47:27] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:47:27] DEBUG: Sent full response to client 5
+[2025-05-27 11:47:27] INFO: Received request: GET /favicon.ico HTTP/1.1
+[2025-05-27 11:47:27] INFO: 200 OK: www/favicon.ico (application/octet-stream)
+[2025-05-27 11:47:27] DEBUG: Sent 5396 bytes to client 5
+[2025-05-27 11:47:27] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:47:27] DEBUG: Sent full response to client 5
+[2025-05-27 11:47:29] INFO: Received request: GET /generic.html HTTP/1.1
+[2025-05-27 11:47:29] INFO: 200 OK: www/generic.html (text/html)
+[2025-05-27 11:47:29] DEBUG: Sent 1757 bytes to client 5
+[2025-05-27 11:47:29] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:47:29] DEBUG: Sent full response to client 5
+[2025-05-27 11:47:29] INFO: Received request: GET /assets/css/main.css HTTP/1.1
+[2025-05-27 11:47:29] INFO: 200 OK: www/assets/css/main.css (text/css)
+[2025-05-27 11:47:29] DEBUG: Sent 2310 bytes to client 5
+[2025-05-27 11:47:29] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:47:29] DEBUG: Sent full response to client 5
+[2025-05-27 11:47:29] INFO: Received request: GET /assets/css/generic.css HTTP/1.1
+[2025-05-27 11:47:29] INFO: 200 OK: www/assets/css/generic.css (text/css)
+[2025-05-27 11:47:29] DEBUG: Sent 1112 bytes to client 5
+[2025-05-27 11:47:29] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:47:29] DEBUG: Sent full response to client 5
+[2025-05-27 11:47:37] INFO: Received request: POST /upload HTTP/1.1
+[2025-05-27 11:47:37] DEBUG: Sent 201 bytes to client 5
+[2025-05-27 11:47:37] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:47:37] DEBUG: Sent full response to client 5
+[2025-05-27 11:47:38] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:47:38] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:47:38] DEBUG: Sent 1636 bytes to client 5
+[2025-05-27 11:47:38] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:47:38] DEBUG: Sent full response to client 5
+[2025-05-27 11:47:38] INFO: Received request: GET /assets/css/main.css HTTP/1.1
+[2025-05-27 11:47:38] INFO: 200 OK: www/assets/css/main.css (text/css)
+[2025-05-27 11:47:38] DEBUG: Sent 2310 bytes to client 5
+[2025-05-27 11:47:38] DEBUG: Trimmed buffer for client 5, new size: 0
+[2025-05-27 11:47:38] DEBUG: Sent full response to client 5
+[2025-05-27 11:47:45] INFO: SIGINT received. Shutting down the server...
+[2025-05-27 11:56:42] INFO: Server starting up
+[2025-05-27 11:56:42] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 11:56:42] INFO: Initializing server with 1 configurations
+[2025-05-27 11:56:42] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 11:56:42] INFO: Server configuration loaded successfully
+[2025-05-27 11:56:42] INFO: Server started and ready to accept connections
+[2025-05-27 11:56:43] INFO: Accepted new connection on fd 5
+[2025-05-27 11:56:43] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:56:43] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:56:43] INFO: Closing connection with client 5
+[2025-05-27 11:56:43] INFO: Accepted new connection on fd 5
+[2025-05-27 11:56:43] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 11:56:43] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:56:43] INFO: Closing connection with client 5
+[2025-05-27 11:56:43] INFO: Accepted new connection on fd 5
+[2025-05-27 11:56:43] INFO: Received request: GET /index.html HTTP/1.1
+[2025-05-27 11:56:43] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 11:56:43] INFO: Closing connection with client 5
+[2025-05-27 11:56:43] INFO: Accepted new connection on fd 5
+[2025-05-27 11:56:43] INFO: Received request: GET /generic.html HTTP/1.1
+[2025-05-27 11:56:43] INFO: 200 OK: www/generic.html (text/html)
+[2025-05-27 11:56:43] INFO: Closing connection with client 5
+[2025-05-27 12:02:18] INFO: Server starting up
+[2025-05-27 12:02:18] INFO: SIGINT handler registered. Press Ctrl+C to stop the server.
+[2025-05-27 12:02:18] INFO: Initializing server with 1 configurations
+[2025-05-27 12:02:18] INFO: Listening on 127.0.0.1:8080
+[2025-05-27 12:02:18] INFO: Server configuration loaded successfully
+[2025-05-27 12:02:18] INFO: Server started and ready to accept connections
+[2025-05-27 12:02:19] INFO: Accepted new connection on fd 5
+[2025-05-27 12:02:19] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 12:02:19] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 12:02:19] INFO: Closing connection with client 5
+[2025-05-27 12:02:19] INFO: Accepted new connection on fd 5
+[2025-05-27 12:02:19] INFO: Received request: GET / HTTP/1.1
+[2025-05-27 12:02:19] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 12:02:19] INFO: Closing connection with client 5
+[2025-05-27 12:02:19] INFO: Accepted new connection on fd 5
+[2025-05-27 12:02:19] INFO: Received request: GET /index.html HTTP/1.1
+[2025-05-27 12:02:19] INFO: 200 OK: www/index.html (text/html)
+[2025-05-27 12:02:19] INFO: Closing connection with client 5
+[2025-05-27 12:02:19] INFO: Accepted new connection on fd 5
+[2025-05-27 12:02:19] INFO: Received request: GET /generic.html HTTP/1.1
+[2025-05-27 12:02:19] INFO: 200 OK: www/generic.html (text/html)
+[2025-05-27 12:02:19] INFO: Closing connection with client 5

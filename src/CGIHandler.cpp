@@ -344,6 +344,6 @@ bool Server::handleCgiRequest(const Request &req, Response &res, const LocationC
 		client.clearBuffer();
 	}
 
-	sendResponse(res, client);
+	makeReadyforSend(res, client);
 	return true;
 }

@@ -93,7 +93,7 @@ void Server::handleClient(Socket &client)
 	if (res.getStatus() == 400)
 	{
 		res.setHeader("Connection", "close");
-		sendResponse(res, client);
+		makeReadyforSend(res, client);
 		return;
 	}
 
@@ -102,7 +102,7 @@ void Server::handleClient(Socket &client)
 	{
 		res.setStatus(400);
 		res.setHeader("Connection", "close");
-		sendResponse(res, client);
+		makeReadyforSend(res, client);
 		return;
 	}
 
@@ -138,7 +138,7 @@ void Server::handleClient(Socket &client)
 	{
 		res.setStatus(505);
 		res.setHeader("Connection", "close");
-		sendResponse(res, client);
+		makeReadyforSend(res, client);
 		return;
 	}
 
@@ -167,7 +167,7 @@ void Server::handleClient(Socket &client)
 			std::ostringstream oss;
 			oss << html.size();
 			res.setHeader("Content-Length", oss.str());
-			sendResponse(res, client);
+			makeReadyforSend(res, client);
 			return;
 		}
 
@@ -210,7 +210,7 @@ void Server::handleClient(Socket &client)
 		res.setHeader("Content-Length", intToStr(html.size()));
 		res.setBody(html);
 
-		sendResponse(res, client);
+		makeReadyforSend(res, client);
 		return;
 	}
 
@@ -221,10 +221,5 @@ void Server::handleClient(Socket &client)
 	else if (method == "DELETE")
 		handleDeleteRequest(res, path);
 
-	bool shouldClose = (res.getHeaderValue("Connection") == "close");
-
-	sendResponse(res, client);
-
-	if (!shouldClose)
-		client.clearBuffer();
+	makeReadyforSend(res, client);
 }

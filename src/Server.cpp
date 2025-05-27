@@ -154,12 +154,13 @@ void Server::run()
 			handleClientTimeouts(); // could be testet with telnet
 			continue;
 		}
-
 		for (size_t i = 0; i < _pollFds.size(); ++i)
 		{
-			if (_pollFds[i].revents & POLLIN)
+			// if (_pollFds[i].revents & POLLIN)
+			if (_pollFds[i].events & _pollFds[i].revents)
 			{
 				int fd = _pollFds[i].fd;
+
 				// Check if socket still exists (could be deleted during previous iteration)
 				std::map<int, Socket>::iterator it = _sockets.find(fd);
 				if (it == _sockets.end())
@@ -168,7 +169,12 @@ void Server::run()
 				if (it->second.getType() == Socket::LISTENING)
 					acceptConnection(it->second);
 				else
-					handleClient(it->second);
+				{
+					if (it->second.getState() == Socket::RECEIVING)
+						handleClient(it->second);
+					else // Socket::SENDING
+						sendResponse(it->second);
+				}
 			}
 		}
 	}
@@ -197,30 +203,72 @@ void Server::printSockets()
 	std::cout << socketInfo.str() << std::endl;
 }
 
-void Server::sendResponse(Response& response, Socket& client)
+// Prepares the buffer that will be sent to the client
+// Historically, this function sent the response to the client, but now it only prepares the buffer
+void Server::makeReadyforSend(Response& response, Socket& client)
 {
-	// Converting the response class to a string
+	// Converting the response class to a string and storing it in the client's buffer
 	std::string string = response.toString();
+	client.clearBuffer();
+	client.appendToBuffer(string.c_str(), string.size());
 
 	// Setting the client state to SENDING
 	client.setState(Socket::SENDING);
 
-	// 
-	client.clearBuffer();
-	client.appendToBuffer(string.c_str(), string.size());
-	ssize_t sent = send(client.getFd(), string.c_str(), string.size(), 0);
-	if (sent == -1) // just to be sure that send does not fail
+	// Changing the pollfd event to POLLOUT
+	pollfd& pfd = findPollFd(client.getFd());
+	pfd.events = POLLOUT;
+	pfd.revents = 0;
+
+	// Preparing connection close if needed
+	if (response.getHeaderValue("Connection") == "close")
+		client.setNeedsToClose(true);
+}
+
+// Sends the response inside the socket's buffer to the client
+void Server::sendResponse(Socket& client)
+{
+	// Sending the response to the client
+	const std::string& buffer = client.getBuffer();
+	ssize_t bufferSize = buffer.size();
+	ssize_t bytesSent = send(client.getFd(), buffer.c_str(), bufferSize, 0);
+	logDebug("Sent " + intToStr(bytesSent) + " bytes to client " + intToStr(client.getFd()));
+
+	// If send failed, delete the client.
+	// (Even though this is not expected, it should not terminate the server, so we don't throw an exception here.)
+	if (bytesSent == -1)
 	{
-		logError("Send failed to client " + intToStr(client.getFd()) + ": " + std::string(strerror(errno)));
-		perror("send failed");
+		logError("Send failed to client " + intToStr(client.getFd()) + ": " + std::string(strerror(errno)) + ", deleting client");
 		deleteClient(client);
-		;
 		return;
 	}
 
-	if (response.getHeaderValue("Connection") == "close")
+	// Trimming the part of the buffer that was sent
+	client.trimBuffer(bytesSent);
+	logDebug("Trimmed buffer for client " + intToStr(client.getFd()) + ", new size: " + intToStr(client.getBuffer().size()));
+
+	// If the buffer was not sent completely, return so that the rest of the response can be sent again later
+	if (bytesSent < bufferSize)
+	{
+		logDebug("Sent partial response to client " + intToStr(client.getFd()) + ", bytes sent: " + intToStr(bytesSent));
+		return;
+	}
+	logDebug("Sent full response to client " + intToStr(client.getFd()));
+
+	// If the client needs to close the connection, delete it
+	if (client.getNeedsToClose())
+	{
+		logInfo("Closing connection for and deleting client " + intToStr(client.getFd()));
 		deleteClient(client);
-	;
+		return;
+	}
+
+	// Resetting the client's buffer and preparing it to receive data again
+	client.clearBuffer();
+	client.setState(Socket::RECEIVING);
+	pollfd& pfd = findPollFd(client.getFd());
+	pfd.events = POLLIN;
+	pfd.revents = 0;
 }
 
 // Returns the first serverConfig from the list that matches IP and port
