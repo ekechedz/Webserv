@@ -71,6 +71,16 @@ int Socket::getPort() const
 {
 	return _port;
 }
+bool Socket::getNeedsToClose() const
+{
+	return _needsToClose;
+}
+Socket::State Socket::getState() const
+{
+	return _state;
+}
+
+
 
 void Socket::appendToBuffer(const char* data, size_t len) {
     _buffer.append(data, len);
@@ -100,6 +110,26 @@ void Socket::setFD(const int newFD)
 {
 	_fd = newFD;
 }
+void Socket::setState(State newState)
+{
+	_state = newState;
+}
+void Socket::setNeedsToClose(bool needsToClose)
+{
+	_needsToClose = needsToClose;
+}
+void Socket::trimBuffer(size_t len)
+{
+	if (len < _buffer.size())
+	{
+		_buffer.erase(0, len);
+	}
+	else
+	{
+		clearBuffer();
+	}
+}
+
 
 std::ostream& operator<<(std::ostream& lhs, const Socket& rhs)
 {
