@@ -27,27 +27,6 @@
 				<h1>WEBSERV</h1>
 			</header>
 			<div class="flex ">
-
-				<div>
-
-					<h3>GET</h3>
-					<p> Is used to retrieve data on a server</p>
-					<a href="#" class="button">TRY IT</a>
-				</div>
-
-				<div>
-
-					<h3>POST</h3>
-					<p>Is used to create new resources.</p>
-					<a href="#" class="button">TRY IT</a>
-				</div>
-
-				<div>
-
-					<h3>DELETE</h3>
-					<p>Is used to remove data from a database</p>
-					<a href="#" class="button">TRY IT</a>
-				</div>
 				<div>
 					<h3>UPLOAD</h3>
 					<p>Upload a file to the server.</p>
@@ -56,6 +35,33 @@
 						<input type="submit" value="Upload" class="button">
 					</form>
 				</div>
+				<!-- ...existing code... -->
+				<div>
+					<h3>DELETE</h3>
+					<p>Delete a file from the server.</p>
+					<form id="deleteForm">
+						<input type="text" id="filename" name="filename" placeholder="Enter filename" required><br><br>
+						<input type="submit" value="Delete" class="button" style="background-color: #e74c3c;">
+					</form>
+					<div id="deleteResult"></div>
+				</div>
+				<!-- ...existing code... -->
+				
+				<script>
+				document.getElementById('deleteForm').addEventListener('submit', async function(e) {
+					e.preventDefault();
+					const filename = document.getElementById('filename').value;
+					const response = await fetch('/upload/' + encodeURIComponent(filename), {
+						method: 'DELETE'
+					});
+					const resultDiv = document.getElementById('deleteResult');
+					if (response.ok) {
+						resultDiv.textContent = 'File deleted successfully.';
+					} else {
+						resultDiv.textContent = 'Failed to delete file.';
+					}
+				});
+				</script>
 			</div>
 
 			<!-- Footer -->

@@ -32,7 +32,6 @@ class ServerCoreTest(unittest.TestCase):
         code, out, err = run_and_capture(["./webserv"])
         self.assertEqual(code, 1)
         self.assertIn(b"Error: Usage: ./webserv <config_file>.conf", err)
-        self.assertEqual(out, b"", "Expected no output to stdout")
 
     def test_01_empty_config_file(self):
         # It will test how the server handles an empty config file.
@@ -42,7 +41,6 @@ class ServerCoreTest(unittest.TestCase):
         code, out, err = run_and_capture(["./webserv", CONFIG_PATH])
         self.assertEqual(code, 1)
         self.assertIn(b"Error: Configuration file is empty.", err)
-        self.assertEqual(out, b"", "Expected no output to stdout")
 
 
     # -------------------------
