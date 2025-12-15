@@ -1,6 +1,6 @@
 # Webserv
 
-**Webserv** is a lightweight HTTP server written in C++98, built from scratch as part of the 42 school curriculum. It is already capable of serving static websites and handling basic HTTP requests, but it is still under active development and subject to change.
+**Webserv** is a lightweight HTTP server written in C++98, built from scratch as part of the 42 school curriculum.
 
 ## 🚀 Features
 
